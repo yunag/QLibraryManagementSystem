@@ -1,0 +1,371 @@
+SET
+  AUTOCOMMIT = 0;
+
+
+INSERT INTO
+  category (name)
+VALUES
+  ('Fiction'),
+  ('Non-Fiction'),
+  ('Science Fiction'),
+  ('Fantasy'),
+  ('Mystery'),
+  ('Thriller'),
+  ('Romance'),
+  ('Biography'),
+  ('History'),
+  ('Self-Help'),
+  ('Cooking'),
+  ('Travel'),
+  ('Art'),
+  ('Science'),
+  ('Technology');
+
+
+COMMIT;
+
+
+SET
+  AUTOCOMMIT = 0;
+
+
+INSERT INTO
+  author (first_name, last_name)
+VALUES
+  ('Chinua', 'Achebe'),
+  ('Dante', 'Alighieri'),
+  ('Jane', 'Austen'),
+  ('Samuel', 'Beckett'),
+  ('Giovanni', 'Boccaccio'),
+  ('Emily', 'Brontë'),
+  ('Albert', 'Camus'),
+  ('Paul', 'Celan'),
+  ('Louis-Ferdinand', 'Céline'),
+  ('Geoffrey', 'Chaucer'),
+  ('Anton', 'Chekhov'),
+  ('Joseph', 'Conrad'),
+  ('Charles', 'Dickens'),
+  ('Denis', 'Diderot'),
+  ('Alfred', 'Döblin'),
+  ('Fyodor', 'Dostoevsky'),
+  ('George', 'Eliot'),
+  ('Ralph', 'Ellison'),
+  ('William', 'Faulkner'),
+  ('Gustave', 'Flaubert'),
+  ('Nikolai', 'Gogol'),
+  ('Günter', 'Grass'),
+  ('Knut', 'Hamsun'),
+  ('Ernest', 'Hemingway'),
+  ('Henrik', 'Ibsen'),
+  ('James', 'Joyce'),
+  ('Franz', 'Kafka'),
+  ('Yasunari', 'Kawabata'),
+  ('Nikos', 'Kazantzakis'),
+  ('Halldór', 'Laxness'),
+  ('Giacomo', 'Leopardi'),
+  ('Doris', 'Lessing'),
+  ('Astrid', 'Lindgren'),
+  ('Lu', 'Xun'),
+  ('Naguib', 'Mahfouz'),
+  ('Thomas', 'Mann'),
+  ('Herman', 'Melville'),
+  ('Elsa', 'Morante'),
+  ('Toni', 'Morrison'),
+  ('Murasaki', 'Shikibu'),
+  ('Robert', 'Musil'),
+  ('Vladimir', 'Nabokov'),
+  ('George', 'Orwell'),
+  ('Fernando', 'Pessoa'),
+  ('Marcel', 'Proust'),
+  ('François', 'Rabelais'),
+  ('Juan', 'Rulfo'),
+  ('Salman', 'Rushdie'),
+  ('Tayeb', 'Salih'),
+  ('José', 'Saramago'),
+  ('William', 'Shakespeare'),
+  ('Laurence', 'Sterne'),
+  ('Italo', 'Svevo'),
+  ('Jonathan', 'Swift'),
+  ('Leo', 'Tolstoy'),
+  ('Mark', 'Twain'),
+  ('Walt', 'Whitman'),
+  ('Virginia', 'Woolf'),
+  ('Marguerite', 'Yourcenar');
+
+
+COMMIT;
+
+
+SET
+  AUTOCOMMIT = 0;
+
+
+INSERT INTO
+  book (title, publication_date, copies_owned)
+VALUES
+  ('Things Fall Apart', '1958-01-01', 78),
+  ('The Divine Comedy', '1315-01-01', 87),
+  ('Pride and Prejudice', '1813-01-01', 91),
+  (
+    'Molloy, Malone Dies, The Unnamable, the trilogy',
+    '1952-01-01',
+    72
+  ),
+  ('The Decameron', '1351-01-01', 72),
+  ('Wuthering Heights', '1847-01-01', 62),
+  ('The Stranger', '1942-01-01', 52),
+  ('Poems', '1952-01-01', 18),
+  (
+    'Journey to the End of the Night',
+    '1932-01-01',
+    19
+  ),
+  ('The Canterbury Tales', '1450-01-01', 75),
+  ('Stories', '1886-01-01', 78),
+  ('Nostromo', '1904-01-01', 84),
+  ('Great Expectations', '1861-01-01', 6),
+  ('Jacques the Fatalist', '1796-01-01', 99),
+  ('Berlin Alexanderplatz', '1929-01-01', 81),
+  ('Crime and Punishment', '1866-01-01', 56),
+  ('The Idiot', '1869-01-01', 17),
+  ('The Possessed', '1872-01-01', 74),
+  ('The Brothers Karamazov', '1880-01-01', 45),
+  ('Middlemarch', '1871-01-01', 36),
+  ('Invisible Man', '1952-01-01', 28),
+  ('Absalom, Absalom!', '1936-01-01', 41),
+  ('The Sound and the Fury', '1929-01-01', 23),
+  ('Madame Bovary', '1857-01-01', 54),
+  ('Sentimental Education', '1869-01-01', 5),
+  ('Dead Souls', '1842-01-01', 39),
+  ('The Tin Drum', '1959-01-01', 64),
+  ('Hunger', '1890-01-01', 43),
+  ('The Old Man and the Sea', '1952-01-01', 89),
+  ('A Doll''s House', '1879-01-01', 5),
+  ('Ulysses', '1922-01-01', 10),
+  ('Stories', '1924-01-01', 17),
+  ('The Trial', '1925-01-01', 59),
+  ('The Castle', '1926-01-01', 26),
+  ('The Sound of the Mountain', '1954-01-01', 10),
+  ('Zorba the Greek', '1946-01-01', 13),
+  ('Independent People', '1934-01-01', 36),
+  ('Poems', '1818-01-01', 84),
+  ('The Golden Notebook', '1962-01-01', 81),
+  ('Pippi Longstocking', '1945-01-01', 37),
+  ('Diary of a Madman', '1918-01-01', 92),
+  ('Children of Gebelawi', '1959-01-01', 15),
+  ('Buddenbrooks', '1901-01-01', 9),
+  ('The Magic Mountain', '1924-01-01', 46),
+  ('Moby Dick', '1851-01-01', 57),
+  ('History', '1974-01-01', 46),
+  ('Beloved', '1987-01-01', 95),
+  ('The Tale of Genji', '1006-01-01', 87),
+  ('The Man Without Qualities', '1931-01-01', 55),
+  ('Lolita', '1955-01-01', 84),
+  ('Nineteen Eighty-Four', '1949-01-01', 31),
+  ('The Book of Disquiet', '1928-01-01', 86),
+  ('In Search of Lost Time', '1920-01-01', 52),
+  ('Gargantua and Pantagruel', '1533-01-01', 76),
+  ('Pedro Páramo', '1955-01-01', 67),
+  ('Midnight''s Children', '1981-01-01', 59),
+  (
+    'Season of Migration to the North',
+    '1966-01-01',
+    14
+  ),
+  ('Blindness', '1995-01-01', 13),
+  ('Hamlet', '1603-01-01', 94),
+  ('King Lear', '1608-01-01', 9),
+  ('Othello', '1609-01-01', 45),
+  (
+    'The Life And Opinions of Tristram Shandy',
+    '1760-01-01',
+    50
+  ),
+  ('Confessions of Zeno', '1923-01-01', 71),
+  ('Gulliver''s Travels', '1726-01-01', 63),
+  ('War and Peace', '1867-01-01', 67),
+  ('Anna Karenina', '1877-01-01', 55),
+  ('The Death of Ivan Ilyich', '1886-01-01', 48),
+  (
+    'The Adventures of Huckleberry Finn',
+    '1884-01-01',
+    19
+  ),
+  ('Leaves of Grass', '1855-01-01', 88),
+  ('Mrs Dalloway', '1925-01-01', 62),
+  ('To the Lighthouse', '1927-01-01', 72),
+  ('Memoirs of Hadrian', '1951-01-01', 87);
+
+
+COMMIT;
+
+
+SET
+  AUTOCOMMIT = 0;
+
+
+INSERT INTO
+  book_author (book_id, author_id)
+VALUES
+  (1, 1),
+  (2, 2),
+  (3, 3),
+  (4, 4),
+  (5, 5),
+  (6, 6),
+  (7, 7),
+  (8, 8),
+  (9, 9),
+  (10, 10),
+  (11, 11),
+  (12, 12),
+  (13, 13),
+  (14, 14),
+  (15, 15),
+  (16, 16),
+  (17, 16),
+  (18, 16),
+  (19, 16),
+  (20, 17),
+  (21, 18),
+  (22, 19),
+  (23, 19),
+  (24, 20),
+  (25, 20),
+  (26, 21),
+  (27, 22),
+  (28, 23),
+  (29, 24),
+  (30, 25),
+  (31, 26),
+  (32, 27),
+  (33, 27),
+  (34, 27),
+  (35, 28),
+  (36, 29),
+  (37, 30),
+  (38, 31),
+  (39, 32),
+  (40, 33),
+  (41, 34),
+  (42, 35),
+  (43, 36),
+  (44, 36),
+  (45, 37),
+  (46, 38),
+  (47, 39),
+  (48, 40),
+  (49, 41),
+  (50, 42),
+  (51, 43),
+  (52, 44),
+  (53, 45),
+  (54, 46),
+  (55, 47),
+  (56, 48),
+  (57, 49),
+  (58, 50),
+  (59, 51),
+  (60, 51),
+  (61, 51),
+  (62, 52),
+  (63, 53),
+  (64, 54),
+  (65, 55),
+  (66, 55),
+  (67, 55),
+  (68, 56),
+  (69, 57),
+  (70, 58),
+  (71, 58),
+  (72, 59);
+
+
+COMMIT;
+
+
+SET
+  AUTOCOMMIT = 0;
+
+
+INSERT INTO
+  book_category (book_id, category_id)
+VALUES
+  (1, 1),
+  (2, 2),
+  (3, 3),
+  (4, 4),
+  (5, 5),
+  (5, 6),
+  (6, 6),
+  (6, 7),
+  (7, 7),
+  (7, 8),
+  (8, 8),
+  (9, 9),
+  (10, 10),
+  (11, 11),
+  (12, 13),
+  (13, 4),
+  (14, 5),
+  (15, 6),
+  (16, 7),
+  (17, 8),
+  (18, 9),
+  (19, 1),
+  (20, 2),
+  (21, 3),
+  (22, 4),
+  (23, 5),
+  (24, 6),
+  (25, 7),
+  (26, 8),
+  (27, 9),
+  (28, 1),
+  (29, 2),
+  (30, 3),
+  (31, 4),
+  (32, 5),
+  (33, 6),
+  (34, 7),
+  (35, 8),
+  (36, 14),
+  (37, 1),
+  (38, 2),
+  (39, 3),
+  (40, 4),
+  (41, 5),
+  (42, 6),
+  (43, 7),
+  (44, 8),
+  (45, 9),
+  (46, 1),
+  (47, 12),
+  (48, 13),
+  (49, 14),
+  (50, 15),
+  (51, 6),
+  (52, 7),
+  (53, 8),
+  (54, 9),
+  (55, 10),
+  (56, 2),
+  (57, 13),
+  (58, 4),
+  (59, 5),
+  (60, 6),
+  (61, 7),
+  (62, 8),
+  (63, 9),
+  (64, 1),
+  (65, 2),
+  (66, 3),
+  (67, 4),
+  (68, 15),
+  (69, 6),
+  (70, 7),
+  (71, 8),
+  (72, 9);
+
+
+COMMIT;

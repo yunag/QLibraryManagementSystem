@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/images/LibraryBackground.jpg</file>
+        <file>resources/images/LibraryLogo.png</file>
+        <file>resources/images/DefaultBook.png</file>
+        <file>resources/images/TrashCanClosed.png</file>
+        <file>resources/images/MasterAndMargaritaCover.webp</file>
+        <file>resources/images/MasterAndMargaritaCover.jpg</file>
+        <file>resources/images/LapaVButylkeCover.jpg</file>
+        <file>resources/images/MartinIdenCover.jpg</file>
+        <file>resources/images/Metro2033Cover.jpg</file>
+        <file>resources/images/GoreOtUmaCover.jpg</file>
+    </qresource>
+</RCC>
