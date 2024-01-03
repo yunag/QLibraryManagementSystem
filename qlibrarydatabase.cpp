@@ -98,7 +98,7 @@ QFuture<QLibraryTable> QLibraryDatabase::exec(const QString &cmd) {
 
     int rowIndex = 0;
     while (query.next()) {
-      TableRow row;
+      QTableRow row;
       row.data.reserve(query.record().count());
       row.index = rowIndex++;
 
