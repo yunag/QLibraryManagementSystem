@@ -20,7 +20,6 @@ BookSection::BookSection(QLibraryDatabase &db, QWidget *parent)
 
   m_pageLoading = false;
   m_currentPage = 0;
-  m_booksCount = 0;
 
   QListWidget *bookList = ui->booksListWidget;
 
@@ -43,6 +42,8 @@ BookSection::BookSection(QLibraryDatabase &db, QWidget *parent)
 
   ui->searchLineEdit->setClearButtonEnabled(true);
 
+  connect(this, &BookSection::synchronized, this,
+          &BookSection::synchronizedHandle, Qt::QueuedConnection);
   connect(this, &BookSection::itemProcessed, this,
           &BookSection::itemProcessedHandler, Qt::QueuedConnection);
   connect(this, &BookSection::pageDone, this, &BookSection::pageDoneHandler,
@@ -123,7 +124,9 @@ void BookSection::updateNumberOfBooks() {
       "SELECT count(*) AS number_of_books FROM book_author_vw AS ba %1";
   QString conditions = applyConditions();
 
-  QLibraryDatabase::Table table = m_database.exec(cmd.arg(conditions)).result();
+  QPromise<quint32> promise;
+
+  QLibraryTable table = m_database.exec(cmd.arg(conditions)).result();
 
   if (table.size()) {
     m_booksCount = table[0].data[0].toUInt();
@@ -150,7 +153,7 @@ bool BookSection::loadPage(qint32 pageNumber) {
   QString conditions = applyConditions();
 
   /* FIXME: Only for testing purposes. Remove it later */
-  const QList<QString> paths = {
+  static const QList<QString> paths = {
       ":/resources/images/MasterAndMargaritaCover.jpg",
       ":/resources/images/MartinIdenCover.jpg",
       ":/resources/images/LapaVButylkeCover.jpg",
@@ -168,9 +171,13 @@ bool BookSection::loadPage(qint32 pageNumber) {
   m_pageLoading = true;
 
   m_database.exec(cmd.arg(conditions, limit, offset))
-      .then([this, paths = std::move(paths)](QLibraryDatabase::Table table) {
-        QtConcurrent::blockingMap(table, [this, paths = std::move(paths)](
-                                             QLibraryDatabase::TableRow &row) {
+      .then([this](QLibraryTable table) {
+        Q_ASSERT(table.size() <= itemsPerPage);
+
+        QSharedPointer<QLibraryTable> ptable(
+            new QLibraryTable(std::move(table)));
+
+        QtConcurrent::map(*ptable, [this, ptable](QTableRow &row) {
           int randPathIndex =
               QRandomGenerator::global()->bounded(0, paths.size());
           QPixmap cover(paths[randPathIndex]);
@@ -182,11 +189,12 @@ bool BookSection::loadPage(qint32 pageNumber) {
 
           emit itemProcessed(row.index, cover, book_id, title, category,
                              author);
-        });
-
-        emit pageDone(table.size());
+        }).then([this, ptable]() { emit pageDone(ptable->size()); });
       });
 
+  /* FIX: Move cursor will sometimes select text in Book Card. This line hides
+   * this */
+  setFocus();
   return true;
 }
 
@@ -205,8 +213,18 @@ void BookSection::loadBooks() {
 }
 
 void BookSection::synchronizeNowButtonClicked() {
-  m_currentPage = 0;
-  loadBooks();
+  m_database.reopen().then([this](bool ok) {
+    if (ok) {
+      emit synchronized();
+    }
+  });
+
+  updateLastSync();
+}
+
+void BookSection::synchronizedHandle() {
+  updateNumberOfBooks();
+  loadPage(m_currentPage);
 }
 
 void BookSection::nextPageButtonClicked() {
@@ -240,28 +258,27 @@ void BookSection::searchTextReturnPressed() {
 
 void BookSection::distributeGridSize() {
   QListWidget *bookList = ui->booksListWidget;
+  Q_ASSERT(bookList->count() > 0);
 
-  if (bookList->count() > 0) {
-    QWidget *item =
-        ui->booksListWidget->itemWidget(ui->booksListWidget->item(0));
+  QWidget *item = bookList->itemWidget(bookList->item(0));
 
-    int itemHeight = item->height();
-    int itemWidth = item->width();
-    int viewportWidth = bookList->viewport()->width();
+  int itemWidth = item->sizeHint().width();
+  int itemHeight = item->sizeHint().height();
 
-    int numItemsInRow = viewportWidth / itemWidth;
+  int viewportWidth =
+      bookList->width() - bookList->verticalScrollBar()->width();
 
-    if (numItemsInRow) {
-      int totalItemsWidth = numItemsInRow * itemWidth;
+  int numItemsInRow = viewportWidth / itemWidth;
+  if (numItemsInRow) {
+    int totalItemsWidth = numItemsInRow * itemWidth;
 
-      int remaindedWidth = viewportWidth - totalItemsWidth;
-      int evenlyDistributedWidth = remaindedWidth / numItemsInRow;
+    int remaindedWidth = viewportWidth - totalItemsWidth;
+    int evenlyDistributedWidth = remaindedWidth / numItemsInRow;
 
-      const int extraHOffset = 5;
-      const int extraVSpace = 6;
-      QSize newGridSize(itemWidth + evenlyDistributedWidth - extraHOffset,
-                        itemHeight + extraVSpace);
-      bookList->setGridSize(newGridSize);
-    }
+    const int extraHOffset = 5;
+    const int extraVSpace = 6;
+    QSize newGridSize(itemWidth + evenlyDistributedWidth - extraHOffset,
+                      itemHeight + extraVSpace);
+    bookList->setGridSize(newGridSize);
   }
 }

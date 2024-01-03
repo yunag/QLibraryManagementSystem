@@ -15,6 +15,7 @@ public:
   ~BookCard();
 
   void setCover(const QPixmap &pixmap);
+  QSize coverSize();
 
   void setTitle(const QString &title);
   QString title();

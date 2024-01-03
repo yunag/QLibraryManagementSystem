@@ -20,6 +20,8 @@ void BookCard::setCover(const QPixmap &pixmap) {
   ui->bookCoverLabel->setPixmap(pixmap.scaled(w, h));
 }
 
+QSize BookCard::coverSize() { return ui->bookCoverLabel->size(); }
+
 void BookCard::setTitle(const QString &title) {
   lineEditSetTextMoveCursor(ui->titleLineEdit, title);
 }

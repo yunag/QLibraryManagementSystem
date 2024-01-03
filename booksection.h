@@ -44,17 +44,19 @@ private:
   bool isStartPage(qint32 pageNumber);
 
 signals:
+  void synchronized();
   void itemProcessed(quint32 itemNumber, const QPixmap &cover, quint32 book_id,
                      const QString &title, const QString &category,
                      const QString &author);
   void pageDone(quint32 itemNumber);
 
-public slots:
+private slots:
   void synchronizeNowButtonClicked();
   void searchTextReturnPressed();
   void nextPageButtonClicked();
   void prevPageButtonClicked();
 
+  void synchronizedHandle();
   void pageDoneHandler(quint32 itemNumber);
   void itemProcessedHandler(quint32 itemNumber, const QPixmap &cover,
                             quint32 book_id, const QString &title,

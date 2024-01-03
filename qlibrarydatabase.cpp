@@ -60,6 +60,12 @@ QFuture<bool> QLibraryDatabase::open(const QString &dbname,
       });
 }
 
+QFuture<bool> QLibraryDatabase::reopen() {
+  return QtConcurrent::run(&m_pool, []() -> bool {
+    return QSqlDatabase::database(threadToConnectionName()).open();
+  });
+}
+
 QFuture<QSqlError> QLibraryDatabase::lastError() {
   return QtConcurrent::run(&m_pool, []() -> QSqlError {
     qDebug() << "lastError:" << QThread::currentThread();
@@ -68,12 +74,12 @@ QFuture<QSqlError> QLibraryDatabase::lastError() {
   });
 }
 
-QFuture<QLibraryDatabase::Table> QLibraryDatabase::exec(const QString &cmd) {
-  return QtConcurrent::run(&m_pool, [=]() -> Table {
+QFuture<QLibraryTable> QLibraryDatabase::exec(const QString &cmd) {
+  return QtConcurrent::run(&m_pool, [=]() -> QLibraryTable {
     qDebug() << "exec:" << QThread::currentThread();
 
     QSqlDatabase db = QSqlDatabase::database(threadToConnectionName());
-    Table result;
+    QLibraryTable result;
 
     if (!db.isValid() || !db.isOpen()) {
       qWarning() << "Database connection is not valid!";
