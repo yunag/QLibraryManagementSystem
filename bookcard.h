@@ -32,6 +32,9 @@ public:
   void setRating(int rating);
   int rating();
 
+private slots:
+  void copyButtonClicked();
+
 private:
   Ui::BookCard *ui;
 };

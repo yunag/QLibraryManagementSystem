@@ -11,6 +11,7 @@ LibraryMainWindow::LibraryMainWindow(QWidget *parent)
   ui->setupUi(this);
 
   m_currentSection = ui->displayWidget;
+  m_booksSection = nullptr;
 
   connect(ui->booksButton, &QPushButton::clicked, this,
           &LibraryMainWindow::booksButtonClicked);
@@ -33,7 +34,9 @@ void LibraryMainWindow::onLogged() {
   resize(800, 600);
   show();
 
-  m_booksSection = new BookSection(m_database, ui->centralwidget);
+  if (!m_booksSection) {
+    m_booksSection = new BookSection(m_database, ui->centralwidget);
+  }
 }
 
 void LibraryMainWindow::booksButtonClicked() {

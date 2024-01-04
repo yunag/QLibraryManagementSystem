@@ -81,6 +81,7 @@ QFuture<QLibraryTable> QLibraryDatabase::exec(const QString &cmd) {
     QSqlDatabase db = QSqlDatabase::database(threadToConnectionName());
     QLibraryTable result;
 
+    /* TODO: Throw errors */
     if (!db.isValid() || !db.isOpen()) {
       qWarning() << "Database connection is not valid!";
       return result;

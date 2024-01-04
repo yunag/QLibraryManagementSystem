@@ -19,8 +19,6 @@ using QLibraryTable = QList<QTableRow>;
  * @class QLibraryDatabase
  * @brief Async database workaround
  *
- * @warning: This object should live in the main thread!!!
- *
  */
 class QLibraryDatabase : public QObject {
   Q_OBJECT

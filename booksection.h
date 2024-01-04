@@ -42,13 +42,12 @@ private:
 
   bool isEndPage(qint32 pageNumber);
   bool isStartPage(qint32 pageNumber);
+  quint32 booksCount();
 
 signals:
-  void synchronized();
   void itemProcessed(quint32 itemNumber, const QPixmap &cover, quint32 book_id,
                      const QString &title, const QString &category,
                      const QString &author);
-  void pageDone(quint32 itemNumber);
 
 private slots:
   void synchronizeNowButtonClicked();
@@ -56,8 +55,6 @@ private slots:
   void nextPageButtonClicked();
   void prevPageButtonClicked();
 
-  void synchronizedHandle();
-  void pageDoneHandler(quint32 itemNumber);
   void itemProcessedHandler(quint32 itemNumber, const QPixmap &cover,
                             quint32 book_id, const QString &title,
                             const QString &category, const QString &author);
@@ -74,7 +71,7 @@ private:
   bool m_pageLoading;
 
   qint32 m_currentPage;
-  quint32 m_booksCount;
+  QFuture<quint32> m_booksCount;
 };
 
 #endif // BOOKSECTION_H

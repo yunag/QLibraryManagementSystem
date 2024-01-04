@@ -102,7 +102,7 @@ QLineEdit:focus {
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="copyPushButton">
+        <widget class="QPushButton" name="copyButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>

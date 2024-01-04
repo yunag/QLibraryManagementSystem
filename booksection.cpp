@@ -42,12 +42,8 @@ BookSection::BookSection(QLibraryDatabase &db, QWidget *parent)
 
   ui->searchLineEdit->setClearButtonEnabled(true);
 
-  connect(this, &BookSection::synchronized, this,
-          &BookSection::synchronizedHandle, Qt::QueuedConnection);
   connect(this, &BookSection::itemProcessed, this,
           &BookSection::itemProcessedHandler, Qt::QueuedConnection);
-  connect(this, &BookSection::pageDone, this, &BookSection::pageDoneHandler,
-          Qt::QueuedConnection);
 
   connect(ui->synchronizeNowButton, &QPushButton::clicked, this,
           &BookSection::synchronizeNowButtonClicked);
@@ -83,12 +79,6 @@ void BookSection::hideItems(quint32 itemStart) {
   }
 }
 
-void BookSection::pageDoneHandler(quint32 itemNumber) {
-  hideItems(itemNumber);
-
-  m_pageLoading = false;
-}
-
 void BookSection::updateLastSync() {
   QDateTime dateTime = QDateTime::currentDateTime();
   QString formattedDate = dateTime.toString("dd/MM/yyyy hh:mm:ss");
@@ -120,27 +110,32 @@ QString BookSection::applyConditions() {
 }
 
 void BookSection::updateNumberOfBooks() {
-  QString cmd =
-      "SELECT count(*) AS number_of_books FROM book_author_vw AS ba %1";
-  QString conditions = applyConditions();
-
   QPromise<quint32> promise;
 
-  QLibraryTable table = m_database.exec(cmd.arg(conditions)).result();
+  m_booksCount = promise.future();
+  promise.start();
 
-  if (table.size()) {
-    m_booksCount = table[0].data[0].toUInt();
-  }
-  ui->numberOfBooksLabel->setText(QString::number(m_booksCount));
+  QString cmd = "SELECT count(*) FROM book_author_vw AS ba %1";
+  QString conditions = applyConditions();
+
+  m_database.exec(cmd.arg(conditions))
+      .then([p = std::move(promise)](QLibraryTable table) mutable {
+        quint32 result = table[0].data[0].toUInt();
+        p.addResult(result);
+        p.finish();
+      })
+      .then(this, [this]() {
+        ui->numberOfBooksLabel->setText(QString::number(booksCount()));
+      });
 }
 
 bool BookSection::loadPage(qint32 pageNumber) {
-  if (m_booksCount == 0) {
+  if (booksCount() == 0) {
     hideItems();
     return false;
   }
 
-  if (m_pageLoading || pageNumber * itemsPerPage >= m_booksCount ||
+  if (m_pageLoading || pageNumber * itemsPerPage >= booksCount() ||
       pageNumber < 0) {
     return false;
   }
@@ -171,7 +166,7 @@ bool BookSection::loadPage(qint32 pageNumber) {
   m_pageLoading = true;
 
   m_database.exec(cmd.arg(conditions, limit, offset))
-      .then([this](QLibraryTable table) {
+      .then(QtFuture::Launch::Async, [this](QLibraryTable table) {
         Q_ASSERT(table.size() <= itemsPerPage);
 
         QSharedPointer<QLibraryTable> ptable(
@@ -189,7 +184,11 @@ bool BookSection::loadPage(qint32 pageNumber) {
 
           emit itemProcessed(row.index, cover, book_id, title, category,
                              author);
-        }).then([this, ptable]() { emit pageDone(ptable->size()); });
+        }).then(this, [this, ptable]() {
+          hideItems(ptable->size());
+
+          m_pageLoading = false;
+        });
       });
 
   /* FIX: Move cursor will sometimes select text in Book Card. This line hides
@@ -199,10 +198,12 @@ bool BookSection::loadPage(qint32 pageNumber) {
 }
 
 bool BookSection::isEndPage(qint32 pageNumber) {
-  return (pageNumber + 1) * itemsPerPage >= m_booksCount;
+  return (pageNumber + 1) * itemsPerPage >= booksCount();
 }
 
 bool BookSection::isStartPage(qint32 pageNumber) { return pageNumber == 0; }
+
+quint32 BookSection::booksCount() { return m_booksCount.result(); }
 
 void BookSection::loadBooks() {
   updateNumberOfBooks();
@@ -213,18 +214,14 @@ void BookSection::loadBooks() {
 }
 
 void BookSection::synchronizeNowButtonClicked() {
-  m_database.reopen().then([this](bool ok) {
+  m_database.reopen().then(this, [this](bool ok) {
     if (ok) {
-      emit synchronized();
+      updateNumberOfBooks();
+      loadPage(m_currentPage);
     }
   });
 
   updateLastSync();
-}
-
-void BookSection::synchronizedHandle() {
-  updateNumberOfBooks();
-  loadPage(m_currentPage);
 }
 
 void BookSection::nextPageButtonClicked() {

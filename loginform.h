@@ -24,11 +24,9 @@ protected:
 
 signals:
   void logged();
-  void errorOccured(QString error);
 
 private slots:
   void loginButtonClicked();
-  void errorHandler(QString error);
 
 private:
   QLibraryDatabase &m_database;

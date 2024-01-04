@@ -19,19 +19,10 @@ LoginForm::LoginForm(QLibraryDatabase &database, QWidget *parent)
   ui->portLineEdit->setValidator(new QIntValidator(0, 65535, this));
 
   connect(ui->loginButton, &QPushButton::clicked, this,
-          &LoginForm::loginButtonClicked, Qt::QueuedConnection);
-  connect(this, &LoginForm::errorOccured, this, &LoginForm::errorHandler,
-          Qt::QueuedConnection);
+          &LoginForm::loginButtonClicked);
 }
 
 LoginForm::~LoginForm() { delete ui; }
-
-void LoginForm::errorHandler(QString error) {
-  qDebug() << "ErrorHandler:" << QThread::currentThread();
-
-  QMessageBox::warning(this, tr("Database connection failure"),
-                       tr("Unable to connect to database: ") + error);
-}
 
 void LoginForm::loginButtonClicked() {
   QString portString = usePlaceholderIfEmpty(ui->portLineEdit);
@@ -49,9 +40,12 @@ void LoginForm::loginButtonClicked() {
         if (ok) {
           emit logged();
         } else {
-          QString error = m_database.lastError().result().text();
 
-          emit errorOccured(error);
+          m_database.lastError().then(this, [this](QSqlError error) {
+            QMessageBox::warning(this, tr("Database connection failure"),
+                                 tr("Unable to connect to database: ") +
+                                     error.text());
+          });
         }
       });
 }
