@@ -12,8 +12,7 @@
 #include "qlibrarydatabase.h"
 #include "widgetutils.h"
 
-LoginForm::LoginForm(QLibraryDatabase &database, QWidget *parent)
-    : QWidget(parent), m_database(database), ui(new Ui::LoginForm) {
+LoginForm::LoginForm(QWidget *parent) : QWidget(parent), ui(new Ui::LoginForm) {
   ui->setupUi(this);
 
   ui->portLineEdit->setValidator(new QIntValidator(0, 65535, this));
@@ -22,33 +21,32 @@ LoginForm::LoginForm(QLibraryDatabase &database, QWidget *parent)
           &LoginForm::loginButtonClicked);
 }
 
-LoginForm::~LoginForm() { delete ui; }
+LoginForm::~LoginForm() {
+  delete ui;
+}
 
 void LoginForm::loginButtonClicked() {
   QString portString = usePlaceholderIfEmpty(ui->portLineEdit);
   QString host = usePlaceholderIfEmpty(ui->hostLineEdit);
   QString username = ui->userNameLineEdit->text().isEmpty()
-                         ? "root"
-                         : ui->userNameLineEdit->text();
+                       ? "root"
+                       : ui->userNameLineEdit->text();
 
   QString password = ui->passwordLineEdit->text();
 
   int port = portString.toInt();
 
-  m_database.open("qlibrarydb", username, password, host, port)
-      .then([this](bool ok) {
-        if (ok) {
-          emit logged();
-        } else {
+  ui->loginButton->setEnabled(false);
+  LibraryDatabase::open("qlibrarydb", username, password, host, port)
+    .then([this]() { emit logged(); })
+    .onFailed(this, [this](const QSqlError &e) {
+      QMessageBox::warning(this, tr("Database connection failure"),
+                           tr("Unable to connect to database: ") + e.text());
 
-          m_database.lastError().then(this, [this](QSqlError error) {
-            QMessageBox::warning(this, tr("Database connection failure"),
-                                 tr("Unable to connect to database: ") +
-                                     error.text());
-          });
-        }
-      });
+      ui->loginButton->setEnabled(true);
+    });
 }
+
 void LoginForm::keyPressEvent(QKeyEvent *event) {
   if (event->key() == Qt::Key_Return) {
     ui->loginButton->animateClick();

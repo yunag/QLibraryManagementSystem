@@ -4,19 +4,21 @@
 #include <QPointer>
 #include <QWidget>
 
-class QLibraryDatabase;
+class LibraryDatabase;
 
 QT_BEGIN_NAMESPACE
+
 namespace Ui {
 class LoginForm;
 }
+
 QT_END_NAMESPACE
 
 class LoginForm : public QWidget {
   Q_OBJECT
 
 public:
-  LoginForm(QLibraryDatabase &db, QWidget *parent = nullptr);
+  LoginForm(QWidget *parent = nullptr);
   ~LoginForm();
 
 protected:
@@ -29,7 +31,6 @@ private slots:
   void loginButtonClicked();
 
 private:
-  QLibraryDatabase &m_database;
   Ui::LoginForm *ui;
 };
-#endif // LOGINFORM_H
+#endif  // LOGINFORM_H

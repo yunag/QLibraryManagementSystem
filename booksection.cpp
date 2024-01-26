@@ -1,21 +1,17 @@
+#include <QtConcurrent>
+
 #include <QDateTime>
 #include <QListWidgetItem>
+#include <QMenu>
 #include <QScrollBar>
-
-#include <QSqlDatabase>
-#include <QSqlError>
-#include <QSqlQuery>
-
-#include <QRandomGenerator>
-#include <QtConcurrent/QtConcurrent>
-#include <qtconcurrentrun.h>
 
 #include "bookcard.h"
 #include "booksection.h"
+#include "qlibrarydatabase.h"
 #include "ui_booksection.h"
 
-BookSection::BookSection(QLibraryDatabase &db, QWidget *parent)
-    : QWidget(parent), m_database(db), ui(new Ui::BookSection) {
+BookSection::BookSection(QWidget *parent)
+    : QWidget(parent), ui(new Ui::BookSection) {
   ui->setupUi(this);
 
   m_pageLoading = false;
@@ -23,7 +19,7 @@ BookSection::BookSection(QLibraryDatabase &db, QWidget *parent)
 
   QListWidget *bookList = ui->booksListWidget;
 
-  for (int i = 0; i < itemsPerPage; ++i) {
+  for (int i = 0; i < kItemsPerPage; ++i) {
     QListWidgetItem *bookItem = new QListWidgetItem(bookList);
     BookCard *bookCard = new BookCard(bookList);
 
@@ -36,15 +32,22 @@ BookSection::BookSection(QLibraryDatabase &db, QWidget *parent)
     m_bookItems[i] = bookItem;
   }
 
+  m_bookAddDialog = new BookAddDialog(this);
+  m_bookAddDialog->setWindowFlag(Qt::Window);
+
   ui->booksListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
   ui->booksListWidget->verticalScrollBar()->setSingleStep(8);
   ui->booksListWidget->setAcceptDrops(false);
 
   ui->searchLineEdit->setClearButtonEnabled(true);
+  QAction *action = ui->searchLineEdit->addAction(
+    QIcon(":/resources/images/searchIcon.png"), QLineEdit::LeadingPosition);
 
-  connect(this, &BookSection::itemProcessed, this,
-          &BookSection::itemProcessedHandler, Qt::QueuedConnection);
+  connect(action, &QAction::triggered, this,
+          [action](bool checked) { qDebug() << "Triggered"; });
 
+  connect(ui->addButton, &QPushButton::clicked, this,
+          &BookSection::addButtonClicked);
   connect(ui->synchronizeNowButton, &QPushButton::clicked, this,
           &BookSection::synchronizeNowButtonClicked);
   connect(ui->searchLineEdit, &QLineEdit::returnPressed, this,
@@ -55,26 +58,12 @@ BookSection::BookSection(QLibraryDatabase &db, QWidget *parent)
           &BookSection::prevPageButtonClicked);
 }
 
-BookSection::~BookSection() { delete ui; }
-
-void BookSection::itemProcessedHandler(quint32 itemNumber, const QPixmap &cover,
-                                       quint32 book_id, const QString &title,
-                                       const QString &category,
-                                       const QString &author) {
-  QListWidgetItem *bookItem = m_bookItems[itemNumber];
-  BookCard *bookCard = m_bookCards[itemNumber];
-
-  bookItem->setHidden(false);
-  bookCard->setCover(cover);
-
-  bookCard->setTitle(title);
-  bookCard->setBookId(book_id);
-  bookCard->setAuthor(author);
-  bookCard->setCategory(category);
+BookSection::~BookSection() {
+  delete ui;
 }
 
 void BookSection::hideItems(quint32 itemStart) {
-  for (quint32 i = itemStart; i < itemsPerPage; ++i) {
+  for (quint32 i = itemStart; i < kItemsPerPage; ++i) {
     m_bookItems[i]->setHidden(true);
   }
 }
@@ -86,56 +75,28 @@ void BookSection::updateLastSync() {
   ui->lastSyncLabel->setText(formattedDate);
 }
 
-void BookSection::setCondition(Condition cond, const QString &condStr) {
-  m_conditions[cond] = condStr;
-}
+QFuture<void> BookSection::updateNumberOfBooks() {
+  return m_DAO.bookCardsCount()
+    .then(this,
+          [this](quint32 count) {
+            ui->numberOfBooksLabel->setText(QString::number(count));
+            m_booksCount = count;
+          })
+    .onFailed([this](const QSqlError &error) {
+      qWarning() << error.text();
 
-QString BookSection::applyConditions() {
-  QString conditions;
-
-  for (const QString &cond : m_conditions) {
-    if (cond.isEmpty()) {
-      continue;
-    }
-
-    if (conditions.isEmpty()) {
-      conditions = "WHERE ";
-    } else {
-      conditions += " AND ";
-    }
-    conditions += cond;
-  }
-
-  return conditions;
-}
-
-void BookSection::updateNumberOfBooks() {
-  QPromise<quint32> promise;
-
-  m_booksCount = promise.future();
-  promise.start();
-
-  QString cmd = "SELECT count(*) FROM book_author_vw AS ba %1";
-  QString conditions = applyConditions();
-
-  m_database.exec(cmd.arg(conditions))
-      .then([p = std::move(promise)](QLibraryTable table) mutable {
-        quint32 result = table[0].data[0].toUInt();
-        p.addResult(result);
-        p.finish();
-      })
-      .then(this, [this]() {
-        ui->numberOfBooksLabel->setText(QString::number(booksCount()));
-      });
+      m_booksCount = 0;
+      ui->numberOfBooksLabel->clear();
+    });
 }
 
 bool BookSection::loadPage(qint32 pageNumber) {
-  if (booksCount() == 0) {
+  if (!m_booksCount) {
     hideItems();
     return false;
   }
 
-  if (m_pageLoading || pageNumber * itemsPerPage >= booksCount() ||
+  if (m_pageLoading || pageNumber * kItemsPerPage >= m_booksCount ||
       pageNumber < 0) {
     return false;
   }
@@ -143,83 +104,61 @@ bool BookSection::loadPage(qint32 pageNumber) {
   ui->prevPageButton->setDisabled(isStartPage(pageNumber));
   ui->nextPageButton->setDisabled(isEndPage(pageNumber));
 
-  QString limit = QString::number(itemsPerPage);
-  QString offset = QString::number(pageNumber * itemsPerPage);
-  QString conditions = applyConditions();
-
-  /* FIXME: Only for testing purposes. Remove it later */
-  static const QList<QString> paths = {
-      ":/resources/images/MasterAndMargaritaCover.jpg",
-      ":/resources/images/MartinIdenCover.jpg",
-      ":/resources/images/LapaVButylkeCover.jpg",
-      ":/resources/images/Metro2033Cover.jpg",
-      ":/resources/images/GoreOtUmaCover.jpg",
-  };
-
-  const QString cmd = R"(
-    SELECT ba.book_id, ba.book_title, ba.categories, ba.authors
-    FROM book_author_vw AS ba
-    %1
-    LIMIT %2 OFFSET %3
-  )";
-
   m_pageLoading = true;
 
-  m_database.exec(cmd.arg(conditions, limit, offset))
-      .then(QtFuture::Launch::Async, [this](QLibraryTable table) {
-        Q_ASSERT(table.size() <= itemsPerPage);
+  m_DAO.loadBookCards(kItemsPerPage, pageNumber * kItemsPerPage)
+    .then(this,
+          [this](QList<BookCardData> bookCards) {
+            int itemNumber;
 
-        QSharedPointer<QLibraryTable> ptable(
-            new QLibraryTable(std::move(table)));
+            for (itemNumber = 0; itemNumber < bookCards.size(); ++itemNumber) {
+              BookCardData *data = &bookCards[itemNumber];
+              QListWidgetItem *bookItem = m_bookItems[itemNumber];
+              BookCard *bookCard = m_bookCards[itemNumber];
 
-        QtConcurrent::map(*ptable, [this, ptable](QTableRow &row) {
-          int randPathIndex =
-              QRandomGenerator::global()->bounded(0, paths.size());
-          QPixmap cover(paths[randPathIndex]);
+              bookItem->setHidden(false);
+              bookCard->setCover(data->cover);
 
-          quint32 book_id = row.data[0].toUInt();
-          QString title = row.data[1].toString();
-          QString category = row.data[2].toString();
-          QString author = row.data[3].toString();
+              bookCard->setTitle(data->title);
+              bookCard->setBookId(data->bookId);
+              bookCard->setAuthors(data->authors);
+              bookCard->setCategories(data->categories);
+            }
 
-          emit itemProcessed(row.index, cover, book_id, title, category,
-                             author);
-        }).then(this, [this, ptable]() {
-          hideItems(ptable->size());
+            hideItems(itemNumber);
+          })
+    .onFailed([](const QSqlError &error) { qWarning() << error.text(); })
+    .then([this]() { m_pageLoading = false; });
 
-          m_pageLoading = false;
-        });
-      });
-
-  /* FIX: Move cursor will sometimes select text in Book Card. This line hides
-   * this */
   setFocus();
   return true;
 }
 
 bool BookSection::isEndPage(qint32 pageNumber) {
-  return (pageNumber + 1) * itemsPerPage >= booksCount();
+  return (pageNumber + 1) * kItemsPerPage >= m_booksCount;
 }
 
-bool BookSection::isStartPage(qint32 pageNumber) { return pageNumber == 0; }
-
-quint32 BookSection::booksCount() { return m_booksCount.result(); }
+bool BookSection::isStartPage(qint32 pageNumber) {
+  return pageNumber == 0;
+}
 
 void BookSection::loadBooks() {
-  updateNumberOfBooks();
-  updateLastSync();
+  updateNumberOfBooks().then(this, [this]() {
+    updateLastSync();
 
-  loadPage(m_currentPage);
-  distributeGridSize();
+    loadPage(m_currentPage);
+    distributeGridSize();
+  });
 }
 
 void BookSection::synchronizeNowButtonClicked() {
-  m_database.reopen().then(this, [this](bool ok) {
-    if (ok) {
-      updateNumberOfBooks();
-      loadPage(m_currentPage);
-    }
-  });
+  LibraryDatabase::reopen()
+    .then(QtFuture::Launch::Async,
+          [this]() { updateNumberOfBooks().waitForFinished(); })
+    .then(this, [this]() { loadPage(m_currentPage); })
+    .onFailed([](const QSqlError &error) {
+      qWarning() << "Synchronize Error:" << error.text();
+    });
 
   updateLastSync();
 }
@@ -236,6 +175,10 @@ void BookSection::prevPageButtonClicked() {
   }
 }
 
+void BookSection::addButtonClicked() {
+  m_bookAddDialog->show();
+}
+
 void BookSection::resizeEvent(QResizeEvent *event) {
   distributeGridSize();
 
@@ -243,11 +186,9 @@ void BookSection::resizeEvent(QResizeEvent *event) {
 }
 
 void BookSection::searchTextReturnPressed() {
-  QString condition = "lower(ba.book_title) LIKE %1";
-  QString queryString = "'%" + ui->searchLineEdit->text() + "%'";
-
+  m_DAO.setSearchFilter(ui->searchLineEdit->text());
+  /* Reset page to first */
   m_currentPage = 0;
-  setCondition(BookSection::Search, condition.arg(queryString));
 
   updateNumberOfBooks();
   loadPage(m_currentPage);
@@ -255,15 +196,15 @@ void BookSection::searchTextReturnPressed() {
 
 void BookSection::distributeGridSize() {
   QListWidget *bookList = ui->booksListWidget;
-  Q_ASSERT(bookList->count() > 0);
+  QListWidgetItem *item = bookList->item(0);
 
-  QWidget *item = bookList->itemWidget(bookList->item(0));
+  Q_ASSERT(item != nullptr);
 
   int itemWidth = item->sizeHint().width();
   int itemHeight = item->sizeHint().height();
 
   int viewportWidth =
-      bookList->width() - bookList->verticalScrollBar()->width();
+    bookList->width() - bookList->verticalScrollBar()->width();
 
   int numItemsInRow = viewportWidth / itemWidth;
   if (numItemsInRow) {

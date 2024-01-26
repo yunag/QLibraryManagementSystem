@@ -6,16 +6,16 @@
 BookCard::BookCard(QWidget *parent) : QWidget(parent), ui(new Ui::BookCard) {
   ui->setupUi(this);
 
+  QPixmap starPixmap(":/resources/images/starRating.png");
+  ui->ratingWidget->setAlignment(Qt::AlignLeft);
+  ui->ratingWidget->setCustomPixmap(starPixmap);
+
   connect(ui->copyButton, &QPushButton::clicked, this,
           &BookCard::copyButtonClicked);
 }
 
-BookCard::~BookCard() { delete ui; }
-
-void lineEditSetTextMoveCursor(QLineEdit *lineEdit, const QString &text,
-                               int cursor = 0) {
-  lineEdit->setText(text);
-  lineEdit->setCursorPosition(cursor);
+BookCard::~BookCard() {
+  delete ui;
 }
 
 void BookCard::setCover(const QPixmap &pixmap) {
@@ -25,43 +25,56 @@ void BookCard::setCover(const QPixmap &pixmap) {
   ui->bookCoverLabel->setPixmap(pixmap.scaled(w, h));
 }
 
-QSize BookCard::coverSize() { return ui->bookCoverLabel->size(); }
+QSize BookCard::coverSize() {
+  return ui->bookCoverLabel->size();
+}
 
 void BookCard::setTitle(const QString &title) {
-  lineEditSetTextMoveCursor(ui->titleLineEdit, title);
+  ui->titleLineEdit->setText(title);
 }
 
-QString BookCard::title() { return ui->titleLineEdit->text(); }
+QString BookCard::title() {
+  return ui->titleLineEdit->text();
+}
 
 void BookCard::setBookId(quint32 id) {
-  lineEditSetTextMoveCursor(ui->bookIDLineEdit, QString::number(id));
+  ui->bookIDLineEdit->setText(QString::number(id));
 }
 
-quint32 BookCard::bookId() { return ui->bookIDLineEdit->text().toUInt(); }
+quint32 BookCard::bookId() {
+  return ui->bookIDLineEdit->text().toUInt();
+}
 
-void BookCard::setAuthor(const QString &author) {
-  QString labelName = tr(author.contains(',') ? "Authors" : "Author");
+void BookCard::setAuthors(const QStringList &authors) {
+  QString labelName = authors.count() > 1 ? tr("Authors") : tr("Author");
   ui->authorLabel->setText(labelName);
 
-  lineEditSetTextMoveCursor(ui->authorLineEdit, author);
+  ui->authorLineEdit->setText(authors.join(", "));
 }
 
-QString BookCard::author() { return ui->authorLineEdit->text(); }
+QString BookCard::author() {
+  return ui->authorLineEdit->text();
+}
 
-void BookCard::setCategory(const QString &category) {
-  QString labelName = tr(category.contains(',') ? "Categories" : "Category");
+void BookCard::setCategories(const QStringList &categories) {
+  QString labelName =
+    categories.count() > 1 ? tr("Categories") : tr("Category");
   ui->categoryLabel->setText(labelName);
 
-  lineEditSetTextMoveCursor(ui->categoryLineEdit, category);
+  ui->categoryLineEdit->setText(categories.join(", "));
 }
 
-QString BookCard::category() { return ui->categoryLineEdit->text(); }
+QString BookCard::category() {
+  return ui->categoryLineEdit->text();
+}
 
 void BookCard::setRating(int rating) {
-  lineEditSetTextMoveCursor(ui->ratingLineEdit, QString::number(rating));
+  ui->ratingWidget->setRating(rating);
 }
 
-int BookCard::rating() { return ui->ratingLineEdit->text().toInt(); }
+int BookCard::rating() {
+  return ui->ratingWidget->rating();
+}
 
 void BookCard::copyButtonClicked() {
   QClipboard *clipboard = QApplication::clipboard();

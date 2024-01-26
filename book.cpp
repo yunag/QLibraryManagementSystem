@@ -1,87 +1,81 @@
+#include <QtConcurrent>
+
 #include <QDebug>
-#include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
 
 #include "book.h"
+#include "qlibrarydatabase.h"
 
-Book::Book(QObject *parent, QString connection)
-    : QObject{parent}, m_connection(std::move(connection)) {
-  create();
-}
+QFuture<int> BookTable::insert(const Book &book) {
+  return QtConcurrent::run(
+    &LibraryDatabase::instance().m_pool, [book](QPromise<int> &promise) {
+      qDebug() << "BookTable insert:" << QThread::currentThread();
 
-void Book::begin() { QSqlDatabase::database(m_connection).transaction(); }
+      QSqlDatabase db =
+        QSqlDatabase::database(LibraryDatabase::threadToConnectionName());
 
-void Book::commit() { QSqlDatabase::database(m_connection).commit(); }
+      QSqlQuery query(db);
+      QString cmd = "INSERT INTO book (title, publication_date, copies_owned) "
+                    "VALUES (:title, :publication_date, :copies_owned)";
 
-void Book::rollback() { QSqlDatabase::database(m_connection).rollback(); }
+      query.prepare(cmd);
+      query.bindValue(":title", book.title);
+      query.bindValue(":publication_date", book.publication_date);
+      query.bindValue(":copies_owned", book.copies_owned);
 
-bool Book::is_open() { return QSqlDatabase::database(m_connection).isOpen(); }
+      if (!query.exec()) {
+        qWarning() << query.lastError();
+        promise.setException(std::make_exception_ptr(query.lastError()));
+      } else {
+        promise.addResult(query.lastInsertId().toUInt());
+      }
+    });
+};
 
-void Book::create() { book_id = 0; }
+QFuture<void> BookTable::remove(const Book &book) {
+  return QtConcurrent::run(
+    &LibraryDatabase::instance().m_pool, [book](QPromise<void> &promise) {
+      qDebug() << "BookTable remove:" << QThread::currentThread();
 
-void Book::load(quint32 book_id_) {
-  QSqlQuery query;
-  QString cmd = "SELECT book_id, category_id, title, publication_date, "
-                "copies_owned FROM book WHERE book_id = :id";
-  query.prepare(cmd);
-  query.bindValue(":id", book_id_);
+      QSqlDatabase db =
+        QSqlDatabase::database(LibraryDatabase::threadToConnectionName());
 
-  if (!exec(query)) {
-    return;
-  }
+      QSqlQuery query(db);
+      QString cmd = "DELETE FROM book WHERE book_id = :id";
 
-  while (query.next()) {
-    QSqlRecord record = query.record();
+      query.prepare(cmd);
+      query.bindValue(":id", book.book_id);
 
-    book_id = record.value(0).toUInt();
-    category_id = record.value(1).toUInt();
-    title = record.value(2).toString();
-    publication_date = record.value(3).toString();
-    copies_owned = record.value(4).toUInt();
-  }
-}
+      if (!query.exec()) {
+        qWarning() << query.lastError();
+        promise.setException(std::make_exception_ptr(query.lastError()));
+      }
+    });
+};
 
-void Book::save() {
-  if (book_id > 0) {
-    update();
-  } else {
-    insert();
-  }
-}
+QFuture<void> BookTable::update(const Book &book) {
+  return QtConcurrent::run(
+    &LibraryDatabase::instance().m_pool, [book](QPromise<void> &promise) {
+      qDebug() << "BookTable update:" << QThread::currentThread();
 
-void Book::remove() {
-  QSqlQuery query;
-  QString cmd = "DELETE FROM book WHERE book_id = :id";
+      QSqlDatabase db =
+        QSqlDatabase::database(LibraryDatabase::threadToConnectionName());
 
-  query.prepare(cmd);
-  query.bindValue(":id", book_id);
+      QSqlQuery query(db);
+      QString cmd = "UPDATE book "
+                    "SET title = :title, publication_date = :publication_date, "
+                    "copies_owned = :copies_owned WHERE book_id = :book_id";
 
-  exec(query);
-}
+      query.prepare(cmd);
+      query.bindValue(":book_id", book.book_id);
+      query.bindValue(":title", book.title);
+      query.bindValue(":publication_date", book.publication_date);
+      query.bindValue(":copies_owned", book.copies_owned);
 
-bool Book::insert() {
-  QSqlQuery query;
-  QString cmd =
-      "INSERT INTO book (category_id, title, publication_date, copies_owned) "
-      "VALUES (:category_id, :title, :publication_date, :copies_owned)";
-
-  query.prepare(cmd);
-}
-
-bool Book::update() {}
-
-bool Book::exec(QSqlQuery &query) {
-  QSqlDatabase db = QSqlDatabase::database(m_connection);
-  if (!db.isOpen()) {
-    qInfo() << "Database connection failure:" << db.lastError();
-    return false;
-  }
-
-  if (!query.exec()) {
-    qWarning() << "Query execution failure:" << query.lastError();
-    return false;
-  }
-
-  return true;
-}
+      if (!query.exec()) {
+        qWarning() << query.lastError();
+        promise.setException(std::make_exception_ptr(query.lastError()));
+      }
+    });
+};

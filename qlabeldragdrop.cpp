@@ -24,4 +24,6 @@ void QLabelDragDrop::dragMoveEvent(QDragMoveEvent *event) {
   qDebug() << "dragMoveEvent";
 }
 
-void QLabelDragDrop::dropEvent(QDropEvent *event) { qDebug() << "dropEvent"; }
+void QLabelDragDrop::dropEvent(QDropEvent *event) {
+  qDebug() << "dropEvent";
+}

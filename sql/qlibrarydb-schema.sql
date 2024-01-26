@@ -121,9 +121,9 @@ SELECT
   ) AS authors
 FROM
   book AS b
-  INNER JOIN book_author ba ON ba.book_id = b.book_id
-  INNER JOIN author a ON ba.author_id = a.author_id
-  INNER JOIN book_category bc ON bc.book_id = b.book_id
-  INNER JOIN category c ON bc.category_id = c.category_id
+  LEFT JOIN book_author ba ON ba.book_id = b.book_id
+  LEFT JOIN author a ON ba.author_id = a.author_id
+  LEFT JOIN book_category bc ON bc.book_id = b.book_id
+  LEFT JOIN category c ON bc.category_id = c.category_id
 GROUP BY
   b.book_id;

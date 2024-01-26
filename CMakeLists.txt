@@ -25,6 +25,9 @@ set(PROJECT_SOURCES
         qlabeldragdrop.h qlabeldragdrop.cpp
         booksection.h booksection.cpp booksection.ui
         bookcard.h bookcard.cpp bookcard.ui
+        bookadddialog.h bookadddialog.cpp bookadddialog.ui
+        booksectiondao.h booksectiondao.cpp
+        previewlineedit.h previewlineedit.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -50,11 +53,14 @@ else()
     endif()
 endif()
 
+add_subdirectory(kwidgets)
+
 target_link_libraries(QLibraryManagementSystem
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Sql
         Qt${QT_VERSION_MAJOR}::Concurrent
+        kwidgets
 )
 
 target_include_directories(QLibraryManagementSystem

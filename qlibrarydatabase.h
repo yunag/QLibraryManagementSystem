@@ -4,48 +4,79 @@
 #include <QFuture>
 #include <QObject>
 #include <QSqlDatabase>
+#include <QSqlDriver>
 #include <QSqlError>
 #include <QThreadPool>
 #include <QVariant>
 
-struct QTableRow {
+#include "book.h"
+
+struct TableRow {
   quint32 index;
   QList<QVariant> data;
 };
 
-using QLibraryTable = QList<QTableRow>;
+struct SqlBinding {
+  QString placeholder;
+  QVariant value;
+
+  SqlBinding(QString placeholder_, QVariant value_)
+      : placeholder(std::move(placeholder_)), value(std::move(value_)) {}
+};
+
+using LibraryTable = QList<TableRow>;
+
+using SqlBindingHash = QHash<QString, QVariant>;
 
 /**
  * @class QLibraryDatabase
  * @brief Async database workaround
  *
  */
-class QLibraryDatabase : public QObject {
+class LibraryDatabase : public QObject {
   Q_OBJECT
 
 public:
-  QLibraryDatabase();
-  ~QLibraryDatabase() {}
+  friend class BookTable;
 
-  QFuture<bool> reopen();
-  QFuture<bool> open(const QString &dbname, const QString &username,
-                     const QString &password, const QString &host = "localhost",
-                     int port = 3306);
-  QFuture<QSqlError> lastError();
-  QFuture<QLibraryTable> exec(const QString &cmd);
+  static LibraryDatabase &instance() {
+    static LibraryDatabase instance;
+    return instance;
+  }
+
+  static QFuture<void> reopen() { return instance().reopenImpl(); }
+
+  static QFuture<void> open(const QString &dbname, const QString &username,
+                            const QString &password,
+                            const QString &host = "localhost",
+                            int port = 3306) {
+    return instance().openImpl(dbname, username, password, host, port);
+  }
+
+  static QFuture<LibraryTable> exec(const QString &cmd,
+                                    const SqlBindingHash &bindings = {}) {
+    return instance().execImpl(cmd, bindings);
+  }
+
+private:
+  LibraryDatabase();
+
+  ~LibraryDatabase() {}
+
+  QFuture<void> reopenImpl();
+  QFuture<void> openImpl(const QString &dbname, const QString &username,
+                         const QString &password, const QString &host,
+                         int port);
+  QFuture<QSqlError> lastErrorImpl();
+  QFuture<LibraryTable> execImpl(const QString &cmd,
+                                 const SqlBindingHash &bindings);
 
 private:
   static QString threadToConnectionName();
 
-public slots:
-  void connectionCreatedHandler();
-
-signals:
-  void connectionCreated();
-
 private:
-  QString m_lastSuccessfulConnection;
   QThreadPool m_pool;
+  QString m_lastSuccessfulConnection;
 };
 
-#endif // QLIBRARYDATABASE_H
+#endif  // QLIBRARYDATABASE_H

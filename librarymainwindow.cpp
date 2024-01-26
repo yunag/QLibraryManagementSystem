@@ -17,10 +17,12 @@ LibraryMainWindow::LibraryMainWindow(QWidget *parent)
           &LibraryMainWindow::booksButtonClicked);
 }
 
-LibraryMainWindow::~LibraryMainWindow() { delete ui; }
+LibraryMainWindow::~LibraryMainWindow() {
+  delete ui;
+}
 
 void LibraryMainWindow::showLoginForm() {
-  m_loginForm = new LoginForm(m_database);
+  m_loginForm = new LoginForm;
   m_loginForm->setAttribute(Qt::WA_DeleteOnClose);
 
   connect(m_loginForm, &LoginForm::logged, this, &LibraryMainWindow::onLogged);
@@ -31,11 +33,12 @@ void LibraryMainWindow::showLoginForm() {
 void LibraryMainWindow::onLogged() {
   m_loginForm->close();
 
-  resize(800, 600);
+  QRect screenRect = QGuiApplication::primaryScreen()->geometry();
+  resize(screenRect.width() * 0.75f, screenRect.height() * 0.75f);
   show();
 
   if (!m_booksSection) {
-    m_booksSection = new BookSection(m_database, ui->centralwidget);
+    m_booksSection = new BookSection(ui->centralwidget);
   }
 }
 

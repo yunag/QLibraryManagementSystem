@@ -16,4 +16,4 @@ protected:
   virtual void dragMoveEvent(QDragMoveEvent *event) override;
 };
 
-#endif // QLABELDRAGDROP_H
+#endif  // QLABELDRAGDROP_H

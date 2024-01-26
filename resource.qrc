@@ -10,5 +10,7 @@
         <file>resources/images/MartinIdenCover.jpg</file>
         <file>resources/images/Metro2033Cover.jpg</file>
         <file>resources/images/GoreOtUmaCover.jpg</file>
+        <file>resources/images/starRating.png</file>
+        <file>resources/images/searchIcon.png</file>
     </qresource>
 </RCC>
