@@ -43,7 +43,7 @@ QLineEdit:focus {
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="bookCoverLabel">
+    <widget class="ImagePickerLabel" name="bookCoverLabel">
      <property name="minimumSize">
       <size>
        <width>175</width>
@@ -369,6 +369,11 @@ QLineEdit:focus {
    <class>PreviewLineEdit</class>
    <extends>QLineEdit</extends>
    <header>previewlineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ImagePickerLabel</class>
+   <extends>QLabel</extends>
+   <header>imagepickerlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

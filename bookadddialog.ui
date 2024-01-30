@@ -29,9 +29,9 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" stretch="15,0,20">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="ImagePickerLabel" name="label">
        <property name="styleSheet">
-        <string notr="true">image: url(:/resources/images/MartinIdenCover.jpg);</string>
+        <string notr="true"/>
        </property>
        <property name="text">
         <string/>
@@ -314,6 +314,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImagePickerLabel</class>
+   <extends>QLabel</extends>
+   <header>imagepickerlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>titleLineEdit</tabstop>
   <tabstop>categoriesComboBox</tabstop>

@@ -46,6 +46,10 @@ BookAddDialog::BookAddDialog(QWidget *parent)
   setupCompleter(ui->categoriesComboBox->completer());
   setupCompleter(ui->authorsComboBox->completer());
 
+  QPixmap pixmap(":/resources/images/DefaultBookCover.jpg");
+  ui->label->setPixmap(pixmap);
+  ui->label->setAspectRatio(Qt::KeepAspectRatio);
+
   QLineEdit *categoriesLineEdit = ui->categoriesComboBox->lineEdit();
   QLineEdit *authorsLineEdit = ui->authorsComboBox->lineEdit();
 

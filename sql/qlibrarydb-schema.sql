@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS category (
 CREATE TABLE IF NOT EXISTS book (
   book_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   title VARCHAR(255) NOT NULL,
+  cover_path VARCHAR(255),
   publication_date DATE,
   copies_owned SMALLINT UNSIGNED,
   PRIMARY KEY (book_id),
@@ -111,14 +112,21 @@ CREATE TABLE IF NOT EXISTS fine (
 --
 -- View structure for view `book_author_vw`
 --
-CREATE VIEW book_author_vw (book_id, book_title, categories, authors) AS
+CREATE VIEW book_author_vw (
+  book_id,
+  book_title,
+  categories,
+  authors,
+  cover_path
+) AS
 SELECT
   b.book_id,
   b.title,
   GROUP_CONCAT(c.name SEPARATOR ', ') AS categories,
   GROUP_CONCAT(
     DISTINCT CONCAT(a.first_name, ' ', a.last_name) SEPARATOR ', '
-  ) AS authors
+  ) AS authors,
+  b.cover_path
 FROM
   book AS b
   LEFT JOIN book_author ba ON ba.book_id = b.book_id

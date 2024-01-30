@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
         bookadddialog.h bookadddialog.cpp bookadddialog.ui
         booksectiondao.h booksectiondao.cpp
         previewlineedit.h previewlineedit.cpp
+        imagepickerlabel.h imagepickerlabel.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -190,8 +190,7 @@ void BookSection::searchTextReturnPressed() {
   /* Reset page to first */
   m_currentPage = 0;
 
-  updateNumberOfBooks();
-  loadPage(m_currentPage);
+  updateNumberOfBooks().then([this]() { loadPage(m_currentPage); });
 }
 
 void BookSection::distributeGridSize() {
