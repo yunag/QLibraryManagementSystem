@@ -1,15 +1,12 @@
-#include <QMainWindow>
 #include <QMessageBox>
-#include <QSqlDatabase>
 #include <QSqlError>
 
 #include <QKeyEvent>
 #include <QValidator>
-#include <qnamespace.h>
 
 #include "./ui_loginform.h"
+#include "librarydatabase.h"
 #include "loginform.h"
-#include "qlibrarydatabase.h"
 #include "widgetutils.h"
 
 LoginForm::LoginForm(QWidget *parent) : QWidget(parent), ui(new Ui::LoginForm) {
@@ -48,7 +45,7 @@ void LoginForm::loginButtonClicked() {
 }
 
 void LoginForm::keyPressEvent(QKeyEvent *event) {
-  if (event->key() == Qt::Key_Return) {
+  if (event->key() == Qt::Key_Return && ui->loginButton->isEnabled()) {
     ui->loginButton->animateClick();
   }
 }

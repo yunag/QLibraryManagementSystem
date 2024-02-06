@@ -1,8 +1,12 @@
-#include <QSqlQuery>
-#include <QSqlRecord>
 #include <QtConcurrent>
 
-#include "qlibrarydatabase.h"
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlRecord>
+
+#include <QMessageBox>
+
+#include "librarydatabase.h"
 
 LibraryDatabase::LibraryDatabase() {
   m_pool.setMaxThreadCount(1);
@@ -110,4 +114,43 @@ LibraryDatabase::execImpl(const QString &cmd, const SqlBindingHash &bindings) {
 
     promise.addResult(std::move(result));
   });
+}
+
+QFuture<quint32> LibraryDatabase::insertImpl(const QString &cmd,
+                                             const SqlBindingHash &bindings) {
+
+  return QtConcurrent::run(&m_pool, [=](QPromise<quint32> &promise) {
+    qDebug() << "Database insert:" << QThread::currentThread();
+
+    QSqlDatabase db = QSqlDatabase::database(threadToConnectionName());
+
+    if (!db.isValid() || !db.isOpen()) {
+      qWarning() << db.lastError();
+      setPromiseSQLException(promise, db.lastError());
+      return;
+    }
+
+    QSqlQuery query(db);
+    query.prepare(cmd);
+
+    for (auto it = bindings.begin(); it != bindings.end(); ++it) {
+      query.bindValue(it.key(), it.value());
+    }
+
+    if (!query.exec()) {
+      qWarning() << db.lastError();
+      qWarning() << query.lastError();
+
+      setPromiseSQLException(promise, query.lastError());
+      return;
+    }
+
+    promise.addResult(query.lastInsertId().toUInt());
+  });
+}
+
+void databaseErrorMessageBox(QWidget *parent, const QSqlError &e) {
+  QMessageBox::warning(parent, QObject::tr("Database Fatal Error"),
+                       QObject::tr("Database failed with message: ") +
+                         e.text());
 }

@@ -2,30 +2,18 @@
 #define QLIBRARYDATABASE_H
 
 #include <QFuture>
-#include <QObject>
-#include <QSqlDatabase>
-#include <QSqlDriver>
-#include <QSqlError>
-#include <QThreadPool>
 #include <QVariant>
 
 #include "book.h"
+
+class QSqlError;
 
 struct TableRow {
   quint32 index;
   QList<QVariant> data;
 };
 
-struct SqlBinding {
-  QString placeholder;
-  QVariant value;
-
-  SqlBinding(QString placeholder_, QVariant value_)
-      : placeholder(std::move(placeholder_)), value(std::move(value_)) {}
-};
-
 using LibraryTable = QList<TableRow>;
-
 using SqlBindingHash = QHash<QString, QVariant>;
 
 /**
@@ -58,6 +46,21 @@ public:
     return instance().execImpl(cmd, bindings);
   }
 
+  static QFuture<quint32> insert(const QString &cmd,
+                                 const SqlBindingHash &bindings = {}) {
+    return instance().insertImpl(cmd, bindings);
+  }
+
+  static QFuture<void> update(const QString &cmd,
+                              const SqlBindingHash &bindings = {}) {
+    return exec(cmd, bindings).then([](LibraryTable table) { Q_UNUSED(table) });
+  }
+
+  static QFuture<void> remove(const QString &cmd,
+                              const SqlBindingHash &bindings = {}) {
+    return exec(cmd, bindings).then([](LibraryTable table) { Q_UNUSED(table) });
+  }
+
 private:
   LibraryDatabase();
 
@@ -70,6 +73,8 @@ private:
   QFuture<QSqlError> lastErrorImpl();
   QFuture<LibraryTable> execImpl(const QString &cmd,
                                  const SqlBindingHash &bindings);
+  QFuture<quint32> insertImpl(const QString &cmd,
+                              const SqlBindingHash &bindings);
 
 private:
   static QString threadToConnectionName();
@@ -78,5 +83,8 @@ private:
   QThreadPool m_pool;
   QString m_lastSuccessfulConnection;
 };
+
+/* TODO: Move function declaration */
+void databaseErrorMessageBox(QWidget *parent, const QSqlError &e);
 
 #endif  // QLIBRARYDATABASE_H

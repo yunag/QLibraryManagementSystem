@@ -2,13 +2,10 @@
 #define BOOKSECTION_H
 
 #include <QFuture>
-#include <QListWidgetItem>
-#include <QSqlQuery>
 #include <QWidget>
 
-#include "bookadddialog.h"
-#include "bookcard.h"
-#include "booksectiondao.h"
+class BookAddDialog;
+class BookSectionDAO;
 
 namespace Ui {
 class BookSection;
@@ -41,7 +38,7 @@ private:
 
 private slots:
   void synchronizeNowButtonClicked();
-  void searchTextReturnPressed();
+  void searchTextChanged(const QString &text);
   void nextPageButtonClicked();
   void prevPageButtonClicked();
   void addButtonClicked();
@@ -49,15 +46,13 @@ private slots:
 private:
   Ui::BookSection *ui;
 
-  BookCard *m_bookCards[kItemsPerPage];
-  QListWidgetItem *m_bookItems[kItemsPerPage];
   BookAddDialog *m_bookAddDialog;
-  BookSectionDAO m_DAO;
+  BookSectionDAO *m_dao;
 
   bool m_pageLoading;
 
   qint32 m_currentPage;
-  quint32 m_booksCount;
+  qint32 m_booksCount;
 };
 
 #endif  // BOOKSECTION_H

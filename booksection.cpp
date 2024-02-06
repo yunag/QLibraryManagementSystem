@@ -1,13 +1,15 @@
 #include <QtConcurrent>
 
 #include <QDateTime>
-#include <QListWidgetItem>
-#include <QMenu>
 #include <QScrollBar>
+#include <QSqlError>
+
+#include "bookadddialog.h"
+#include "booksectiondao.h"
 
 #include "bookcard.h"
 #include "booksection.h"
-#include "qlibrarydatabase.h"
+#include "librarydatabase.h"
 #include "ui_booksection.h"
 
 BookSection::BookSection(QWidget *parent)
@@ -27,9 +29,6 @@ BookSection::BookSection(QWidget *parent)
 
     bookList->addItem(bookItem);
     bookList->setItemWidget(bookItem, bookCard);
-
-    m_bookCards[i] = bookCard;
-    m_bookItems[i] = bookItem;
   }
 
   m_bookAddDialog = new BookAddDialog(this);
@@ -43,15 +42,21 @@ BookSection::BookSection(QWidget *parent)
   QAction *action = ui->searchLineEdit->addAction(
     QIcon(":/resources/images/searchIcon.png"), QLineEdit::LeadingPosition);
 
-  connect(action, &QAction::triggered, this,
-          [action](bool checked) { qDebug() << "Triggered"; });
+  m_dao = new BookSectionDAO;
+
+  connect(action, &QAction::triggered, this, [action](bool checked) {
+    Q_UNUSED(action);
+    Q_UNUSED(checked);
+
+    qDebug() << "Triggered";
+  });
 
   connect(ui->addButton, &QPushButton::clicked, this,
           &BookSection::addButtonClicked);
   connect(ui->synchronizeNowButton, &QPushButton::clicked, this,
           &BookSection::synchronizeNowButtonClicked);
-  connect(ui->searchLineEdit, &QLineEdit::returnPressed, this,
-          &BookSection::searchTextReturnPressed);
+  connect(ui->searchLineEdit, &QLineEdit::textChanged, this,
+          &BookSection::searchTextChanged);
   connect(ui->nextPageButton, &QPushButton::clicked, this,
           &BookSection::nextPageButtonClicked);
   connect(ui->prevPageButton, &QPushButton::clicked, this,
@@ -64,7 +69,7 @@ BookSection::~BookSection() {
 
 void BookSection::hideItems(quint32 itemStart) {
   for (quint32 i = itemStart; i < kItemsPerPage; ++i) {
-    m_bookItems[i]->setHidden(true);
+    ui->booksListWidget->item(i)->setHidden(true);
   }
 }
 
@@ -76,7 +81,7 @@ void BookSection::updateLastSync() {
 }
 
 QFuture<void> BookSection::updateNumberOfBooks() {
-  return m_DAO.bookCardsCount()
+  return m_dao->bookCardsCount()
     .then(this,
           [this](quint32 count) {
             ui->numberOfBooksLabel->setText(QString::number(count));
@@ -96,8 +101,9 @@ bool BookSection::loadPage(qint32 pageNumber) {
     return false;
   }
 
-  if (m_pageLoading || pageNumber * kItemsPerPage >= m_booksCount ||
-      pageNumber < 0) {
+  qint32 offset = pageNumber * kItemsPerPage;
+
+  if (m_pageLoading || offset >= m_booksCount || pageNumber < 0) {
     return false;
   }
 
@@ -106,31 +112,32 @@ bool BookSection::loadPage(qint32 pageNumber) {
 
   m_pageLoading = true;
 
-  m_DAO.loadBookCards(kItemsPerPage, pageNumber * kItemsPerPage)
-    .then(this,
-          [this](QList<BookCardData> bookCards) {
-            int itemNumber;
+  QPixmap defaultBookCover(":/resources/images/DefaultBookCover.jpg");
 
-            for (itemNumber = 0; itemNumber < bookCards.size(); ++itemNumber) {
-              BookCardData *data = &bookCards[itemNumber];
-              QListWidgetItem *bookItem = m_bookItems[itemNumber];
-              BookCard *bookCard = m_bookCards[itemNumber];
+  m_dao->loadBookCards(kItemsPerPage, offset, defaultBookCover)
+    .then(
+      this,
+      [this](QList<BookCardData> bookCards) {
+        for (int itemNumber = 0; itemNumber < bookCards.size(); ++itemNumber) {
+          BookCardData *data = &bookCards[itemNumber];
+          QListWidgetItem *bookItem = ui->booksListWidget->item(itemNumber);
+          BookCard *bookCard =
+            qobject_cast<BookCard *>(ui->booksListWidget->itemWidget(bookItem));
 
-              bookItem->setHidden(false);
-              bookCard->setCover(data->cover);
+          bookItem->setHidden(false);
+          bookCard->setCover(data->cover);
 
-              bookCard->setTitle(data->title);
-              bookCard->setBookId(data->bookId);
-              bookCard->setAuthors(data->authors);
-              bookCard->setCategories(data->categories);
-            }
+          bookCard->setTitle(data->title);
+          bookCard->setBookId(data->bookId);
+          bookCard->setAuthors(data->authors);
+          bookCard->setCategories(data->categories);
+        }
 
-            hideItems(itemNumber);
-          })
+        hideItems(bookCards.size());
+      })
     .onFailed([](const QSqlError &error) { qWarning() << error.text(); })
     .then([this]() { m_pageLoading = false; });
 
-  setFocus();
   return true;
 }
 
@@ -143,9 +150,9 @@ bool BookSection::isStartPage(qint32 pageNumber) {
 }
 
 void BookSection::loadBooks() {
-  updateNumberOfBooks().then(this, [this]() {
-    updateLastSync();
+  updateLastSync();
 
+  updateNumberOfBooks().then(this, [this]() {
     loadPage(m_currentPage);
     distributeGridSize();
   });
@@ -176,7 +183,7 @@ void BookSection::prevPageButtonClicked() {
 }
 
 void BookSection::addButtonClicked() {
-  m_bookAddDialog->show();
+  m_bookAddDialog->exec();
 }
 
 void BookSection::resizeEvent(QResizeEvent *event) {
@@ -185,8 +192,8 @@ void BookSection::resizeEvent(QResizeEvent *event) {
   QWidget::resizeEvent(event);
 }
 
-void BookSection::searchTextReturnPressed() {
-  m_DAO.setSearchFilter(ui->searchLineEdit->text());
+void BookSection::searchTextChanged(const QString &text) {
+  m_dao->setSearchFilter(text);
   /* Reset page to first */
   m_currentPage = 0;
 

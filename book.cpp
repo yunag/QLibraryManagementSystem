@@ -1,81 +1,51 @@
 #include <QtConcurrent>
 
 #include <QDebug>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QSqlRecord>
 
 #include "book.h"
-#include "qlibrarydatabase.h"
+#include "librarydatabase.h"
 
-QFuture<int> BookTable::insert(const Book &book) {
-  return QtConcurrent::run(
-    &LibraryDatabase::instance().m_pool, [book](QPromise<int> &promise) {
-      qDebug() << "BookTable insert:" << QThread::currentThread();
+QFuture<quint32> BookTable::insert(const Book &book) {
+  QString cmd =
+    "INSERT INTO book (title, publication_date, copies_owned, cover_path) "
+    "VALUES (:title, :publication_date, :copies_owned, :cover_path)";
 
-      QSqlDatabase db =
-        QSqlDatabase::database(LibraryDatabase::threadToConnectionName());
+  SqlBindingHash bindings = {
+    {":title", book.title},
+    {":publication_date", book.publication_date},
+    {":copies_owned", book.copies_owned},
+    {":cover_path", book.cover_path},
+  };
 
-      QSqlQuery query(db);
-      QString cmd = "INSERT INTO book (title, publication_date, copies_owned) "
-                    "VALUES (:title, :publication_date, :copies_owned)";
-
-      query.prepare(cmd);
-      query.bindValue(":title", book.title);
-      query.bindValue(":publication_date", book.publication_date);
-      query.bindValue(":copies_owned", book.copies_owned);
-
-      if (!query.exec()) {
-        qWarning() << query.lastError();
-        promise.setException(std::make_exception_ptr(query.lastError()));
-      } else {
-        promise.addResult(query.lastInsertId().toUInt());
-      }
-    });
+  return LibraryDatabase::insert(cmd, bindings);
 };
 
-QFuture<void> BookTable::remove(const Book &book) {
-  return QtConcurrent::run(
-    &LibraryDatabase::instance().m_pool, [book](QPromise<void> &promise) {
-      qDebug() << "BookTable remove:" << QThread::currentThread();
+QFuture<void> BookTable::remove(quint32 book_id) {
+  QString cmd = "DELETE FROM book WHERE book_id = :id";
 
-      QSqlDatabase db =
-        QSqlDatabase::database(LibraryDatabase::threadToConnectionName());
+  SqlBindingHash bindings = {
+    {":id", book_id},
+  };
 
-      QSqlQuery query(db);
-      QString cmd = "DELETE FROM book WHERE book_id = :id";
-
-      query.prepare(cmd);
-      query.bindValue(":id", book.book_id);
-
-      if (!query.exec()) {
-        qWarning() << query.lastError();
-        promise.setException(std::make_exception_ptr(query.lastError()));
-      }
-    });
+  return LibraryDatabase::remove(cmd, bindings);
 };
 
 QFuture<void> BookTable::update(const Book &book) {
-  return QtConcurrent::run(
-    &LibraryDatabase::instance().m_pool, [book](QPromise<void> &promise) {
-      qDebug() << "BookTable update:" << QThread::currentThread();
+  QString cmd = "UPDATE book "
+                "SET title = :title, publication_date = :publication_date, "
+                "copies_owned = :copies_owned, cover_path = :cover_path WHERE "
+                "book_id = :book_id";
 
-      QSqlDatabase db =
-        QSqlDatabase::database(LibraryDatabase::threadToConnectionName());
+  SqlBindingHash bindings = {
+    {":book_id", book.book_id},
+    {":title", book.title},
+    {":publication_date", book.publication_date},
+    {":copies_owned", book.copies_owned},
+    {":cover_path", book.cover_path},
+  };
 
-      QSqlQuery query(db);
-      QString cmd = "UPDATE book "
-                    "SET title = :title, publication_date = :publication_date, "
-                    "copies_owned = :copies_owned WHERE book_id = :book_id";
-
-      query.prepare(cmd);
-      query.bindValue(":book_id", book.book_id);
-      query.bindValue(":title", book.title);
-      query.bindValue(":publication_date", book.publication_date);
-      query.bindValue(":copies_owned", book.copies_owned);
-
-      if (!query.exec()) {
-        qWarning() << query.lastError();
-        promise.setException(std::make_exception_ptr(query.lastError()));
-      }
-    });
+  return LibraryDatabase::update(cmd, bindings);
 };

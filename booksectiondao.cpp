@@ -1,6 +1,8 @@
+#include <QtConcurrent>
+
 #include "booksectiondao.h"
 
-QString BookSectionDAO::kQuery = R"(
+const QString BookSectionDAO::kQuery = R"(
 SELECT
   ba.book_id,
   ba.book_title,
@@ -31,39 +33,38 @@ QString BookSectionDAO::applyFilters() {
   QString filters = "1";
 
   for (const QString &filter : m_filters) {
-    if (filter.isEmpty()) {
-      continue;
+    if (!filter.isEmpty()) {
+      filters += " AND " + filter;
     }
-    filters += " AND " + filter;
   }
 
   return filters;
 }
 
-QFuture<QList<BookCardData>> BookSectionDAO::loadBookCards(int nItems,
-                                                           int offset) {
+QFuture<QList<BookCardData>>
+BookSectionDAO::loadBookCards(int itemsCount, int offset,
+                              const QPixmap &defaultBookCover) {
   QString filters = applyFilters();
-  QString cmd = kQuery.arg(filters, QString::number(nItems),
+  QString cmd = kQuery.arg(filters, QString::number(itemsCount),
                            QString::number(offset), m_orderBy);
 
   return LibraryDatabase::exec(cmd, m_bindings)
-    .then(QtFuture::Launch::Async, [this, nItems](LibraryTable table) {
-      Q_ASSERT(table.size() <= nItems);
+    .then(QtFuture::Launch::Async, [itemsCount,
+                                    defaultBookCover](LibraryTable table) {
+      Q_ASSERT(table.size() <= itemsCount);
 
       QList<BookCardData> cardsData(table.size());
 
-      QtConcurrent::blockingMap(table, [this, &cardsData](TableRow &row) {
+      QtConcurrent::blockingMap(table, [&cardsData,
+                                        defaultBookCover](TableRow &row) {
         quint32 book_id = row.data[0].toUInt();
         QString title = row.data[1].toString();
 
         QStringList categories = row.data[2].toString().split(", ");
         QStringList authors = row.data[3].toString().split(", ");
 
-        QString coverPath = row.data[4].isNull()
-                              ? ":/resources/images/DefaultBookCover.jpg"
-                              : row.data[4].toString();
-
-        QPixmap cover(coverPath);
+        QPixmap cover(row.data[4].toString().isNull() ? defaultBookCover
+                                                      : row.data[4].toString());
 
         cardsData[row.index] =
           BookCardData(cover, title, book_id, authors, categories, 5);

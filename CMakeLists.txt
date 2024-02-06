@@ -19,7 +19,7 @@ set(PROJECT_SOURCES
         loginform.ui
         resource.qrc
         librarymainwindow.h librarymainwindow.cpp librarymainwindow.ui
-        qlibrarydatabase.h qlibrarydatabase.cpp
+        librarydatabase.h librarydatabase.cpp
         widgetutils.h widgetutils.cpp
         book.h book.cpp
         qlabeldragdrop.h qlabeldragdrop.cpp
@@ -29,10 +29,15 @@ set(PROJECT_SOURCES
         booksectiondao.h booksectiondao.cpp
         previewlineedit.h previewlineedit.cpp
         imagepickerlabel.h imagepickerlabel.cpp
+        twowaylist.h twowaylist.cpp twowaylist.ui
+        dragdroplistview.h dragdroplistview.cpp
+        fadebutton.h fadebutton.cpp
+        bookcategory.h bookcategory.cpp
+        bookauthor.h bookauthor.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(QLibraryManagementSystem
+    qt_add_executable(${PROJECT_NAME}
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
@@ -42,13 +47,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
-        add_library(QLibraryManagementSystem SHARED
+        add_library(${PROJECT_NAME} SHARED
             ${PROJECT_SOURCES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(QLibraryManagementSystem
+        add_executable(${PROJECT_NAME}
             ${PROJECT_SOURCES}
         )
     endif()
@@ -56,7 +61,7 @@ endif()
 
 add_subdirectory(kwidgets)
 
-target_link_libraries(QLibraryManagementSystem
+target_link_libraries(${PROJECT_NAME}
     PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Sql
@@ -64,9 +69,18 @@ target_link_libraries(QLibraryManagementSystem
         kwidgets
 )
 
-target_include_directories(QLibraryManagementSystem
+target_include_directories(${PROJECT_NAME}
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_compile_options(${PROJECT_NAME}
+  PRIVATE
+    -fno-omit-frame-pointer
+    -fno-common
+    -Wall
+    -Wextra
+    -pedantic
 )
 
 set_target_properties(QLibraryManagementSystem PROPERTIES

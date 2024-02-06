@@ -1,7 +1,6 @@
 #ifndef LOGINFORM_H
 #define LOGINFORM_H
 
-#include <QPointer>
 #include <QWidget>
 
 class LibraryDatabase;

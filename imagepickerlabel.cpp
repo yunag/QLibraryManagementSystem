@@ -5,24 +5,22 @@
 #include <QPushButton>
 #include <QResizeEvent>
 
+#include "fadebutton.h"
 #include "imagepickerlabel.h"
 
 ImagePickerLabel::ImagePickerLabel(QWidget *parent, Qt::AspectRatioMode mode)
-    : QLabel(parent) {
-  m_pickerButton = new QPushButton(this);
+    : QLabel(parent), m_imagePath(QString()) {
+  m_pickerButton = new FadeButton(false, 500, QEasingCurve::Linear, this);
 
   setMinimumSize(1, 1);
   setScaledContents(false);
 
   m_mode = mode;
 
-  m_effect = new QGraphicsOpacityEffect(m_pickerButton);
-  m_effect->setOpacity(0);
-  m_pickerButton->setGraphicsEffect(m_effect);
-
   QString stylesheet = "image: url(%1)";
   m_pickerButton->setStyleSheet(
     stylesheet.arg(":/resources/images/ImagePickerIcon"));
+
   connect(m_pickerButton, &QPushButton::clicked, this,
           &ImagePickerLabel::handlePickerButtonClick);
 }
@@ -53,37 +51,28 @@ QPixmap ImagePickerLabel::scaledPixmap() const {
   return m_pixmap.scaled(size(), m_mode, Qt::SmoothTransformation);
 }
 
-void ImagePickerLabel::fade(qreal start, qreal end) {
-  QPropertyAnimation *animation = new QPropertyAnimation(m_effect, "opacity");
-
-  animation->setDuration(500);
-  animation->setStartValue(start);
-  animation->setEndValue(end);
-  animation->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
-void ImagePickerLabel::leaveEvent(QEvent *e) {
-  fade(1.0, 0);
-
-  QLabel::leaveEvent(e);
-}
-
 void ImagePickerLabel::enterEvent(QEnterEvent *e) {
-  fade(0, 1.0);
+  m_pickerButton->fadeIn();
 
   QLabel::enterEvent(e);
 }
 
+void ImagePickerLabel::leaveEvent(QEvent *e) {
+  m_pickerButton->fadeOut();
+
+  QLabel::leaveEvent(e);
+}
+
 void ImagePickerLabel::handlePickerButtonClick() {
-  QString fileName = QFileDialog::getOpenFileName(
+  m_imagePath = QFileDialog::getOpenFileName(
     this, tr("Select Image"), QCoreApplication::applicationDirPath(),
     tr("JPG Files (*.jpg)"));
 
-  if (fileName.isNull()) {
+  if (m_imagePath.isNull()) {
     return;
   }
 
-  QPixmap pixmap(fileName);
+  QPixmap pixmap(m_imagePath);
   setPixmap(pixmap);
 }
 
@@ -97,4 +86,8 @@ void ImagePickerLabel::setAspectRatio(Qt::AspectRatioMode mode) {
 
 Qt::AspectRatioMode ImagePickerLabel::aspectRatio() {
   return m_mode;
+}
+
+QString ImagePickerLabel::imagePath() const {
+  return m_imagePath;
 }

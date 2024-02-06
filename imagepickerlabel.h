@@ -6,6 +6,7 @@
 
 class QGraphicsOpacityEffect;
 class QPushButton;
+class FadeButton;
 
 class ImagePickerLabel : public QLabel {
   Q_OBJECT
@@ -14,8 +15,8 @@ public:
   explicit ImagePickerLabel(QWidget *parent = nullptr,
                             Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio);
   QPixmap scaledPixmap() const;
+  QString imagePath() const;
 
-  void fade(qreal start, qreal end);
   void setAspectRatio(Qt::AspectRatioMode mode);
   Qt::AspectRatioMode aspectRatio();
 
@@ -32,10 +33,11 @@ private:
 
 private:
   QPixmap m_pixmap;
+  QString m_imagePath;
   Qt::AspectRatioMode m_mode;
 
   QGraphicsOpacityEffect *m_effect;
-  QPushButton *m_pickerButton;
+  FadeButton *m_pickerButton;
 };
 
 #endif  // IMAGEPICKERLABEL_H
