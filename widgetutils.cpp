@@ -1,11 +1,11 @@
 #include "widgetutils.h"
 
-QString usePlaceholderIfEmpty(QLineEdit *line_edit) {
-  QString text = line_edit->text();
+QString usePlaceholderIfEmpty(QLineEdit *lineEdit) {
+  QString text = lineEdit->text();
 
   if (text.isEmpty()) {
-    text = line_edit->placeholderText();
-    line_edit->setText(text);
+    text = lineEdit->placeholderText();
+    lineEdit->setText(text);
   }
   return text;
 }

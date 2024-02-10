@@ -4,16 +4,10 @@
 #include <QFuture>
 #include <QVariant>
 
-#include "book.h"
-
 class QSqlError;
+class QSqlDatabase;
 
-struct TableRow {
-  quint32 index;
-  QList<QVariant> data;
-};
-
-using LibraryTable = QList<TableRow>;
+using LibraryTable = QList<QVariantList>;
 using SqlBindingHash = QHash<QString, QVariant>;
 
 /**
@@ -25,14 +19,18 @@ class LibraryDatabase : public QObject {
   Q_OBJECT
 
 public:
-  friend class BookTable;
-
   static LibraryDatabase &instance() {
     static LibraryDatabase instance;
     return instance;
   }
 
   static QFuture<void> reopen() { return instance().reopenImpl(); }
+
+  static QFuture<bool> transaction() { return instance().transactionImpl(); }
+
+  static QFuture<bool> commit() { return instance().commitImpl(); }
+
+  static QFuture<bool> rollback() { return instance().rollbackImpl(); }
 
   static QFuture<void> open(const QString &dbname, const QString &username,
                             const QString &password,
@@ -76,8 +74,9 @@ private:
   QFuture<quint32> insertImpl(const QString &cmd,
                               const SqlBindingHash &bindings);
 
-private:
-  static QString threadToConnectionName();
+  QFuture<bool> transactionImpl();
+  QFuture<bool> commitImpl();
+  QFuture<bool> rollbackImpl();
 
 private:
   QThreadPool m_pool;

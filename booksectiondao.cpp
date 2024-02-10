@@ -53,24 +53,19 @@ BookSectionDAO::loadBookCards(int itemsCount, int offset,
                                     defaultBookCover](LibraryTable table) {
       Q_ASSERT(table.size() <= itemsCount);
 
-      QList<BookCardData> cardsData(table.size());
+      return QtConcurrent::blockingMapped(
+        table, [defaultBookCover](const QVariantList &row) {
+          quint32 book_id = row[0].toUInt();
+          QString title = row[1].toString();
 
-      QtConcurrent::blockingMap(table, [&cardsData,
-                                        defaultBookCover](TableRow &row) {
-        quint32 book_id = row.data[0].toUInt();
-        QString title = row.data[1].toString();
+          QStringList categories = row[2].toString().split(", ");
+          QStringList authors = row[3].toString().split(", ");
 
-        QStringList categories = row.data[2].toString().split(", ");
-        QStringList authors = row.data[3].toString().split(", ");
+          QPixmap cover(row[4].toString().isNull() ? defaultBookCover
+                                                   : row[4].toString());
 
-        QPixmap cover(row.data[4].toString().isNull() ? defaultBookCover
-                                                      : row.data[4].toString());
-
-        cardsData[row.index] =
-          BookCardData(cover, title, book_id, authors, categories, 5);
-      });
-
-      return cardsData;
+          return BookCardData(cover, title, book_id, authors, categories, 5);
+        });
     });
 }
 
@@ -80,9 +75,10 @@ void BookSectionDAO::setSearchFilter(const QString &search) {
                   ? ""
                   : search.toLower().split("", Qt::SkipEmptyParts).join(".*");
 
-  m_orderBy = "length(ba.book_title) - " + QString::number(search.length());
+  m_orderBy = "length(ba.book_title) - :length";
 
   m_bindings[":search"] = reg;
+  m_bindings[":length"] = search.length();
 
   setFilter(BookSectionDAO::Search, condition);
 }
@@ -92,5 +88,5 @@ QFuture<quint32> BookSectionDAO::bookCardsCount() {
   QString filters = applyFilters();
 
   return LibraryDatabase::exec(cmd.arg(filters), m_bindings)
-    .then([](LibraryTable table) { return table[0].data[0].toUInt(); });
+    .then([](LibraryTable table) { return table[0][0].toUInt(); });
 }

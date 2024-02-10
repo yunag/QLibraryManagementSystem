@@ -205,6 +205,12 @@
      <property name="dragDropMode">
       <enum>QAbstractItemView::DragDrop</enum>
      </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="horizontalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
      <property name="resizeMode">
       <enum>QListView::Adjust</enum>
      </property>
@@ -226,9 +232,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="updateButton">
+      <widget class="QPushButton" name="saveChangesButton">
        <property name="text">
-        <string>Update</string>
+        <string>Save</string>
        </property>
       </widget>
      </item>

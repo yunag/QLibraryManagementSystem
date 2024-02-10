@@ -35,22 +35,22 @@ public:
   ~BookCard();
 
   void setCover(const QPixmap &pixmap);
-  QSize coverSize();
+  QSize coverSize() const;
 
   void setTitle(const QString &title);
-  QString title();
+  QString title() const;
 
   void setBookId(quint32 id);
-  quint32 bookId();
+  quint32 bookId() const;
 
   void setAuthors(const QStringList &authors);
-  QString author();
+  QString author() const;
 
   void setCategories(const QStringList &categories);
-  QString category();
+  QString category() const;
 
   void setRating(int rating);
-  int rating();
+  int rating() const;
 
 signals:
   void edited(Book book);

@@ -32,11 +32,9 @@ BookSection::BookSection(QWidget *parent)
   }
 
   m_bookAddDialog = new BookAddDialog(this);
-  m_bookAddDialog->setWindowFlag(Qt::Window);
 
-  ui->booksListWidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-  ui->booksListWidget->verticalScrollBar()->setSingleStep(8);
-  ui->booksListWidget->setAcceptDrops(false);
+  bookList->verticalScrollBar()->setSingleStep(8);
+  bookList->setAcceptDrops(false);
 
   ui->searchLineEdit->setClearButtonEnabled(true);
   QAction *action = ui->searchLineEdit->addAction(
@@ -51,6 +49,8 @@ BookSection::BookSection(QWidget *parent)
     qDebug() << "Triggered";
   });
 
+  connect(m_bookAddDialog, &BookAddDialog::inserted, this,
+          &BookSection::bookInsertedHandle);
   connect(ui->addButton, &QPushButton::clicked, this,
           &BookSection::addButtonClicked);
   connect(ui->synchronizeNowButton, &QPushButton::clicked, this,
@@ -82,16 +82,11 @@ void BookSection::updateLastSync() {
 
 QFuture<void> BookSection::updateNumberOfBooks() {
   return m_dao->bookCardsCount()
-    .then(this,
-          [this](quint32 count) {
-            ui->numberOfBooksLabel->setText(QString::number(count));
-            m_booksCount = count;
-          })
-    .onFailed([this](const QSqlError &error) {
-      qWarning() << error.text();
+    .then(this, [this](quint32 count) { setBooksCount(count); })
+    .onFailed(this, [this](const QSqlError &e) {
+      databaseErrorMessageBox(this, e);
 
-      m_booksCount = 0;
-      ui->numberOfBooksLabel->clear();
+      setBooksCount(0);
     });
 }
 
@@ -107,35 +102,35 @@ bool BookSection::loadPage(qint32 pageNumber) {
     return false;
   }
 
-  ui->prevPageButton->setDisabled(isStartPage(pageNumber));
-  ui->nextPageButton->setDisabled(isEndPage(pageNumber));
-
   m_pageLoading = true;
+
+  updatePageButtons(pageNumber);
 
   QPixmap defaultBookCover(":/resources/images/DefaultBookCover.jpg");
 
   m_dao->loadBookCards(kItemsPerPage, offset, defaultBookCover)
-    .then(
-      this,
-      [this](QList<BookCardData> bookCards) {
-        for (int itemNumber = 0; itemNumber < bookCards.size(); ++itemNumber) {
-          BookCardData *data = &bookCards[itemNumber];
-          QListWidgetItem *bookItem = ui->booksListWidget->item(itemNumber);
-          BookCard *bookCard =
-            qobject_cast<BookCard *>(ui->booksListWidget->itemWidget(bookItem));
+    .then(this,
+          [this](const QList<BookCardData> &bookCards) {
+            for (qsizetype itemNumber = 0; itemNumber < bookCards.size();
+                 ++itemNumber) {
+              const BookCardData &data = bookCards[itemNumber];
+              QListWidgetItem *bookItem = ui->booksListWidget->item(itemNumber);
+              BookCard *bookCard = qobject_cast<BookCard *>(
+                ui->booksListWidget->itemWidget(bookItem));
 
-          bookItem->setHidden(false);
-          bookCard->setCover(data->cover);
+              bookItem->setHidden(false);
+              bookCard->setCover(data.cover);
 
-          bookCard->setTitle(data->title);
-          bookCard->setBookId(data->bookId);
-          bookCard->setAuthors(data->authors);
-          bookCard->setCategories(data->categories);
-        }
+              bookCard->setTitle(data.title);
+              bookCard->setBookId(data.bookId);
+              bookCard->setAuthors(data.authors);
+              bookCard->setCategories(data.categories);
+            }
 
-        hideItems(bookCards.size());
-      })
-    .onFailed([](const QSqlError &error) { qWarning() << error.text(); })
+            hideItems(bookCards.size());
+          })
+    .onFailed(this,
+              [this](const QSqlError &e) { databaseErrorMessageBox(this, e); })
     .then([this]() { m_pageLoading = false; });
 
   return true;
@@ -163,9 +158,8 @@ void BookSection::synchronizeNowButtonClicked() {
     .then(QtFuture::Launch::Async,
           [this]() { updateNumberOfBooks().waitForFinished(); })
     .then(this, [this]() { loadPage(m_currentPage); })
-    .onFailed([](const QSqlError &error) {
-      qWarning() << "Synchronize Error:" << error.text();
-    });
+    .onFailed(this,
+              [this](const QSqlError &e) { databaseErrorMessageBox(this, e); });
 
   updateLastSync();
 }
@@ -204,7 +198,9 @@ void BookSection::distributeGridSize() {
   QListWidget *bookList = ui->booksListWidget;
   QListWidgetItem *item = bookList->item(0);
 
-  Q_ASSERT(item != nullptr);
+  if (!item) {
+    return;
+  }
 
   int itemWidth = item->sizeHint().width();
   int itemHeight = item->sizeHint().height();
@@ -225,4 +221,27 @@ void BookSection::distributeGridSize() {
                       itemHeight + extraVSpace);
     bookList->setGridSize(newGridSize);
   }
+}
+
+void BookSection::updatePageButtons(qint32 pageNumber) {
+  QWidget *widget = focusWidget();
+
+  ui->prevPageButton->setDisabled(isStartPage(pageNumber));
+  ui->nextPageButton->setDisabled(isEndPage(pageNumber));
+
+  if (widget != focusWidget()) {
+    ui->booksListWidget->setFocus();
+  }
+}
+
+void BookSection::bookInsertedHandle() {
+  setBooksCount(m_booksCount + 1);
+
+  /* reload current page */
+  loadPage(m_currentPage);
+}
+
+void BookSection::setBooksCount(qint32 booksCount) {
+  m_booksCount = booksCount;
+  ui->numberOfBooksLabel->setText(QString::number(m_booksCount));
 }

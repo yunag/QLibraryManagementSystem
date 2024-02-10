@@ -1,7 +1,9 @@
 #include <QMessageBox>
 #include <QSqlError>
 
+#include <QFile>
 #include <QKeyEvent>
+#include <QSettings>
 #include <QValidator>
 
 #include "./ui_loginform.h"
@@ -25,16 +27,26 @@ LoginForm::~LoginForm() {
 void LoginForm::loginButtonClicked() {
   QString portString = usePlaceholderIfEmpty(ui->portLineEdit);
   QString host = usePlaceholderIfEmpty(ui->hostLineEdit);
-  QString username = ui->userNameLineEdit->text().isEmpty()
-                       ? "root"
-                       : ui->userNameLineEdit->text();
+  QString username = ui->userNameLineEdit->text();
 
   QString password = ui->passwordLineEdit->text();
 
   int port = portString.toInt();
 
+  QSettings settings;
+  qDebug() << settings.fileName();
+  ensureSettings();
+
+  settings.beginGroup("DatabaseCredentials");
+
+  QString dbUserName = settings.value("username").toString();
+  QString dbPassword = settings.value("password").toString();
+  QString dbName = settings.value("dbname").toString();
+
+  settings.endGroup();
+
   ui->loginButton->setEnabled(false);
-  LibraryDatabase::open("qlibrarydb", username, password, host, port)
+  LibraryDatabase::open(dbName, dbUserName, dbPassword, host, port)
     .then([this]() { emit logged(); })
     .onFailed(this, [this](const QSqlError &e) {
       QMessageBox::warning(this, tr("Database connection failure"),
@@ -47,5 +59,19 @@ void LoginForm::loginButtonClicked() {
 void LoginForm::keyPressEvent(QKeyEvent *event) {
   if (event->key() == Qt::Key_Return && ui->loginButton->isEnabled()) {
     ui->loginButton->animateClick();
+  }
+}
+
+void LoginForm::ensureSettings() {
+  QSettings settings;
+
+  if (!settings.contains("DatabaseCredentials")) {
+    settings.beginGroup("DatabaseCredentials");
+
+    settings.setValue("dbname", "qlibrarydb");
+    settings.setValue("username", "root");
+    settings.setValue("password", "");
+
+    settings.endGroup();
   }
 }

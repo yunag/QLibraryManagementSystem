@@ -25,7 +25,7 @@ void BookCard::setCover(const QPixmap &pixmap) {
   ui->bookCoverLabel->setPixmap(pixmap.scaled(w, h));
 }
 
-QSize BookCard::coverSize() {
+QSize BookCard::coverSize() const {
   return ui->bookCoverLabel->size();
 }
 
@@ -33,7 +33,7 @@ void BookCard::setTitle(const QString &title) {
   ui->titleLineEdit->setText(title);
 }
 
-QString BookCard::title() {
+QString BookCard::title() const {
   return ui->titleLineEdit->text();
 }
 
@@ -41,7 +41,7 @@ void BookCard::setBookId(quint32 id) {
   ui->bookIDLineEdit->setText(QString::number(id));
 }
 
-quint32 BookCard::bookId() {
+quint32 BookCard::bookId() const {
   return ui->bookIDLineEdit->text().toUInt();
 }
 
@@ -52,7 +52,7 @@ void BookCard::setAuthors(const QStringList &authors) {
   ui->authorLineEdit->setText(authors.join(", "));
 }
 
-QString BookCard::author() {
+QString BookCard::author() const {
   return ui->authorLineEdit->text();
 }
 
@@ -64,7 +64,7 @@ void BookCard::setCategories(const QStringList &categories) {
   ui->categoryLineEdit->setText(categories.join(", "));
 }
 
-QString BookCard::category() {
+QString BookCard::category() const {
   return ui->categoryLineEdit->text();
 }
 
@@ -72,7 +72,7 @@ void BookCard::setRating(int rating) {
   ui->ratingWidget->setRating(rating);
 }
 
-int BookCard::rating() {
+int BookCard::rating() const {
   return ui->ratingWidget->rating();
 }
 

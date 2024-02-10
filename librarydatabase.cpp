@@ -13,8 +13,21 @@ LibraryDatabase::LibraryDatabase() {
   m_pool.setExpiryTimeout(-1);
 }
 
-QString LibraryDatabase::threadToConnectionName() {
-  return QThread::currentThread()->objectName() + "_connection";
+static QString threadToConnectionName() {
+
+  return "Thread(" +
+         QString::number(
+           reinterpret_cast<quintptr>(QThread::currentThreadId())) +
+         ") connection";
+}
+
+static QSqlDatabase databaseFromThread(QString lastSuccessfulConnection) {
+  QString threadConnectionName = threadToConnectionName();
+
+  return QSqlDatabase::contains(threadConnectionName)
+           ? QSqlDatabase::database(threadConnectionName)
+           : QSqlDatabase::cloneDatabase(lastSuccessfulConnection,
+                                         threadConnectionName);
 }
 
 template <typename PromiseType>
@@ -24,8 +37,8 @@ static void setPromiseSQLException(QPromise<PromiseType> &promise,
 }
 
 QFuture<void> LibraryDatabase::openImpl(const QString &dbname,
-                                        const QString &username,
-                                        const QString &password,
+                                        const QString &dbUsername,
+                                        const QString &dbPassword,
                                         const QString &host, int port) {
   return QtConcurrent::run(&m_pool,
                            [=](QPromise<void> &promise) {
@@ -42,10 +55,8 @@ QFuture<void> LibraryDatabase::openImpl(const QString &dbname,
                              db.setHostName(host);
                              db.setPort(port);
                              db.setDatabaseName(dbname);
-                             db.setUserName(username);
-                             db.setPassword(password);
 
-                             if (db.open()) {
+                             if (db.open(dbUsername, dbPassword)) {
                                m_lastSuccessfulConnection = conName;
                              } else {
                                setPromiseSQLException(promise, db.lastError());
@@ -58,10 +69,10 @@ QFuture<void> LibraryDatabase::openImpl(const QString &dbname,
 }
 
 QFuture<void> LibraryDatabase::reopenImpl() {
-  return QtConcurrent::run(&m_pool, [](QPromise<void> &promise) {
+  return QtConcurrent::run(&m_pool, [this](QPromise<void> &promise) {
     qDebug() << "Database reopen:" << QThread::currentThread();
 
-    QSqlDatabase db = QSqlDatabase::database(threadToConnectionName());
+    QSqlDatabase db = databaseFromThread(m_lastSuccessfulConnection);
     if (!db.open()) {
       setPromiseSQLException(promise, db.lastError());
     }
@@ -73,14 +84,15 @@ LibraryDatabase::execImpl(const QString &cmd, const SqlBindingHash &bindings) {
   return QtConcurrent::run(&m_pool, [=](QPromise<LibraryTable> &promise) {
     qDebug() << "Database exec:" << QThread::currentThread();
 
-    QSqlDatabase db = QSqlDatabase::database(threadToConnectionName());
-    LibraryTable result;
+    QSqlDatabase db = databaseFromThread(m_lastSuccessfulConnection);
 
     if (!db.isValid() || !db.isOpen()) {
       qWarning() << db.lastError();
       setPromiseSQLException(promise, db.lastError());
       return;
     }
+
+    m_lastSuccessfulConnection = threadToConnectionName();
 
     QSqlQuery query(db);
     query.prepare(cmd);
@@ -90,23 +102,21 @@ LibraryDatabase::execImpl(const QString &cmd, const SqlBindingHash &bindings) {
     }
 
     if (!query.exec()) {
-      qWarning() << db.lastError();
       qWarning() << query.lastError();
 
       setPromiseSQLException(promise, query.lastError());
       return;
     }
 
+    LibraryTable result;
     result.reserve(query.size());
 
-    int rowIndex = 0;
     while (query.next()) {
-      TableRow row;
-      row.data.reserve(query.record().count());
-      row.index = rowIndex++;
+      QVariantList row;
+      row.reserve(query.record().count());
 
       for (int i = 0; i < query.record().count(); ++i) {
-        row.data.push_back(query.value(i));
+        row.push_back(query.value(i));
       }
 
       result.push_back(std::move(row));
@@ -122,7 +132,7 @@ QFuture<quint32> LibraryDatabase::insertImpl(const QString &cmd,
   return QtConcurrent::run(&m_pool, [=](QPromise<quint32> &promise) {
     qDebug() << "Database insert:" << QThread::currentThread();
 
-    QSqlDatabase db = QSqlDatabase::database(threadToConnectionName());
+    QSqlDatabase db = databaseFromThread(m_lastSuccessfulConnection);
 
     if (!db.isValid() || !db.isOpen()) {
       qWarning() << db.lastError();
@@ -153,4 +163,31 @@ void databaseErrorMessageBox(QWidget *parent, const QSqlError &e) {
   QMessageBox::warning(parent, QObject::tr("Database Fatal Error"),
                        QObject::tr("Database failed with message: ") +
                          e.text());
+}
+
+QFuture<bool> LibraryDatabase::transactionImpl() {
+  return QtConcurrent::run(&m_pool, [=]() {
+    qDebug() << "Database transaction:" << QThread::currentThread();
+
+    QSqlDatabase db = databaseFromThread(m_lastSuccessfulConnection);
+    return db.transaction();
+  });
+}
+
+QFuture<bool> LibraryDatabase::commitImpl() {
+  return QtConcurrent::run(&m_pool, [=]() {
+    qDebug() << "Database commit:" << QThread::currentThread();
+
+    QSqlDatabase db = databaseFromThread(m_lastSuccessfulConnection);
+    return db.commit();
+  });
+}
+
+QFuture<bool> LibraryDatabase::rollbackImpl() {
+  return QtConcurrent::run(&m_pool, [=]() {
+    qDebug() << "Database rollback:" << QThread::currentThread();
+
+    QSqlDatabase db = databaseFromThread(m_lastSuccessfulConnection);
+    return db.rollback();
+  });
 }

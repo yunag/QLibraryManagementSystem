@@ -1,6 +1,7 @@
 #ifndef LOGINFORM_H
 #define LOGINFORM_H
 
+#include <QSettings>
 #include <QWidget>
 
 class LibraryDatabase;
@@ -25,6 +26,9 @@ protected:
 
 signals:
   void logged();
+
+private:
+  void ensureSettings();
 
 private slots:
   void loginButtonClicked();

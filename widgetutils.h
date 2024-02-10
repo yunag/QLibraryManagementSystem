@@ -4,6 +4,6 @@
 #include <QLineEdit>
 #include <QString>
 
-QString usePlaceholderIfEmpty(QLineEdit *line_edit);
+QString usePlaceholderIfEmpty(QLineEdit *lineEdit);
 
 #endif

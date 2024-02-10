@@ -8,7 +8,7 @@ QFuture<void> BookCategory::update(quint32 book_id,
   return LibraryDatabase::remove(
            "DELETE FROM book_category WHERE book_id = :book_id",
            {{":book_id", book_id}})
-    .then([=]() {
+    .then(QtFuture::Launch::Async, [=]() {
       QString cmd = "INSERT INTO book_category (book_id, category_id) VALUES ";
 
       SqlBindingHash bindings = {
@@ -23,5 +23,22 @@ QFuture<void> BookCategory::update(quint32 book_id,
       }
 
       LibraryDatabase::update(cmd.chopped(1), bindings).waitForFinished();
+    });
+}
+
+QFuture<QList<BookCategory>> BookCategory::categories() {
+  return LibraryDatabase::exec("SELECT category_id, name FROM category")
+    .then(QtFuture::Launch::Async, [](const LibraryTable &table) {
+      QList<BookCategory> categories;
+      categories.reserve(table.size());
+
+      for (const QVariantList &row : table) {
+        quint32 categoryId = row[0].toUInt();
+        QString categoryName = row[1].toString();
+
+        categories.emplaceBack(categoryId, categoryName);
+      }
+
+      return categories;
     });
 }

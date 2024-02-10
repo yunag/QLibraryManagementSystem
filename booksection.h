@@ -33,6 +33,9 @@ private:
   QFuture<void> updateNumberOfBooks();
   void hideItems(quint32 itemStart = 0);
 
+  void setBooksCount(qint32 booksCount);
+
+  void updatePageButtons(qint32 pageNumber);
   bool isEndPage(qint32 pageNumber);
   bool isStartPage(qint32 pageNumber);
 
@@ -42,6 +45,7 @@ private slots:
   void nextPageButtonClicked();
   void prevPageButtonClicked();
   void addButtonClicked();
+  void bookInsertedHandle();
 
 private:
   Ui::BookSection *ui;

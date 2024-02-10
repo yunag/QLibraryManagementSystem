@@ -16,6 +16,9 @@ public:
 
   void accept();
 
+signals:
+  void inserted(quint32 book_id);
+
 private:
   Ui::BookAddDialog *ui;
 };

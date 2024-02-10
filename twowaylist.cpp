@@ -29,9 +29,9 @@ TwoWayList::TwoWayList(QWidget *parent)
           &TwoWayList::returnPressed);
 
   connect(ui->leftListView, &QListView::doubleClicked, this,
-          [this](const QModelIndex &index) { swapFromLeftToRight(index); });
+          &TwoWayList::swapFromLeftToRight);
   connect(ui->rightListView, &QListView::doubleClicked, this,
-          [this](const QModelIndex &index) { swapFromRightToLeft(index); });
+          &TwoWayList::swapFromRightToLeft);
 }
 
 TwoWayList::~TwoWayList() {
@@ -46,11 +46,9 @@ void TwoWayList::addItems(QList<QStandardItem *> items) {
 }
 
 void TwoWayList::returnPressed() {
-  if (m_proxy->rowCount() == 0) {
-    return;
+  if (m_proxy->rowCount()) {
+    swapFromLeftToRight(m_proxy->index(0, 0));
   }
-
-  swapFromLeftToRight(m_proxy->index(0, 0));
 }
 
 void TwoWayList::swapFromLeftToRight(const QModelIndex &index) {
