@@ -16,8 +16,6 @@ using SqlBindingHash = QHash<QString, QVariant>;
  *
  */
 class LibraryDatabase : public QObject {
-  Q_OBJECT
-
 public:
   static LibraryDatabase &instance() {
     static LibraryDatabase instance;
@@ -26,11 +24,11 @@ public:
 
   static QFuture<void> reopen() { return instance().reopenImpl(); }
 
-  static QFuture<bool> transaction() { return instance().transactionImpl(); }
+  static QFuture<void> transaction() { return instance().transactionImpl(); }
 
-  static QFuture<bool> commit() { return instance().commitImpl(); }
+  static QFuture<void> commit() { return instance().commitImpl(); }
 
-  static QFuture<bool> rollback() { return instance().rollbackImpl(); }
+  static QFuture<void> rollback() { return instance().rollbackImpl(); }
 
   static QFuture<void> open(const QString &dbname, const QString &username,
                             const QString &password,
@@ -74,9 +72,9 @@ private:
   QFuture<quint32> insertImpl(const QString &cmd,
                               const SqlBindingHash &bindings);
 
-  QFuture<bool> transactionImpl();
-  QFuture<bool> commitImpl();
-  QFuture<bool> rollbackImpl();
+  QFuture<void> transactionImpl();
+  QFuture<void> commitImpl();
+  QFuture<void> rollbackImpl();
 
 private:
   QThreadPool m_pool;

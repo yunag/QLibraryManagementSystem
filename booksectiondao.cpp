@@ -8,7 +8,8 @@ SELECT
   ba.book_title,
   ba.categories,
   ba.authors,
-  ba.cover_path
+  ba.cover_path,
+  ba.rating
 FROM
   book_author_vw AS ba
 WHERE 
@@ -53,29 +54,29 @@ BookSectionDAO::loadBookCards(int itemsCount, int offset,
                                     defaultBookCover](LibraryTable table) {
       Q_ASSERT(table.size() <= itemsCount);
 
-      return QtConcurrent::blockingMapped(
-        table, [defaultBookCover](const QVariantList &row) {
-          quint32 book_id = row[0].toUInt();
-          QString title = row[1].toString();
+      return QtConcurrent::blockingMapped(table, [defaultBookCover](
+                                                   const QVariantList &row) {
+        quint32 book_id = row[0].toUInt();
+        QString title = row[1].toString();
 
-          QStringList categories = row[2].toString().split(", ");
-          QStringList authors = row[3].toString().split(", ");
+        QStringList categories = row[2].toString().split(", ");
+        QStringList authors = row[3].toString().split(", ");
 
-          QPixmap cover(row[4].toString().isNull() ? defaultBookCover
-                                                   : row[4].toString());
+        QPixmap cover(row[4].toString().isNull() ? defaultBookCover
+                                                 : row[4].toString());
+        qreal rating = row[5].toDouble();
 
-          return BookCardData(cover, title, book_id, authors, categories, 5);
-        });
+        return BookCardData(cover, title, book_id, authors, categories, rating);
+      });
     });
 }
 
 void BookSectionDAO::setSearchFilter(const QString &search) {
-  QString condition = "lower(ba.book_title) REGEXP :search";
-  QString reg = search.isEmpty()
-                  ? ""
-                  : search.toLower().split("", Qt::SkipEmptyParts).join(".*");
+  QString condition = "lower(ba.book_title) LIKE :search";
+  QString reg = search.toLower().split("").join("%").replace("%%%", "%\\%%");
 
-  m_orderBy = "length(ba.book_title) - :length";
+  m_orderBy =
+    search.isEmpty() ? "ba.book_id" : "length(ba.book_title) - :length";
 
   m_bindings[":search"] = reg;
   m_bindings[":length"] = search.length();
@@ -89,4 +90,23 @@ QFuture<quint32> BookSectionDAO::bookCardsCount() {
 
   return LibraryDatabase::exec(cmd.arg(filters), m_bindings)
     .then([](LibraryTable table) { return table[0][0].toUInt(); });
+}
+
+void BookSectionDAO::orderBy(Column column, Qt::SortOrder order) {
+  QString orderStr = order == Qt::AscendingOrder ? "ASC" : "DESC";
+
+  switch (column) {
+    case Id:
+      m_orderBy = "ba.book_id";
+      break;
+    case Title:
+      m_orderBy = "ba.book_title";
+      break;
+    case Rating:
+      m_orderBy = "ba.rating";
+      break;
+    default:
+      qDebug() << "Invalid column";
+  }
+  m_orderBy += " " + orderStr;
 }

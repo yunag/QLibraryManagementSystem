@@ -20,14 +20,17 @@ set(PROJECT_SOURCES
         loginform.h
         loginform.ui
         resource.qrc
+        libraryapplication.h libraryapplication.cpp
         librarymainwindow.h librarymainwindow.cpp librarymainwindow.ui
         librarydatabase.h librarydatabase.cpp
         widgetutils.h widgetutils.cpp
         book.h book.cpp
+        user.h user.cpp
         qlabeldragdrop.h qlabeldragdrop.cpp
         booksection.h booksection.cpp booksection.ui
         bookcard.h bookcard.cpp bookcard.ui
         bookadddialog.h bookadddialog.cpp bookadddialog.ui
+        passwordlineedit.h passwordlineedit.cpp
         booksectiondao.h booksectiondao.cpp
         previewlineedit.h previewlineedit.cpp
         imagepickerlabel.h imagepickerlabel.cpp
@@ -36,6 +39,9 @@ set(PROJECT_SOURCES
         fadebutton.h fadebutton.cpp
         bookcategory.h bookcategory.cpp
         bookauthor.h bookauthor.cpp
+        searchfilterdialog.h searchfilterdialog.cpp searchfilterdialog.ui
+        librarysidemenu.h librarysidemenu.cpp librarysidemenu.ui
+        clickableframe.h clickableframe.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -19,7 +19,7 @@ ImagePickerLabel::ImagePickerLabel(QWidget *parent, Qt::AspectRatioMode mode)
 
   QString stylesheet = "image: url(%1)";
   m_pickerButton->setStyleSheet(
-    stylesheet.arg(":/resources/images/ImagePickerIcon"));
+    stylesheet.arg(":/resources/icons/ImagePickerIcon"));
 
   connect(m_pickerButton, &QPushButton::clicked, this,
           &ImagePickerLabel::handlePickerButtonClick);

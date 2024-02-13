@@ -11,8 +11,14 @@
         <file>resources/images/Metro2033Cover.jpg</file>
         <file>resources/images/GoreOtUmaCover.jpg</file>
         <file>resources/images/starRating.png</file>
-        <file>resources/images/searchIcon.png</file>
         <file>resources/images/DefaultBookCover.jpg</file>
-        <file>resources/images/ImagePickerIcon.png</file>
+        <file>resources/icons/eyeClose.svg</file>
+        <file>resources/icons/eyeOpen.svg</file>
+        <file>resources/icons/ImagePickerIcon.png</file>
+        <file>resources/icons/searchIcon.png</file>
+        <file>resources/icons/hamburgerMenu.svg</file>
+        <file>resources/icons/books.svg</file>
+        <file>resources/icons/author.svg</file>
+        <file>resources/icons/user.svg</file>
     </qresource>
 </RCC>

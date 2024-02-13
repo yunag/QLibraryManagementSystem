@@ -6,7 +6,7 @@
 BookCard::BookCard(QWidget *parent) : QWidget(parent), ui(new Ui::BookCard) {
   ui->setupUi(this);
 
-  QPixmap starPixmap(":/resources/images/starRating.png");
+  QPixmap starPixmap(":/resources/images/starRating");
   ui->ratingWidget->setAlignment(Qt::AlignLeft);
   ui->ratingWidget->setCustomPixmap(starPixmap);
 

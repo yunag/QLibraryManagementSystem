@@ -188,6 +188,12 @@ QLineEdit:focus {
        </property>
        <item row="0" column="0">
         <widget class="QLabel" name="bookIDLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Montserrat</family>
@@ -222,6 +228,12 @@ QLineEdit:focus {
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="authorLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Montserrat</family>
@@ -229,7 +241,7 @@ QLineEdit:focus {
           </font>
          </property>
          <property name="text">
-          <string>Author</string>
+          <string>Authors</string>
          </property>
         </widget>
        </item>
@@ -253,6 +265,18 @@ QLineEdit:focus {
        </item>
        <item row="2" column="0">
         <widget class="QLabel" name="categoryLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>68</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="font">
           <font>
            <family>Montserrat</family>
@@ -260,7 +284,7 @@ QLineEdit:focus {
           </font>
          </property>
          <property name="text">
-          <string>Category</string>
+          <string>Categories</string>
          </property>
         </widget>
        </item>
@@ -284,6 +308,12 @@ QLineEdit:focus {
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="ratingLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="font">
           <font>
            <family>Montserrat</family>

@@ -25,10 +25,6 @@ VALUES
 COMMIT;
 
 
-SET
-  AUTOCOMMIT = 0;
-
-
 INSERT INTO
   author (first_name, last_name)
 VALUES
@@ -94,10 +90,6 @@ VALUES
 
 
 COMMIT;
-
-
-SET
-  AUTOCOMMIT = 0;
 
 
 INSERT INTO
@@ -200,10 +192,6 @@ VALUES
 COMMIT;
 
 
-SET
-  AUTOCOMMIT = 0;
-
-
 INSERT INTO
   book_author (book_id, author_id)
 VALUES
@@ -284,10 +272,6 @@ VALUES
 COMMIT;
 
 
-SET
-  AUTOCOMMIT = 0;
-
-
 INSERT INTO
   book_category (book_id, category_id)
 VALUES
@@ -366,6 +350,64 @@ VALUES
   (70, 7),
   (71, 8),
   (72, 9);
+
+
+COMMIT;
+
+
+INSERT INTO
+  user (username, password, salt, is_admin)
+VALUES
+  (
+    'admin',
+    'd82494f05d6917ba02f7aaa29689ccb444bb73f20380876cb05d1f37537b7892',
+    'admin',
+    1
+  ),
+  (
+    'johnsmith',
+    'dd11aea190ed9c8d90bf78e2094a329595d77262511ba9ae7932f80ab0193d1b',
+    'johnsmith',
+    0
+  );
+
+
+COMMIT;
+
+
+INSERT INTO
+  book_rating (user_id, book_id, rating)
+VALUES
+  (1, 2, 5),
+  (1, 3, 4),
+  (1, 4, 4),
+  (1, 5, 5),
+  (1, 6, 4),
+  (1, 7, 5),
+  (1, 8, 3),
+  (1, 9, 3),
+  (1, 10, 5),
+  (1, 11, 4),
+  (1, 12, 5),
+  (1, 13, 1),
+  (1, 14, 2),
+  (1, 15, 5),
+  (1, 16, 1),
+  (2, 2, 4),
+  (2, 3, 2),
+  (2, 4, 3),
+  (2, 5, 4),
+  (2, 6, 2),
+  (2, 7, 4),
+  (2, 8, 2),
+  (2, 9, 1),
+  (2, 10, 4),
+  (2, 11, 3),
+  (2, 12, 4),
+  (2, 13, 1),
+  (2, 14, 1),
+  (2, 15, 4),
+  (2, 16, 1);
 
 
 COMMIT;

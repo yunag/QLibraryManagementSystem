@@ -27,9 +27,6 @@ protected:
 signals:
   void logged();
 
-private:
-  void ensureSettings();
-
 private slots:
   void loginButtonClicked();
 

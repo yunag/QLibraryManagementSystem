@@ -73,3 +73,7 @@ QList<QStandardItem *> TwoWayList::resultList() {
   }
   return result;
 }
+
+bool TwoWayList::hasResults() {
+  return m_modelRight->rowCount();
+}

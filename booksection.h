@@ -6,6 +6,7 @@
 
 class BookAddDialog;
 class BookSectionDAO;
+class SearchFilterDialog;
 
 namespace Ui {
 class BookSection;
@@ -46,11 +47,13 @@ private slots:
   void prevPageButtonClicked();
   void addButtonClicked();
   void bookInsertedHandle();
+  void saveChanges();
 
 private:
   Ui::BookSection *ui;
 
   BookAddDialog *m_bookAddDialog;
+  SearchFilterDialog *m_searchFilterDialog;
   BookSectionDAO *m_dao;
 
   bool m_pageLoading;

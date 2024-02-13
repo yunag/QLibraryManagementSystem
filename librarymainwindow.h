@@ -6,6 +6,7 @@
 
 class BookSection;
 class LoginForm;
+class LibrarySideMenu;
 
 namespace Ui {
 class LibraryMainWindow;
@@ -28,6 +29,7 @@ private:
   Ui::LibraryMainWindow *ui;
 
   QWidget *m_currentSection;
+
   LoginForm *m_loginForm;
   BookSection *m_booksSection;
 };

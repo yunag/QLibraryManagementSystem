@@ -34,7 +34,11 @@
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="lineEdit">
+         <property name="placeholderText">
+          <string>Filter</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="DragDropListView" name="leftListView">

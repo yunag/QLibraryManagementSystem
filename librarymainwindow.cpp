@@ -1,5 +1,4 @@
-#include <QShowEvent>
-#include <qdebug.h>
+#include <QScreen>
 
 #include "booksection.h"
 #include "librarymainwindow.h"
@@ -13,15 +12,9 @@ LibraryMainWindow::LibraryMainWindow(QWidget *parent)
   m_currentSection = ui->displayWidget;
   m_booksSection = nullptr;
 
-  QString configPath = QApplication::applicationDirPath();
-  qApp->setOrganizationName("LibraryManagementOrganization");
-  qApp->setOrganizationDomain("LibraryManagementDomain");
-  qApp->setApplicationName("LibraryManagementSystem");
-
-  QSettings::setDefaultFormat(QSettings::IniFormat);
-  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configPath);
-
   connect(ui->booksButton, &QPushButton::clicked, this,
+          &LibraryMainWindow::booksButtonClicked);
+  connect(ui->sideMenu, &LibrarySideMenu::booksMenuClicked, this,
           &LibraryMainWindow::booksButtonClicked);
 }
 

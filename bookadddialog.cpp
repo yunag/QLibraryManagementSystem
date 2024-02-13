@@ -13,7 +13,7 @@ BookAddDialog::BookAddDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::BookAddDialog) {
   ui->setupUi(this);
 
-  QPixmap pixmap(":/resources/images/DefaultBookCover.jpg");
+  QPixmap pixmap(":/resources/images/DefaultBookCover");
   ui->coverLabel->setPixmap(pixmap);
   ui->coverLabel->setAspectRatio(Qt::KeepAspectRatio);
 
@@ -56,8 +56,7 @@ BookAddDialog::~BookAddDialog() {
 }
 
 void BookAddDialog::accept() {
-  if (ui->categories->resultList().isEmpty() ||
-      ui->authors->resultList().isEmpty() ||
+  if (!ui->categories->hasResults() || !ui->authors->hasResults() ||
       ui->titleLineEdit->text().isEmpty()) {
     return;
   }
@@ -78,9 +77,7 @@ void BookAddDialog::accept() {
               author_id << author->data().toUInt();
             }
 
-            qDebug() << "update" << QThread::currentThread();
             BookAuthor::update(book_id, author_id).waitForFinished();
-            qDebug() << "update end";
 
             return book_id;
           })

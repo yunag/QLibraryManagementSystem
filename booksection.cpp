@@ -1,11 +1,14 @@
 #include <QtConcurrent>
 
 #include <QDateTime>
+#include <QMessageBox>
+#include <QRegularExpressionValidator>
 #include <QScrollBar>
 #include <QSqlError>
 
 #include "bookadddialog.h"
 #include "booksectiondao.h"
+#include "searchfilterdialog.h"
 
 #include "bookcard.h"
 #include "booksection.h"
@@ -19,6 +22,10 @@ BookSection::BookSection(QWidget *parent)
   m_pageLoading = false;
   m_currentPage = 0;
 
+  m_dao = new BookSectionDAO;
+  m_bookAddDialog = new BookAddDialog(this);
+  m_searchFilterDialog = new SearchFilterDialog(m_dao, this);
+
   QListWidget *bookList = ui->booksListWidget;
 
   for (int i = 0; i < kItemsPerPage; ++i) {
@@ -31,24 +38,20 @@ BookSection::BookSection(QWidget *parent)
     bookList->setItemWidget(bookItem, bookCard);
   }
 
-  m_bookAddDialog = new BookAddDialog(this);
-
   bookList->verticalScrollBar()->setSingleStep(8);
   bookList->setAcceptDrops(false);
 
   ui->searchLineEdit->setClearButtonEnabled(true);
   QAction *action = ui->searchLineEdit->addAction(
-    QIcon(":/resources/images/searchIcon.png"), QLineEdit::LeadingPosition);
+    QIcon(":/resources/icons/searchIcon"), QLineEdit::LeadingPosition);
 
-  m_dao = new BookSectionDAO;
+  LibraryDatabase::transaction();
 
-  connect(action, &QAction::triggered, this, [action](bool checked) {
-    Q_UNUSED(action);
-    Q_UNUSED(checked);
+  connect(action, &QAction::triggered, this,
+          [this](auto) { m_searchFilterDialog->show(); });
 
-    qDebug() << "Triggered";
-  });
-
+  connect(ui->saveChangesButton, &QPushButton::clicked, this,
+          &BookSection::saveChanges);
   connect(m_bookAddDialog, &BookAddDialog::inserted, this,
           &BookSection::bookInsertedHandle);
   connect(ui->addButton, &QPushButton::clicked, this,
@@ -106,7 +109,7 @@ bool BookSection::loadPage(qint32 pageNumber) {
 
   updatePageButtons(pageNumber);
 
-  QPixmap defaultBookCover(":/resources/images/DefaultBookCover.jpg");
+  QPixmap defaultBookCover(":/resources/images/DefaultBookCover");
 
   m_dao->loadBookCards(kItemsPerPage, offset, defaultBookCover)
     .then(this,
@@ -125,6 +128,7 @@ bool BookSection::loadPage(qint32 pageNumber) {
               bookCard->setBookId(data.bookId);
               bookCard->setAuthors(data.authors);
               bookCard->setCategories(data.categories);
+              bookCard->setRating(qRound(data.rating));
             }
 
             hideItems(bookCards.size());
@@ -244,4 +248,12 @@ void BookSection::bookInsertedHandle() {
 void BookSection::setBooksCount(qint32 booksCount) {
   m_booksCount = booksCount;
   ui->numberOfBooksLabel->setText(QString::number(m_booksCount));
+}
+
+void BookSection::saveChanges() {
+  ui->saveChangesButton->setEnabled(false);
+
+  LibraryDatabase::commit()
+    .then(QtFuture::Launch::Async, []() { LibraryDatabase::transaction(); })
+    .then(this, [this]() { ui->saveChangesButton->setEnabled(true); });
 }

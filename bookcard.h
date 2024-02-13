@@ -11,11 +11,12 @@ class BookCard;
 
 struct BookCardData {
   BookCardData() = default;
-  BookCardData(QPixmap cover_, QString title_, quint32 bookId_,
-               QStringList authors_, QStringList categories_, int rating_)
-      : cover(std::move(cover_)), title(std::move(title_)), bookId(bookId_),
-        authors(std::move(authors_)), categories(std::move(categories_)),
-        rating(rating_){};
+
+  BookCardData(QPixmap cover, QString title, quint32 bookId,
+               QStringList authors, QStringList categories, double rating)
+      : cover(std::move(cover)), title(std::move(title)), bookId(bookId),
+        authors(std::move(authors)), categories(std::move(categories)),
+        rating(rating) {}
 
   QPixmap cover;
   QString title;
@@ -24,7 +25,7 @@ struct BookCardData {
   QStringList authors;
   QStringList categories;
 
-  int rating;
+  double rating;
 };
 
 class BookCard : public QWidget {

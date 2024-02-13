@@ -195,7 +195,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="userNameLabel">
+       <widget class="QLabel" name="usernameLabel">
         <property name="font">
          <font>
           <family>Montserrat</family>
@@ -207,7 +207,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="userNameLineEdit">
+       <widget class="QLineEdit" name="usernameLineEdit">
         <property name="font">
          <font>
           <family>Montserrat</family>
@@ -234,7 +234,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="passwordLineEdit">
+       <widget class="PasswordLineEdit" name="passwordLineEdit">
         <property name="font">
          <font>
           <family>Montserrat</family>
@@ -362,6 +362,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PasswordLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>passwordlineedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resource.qrc"/>
  </resources>

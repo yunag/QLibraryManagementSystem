@@ -21,6 +21,7 @@ public:
 
   void addItems(QList<QStandardItem *> items);
   QList<QStandardItem *> resultList();
+  bool hasResults();
 
 private slots:
   void returnPressed();
