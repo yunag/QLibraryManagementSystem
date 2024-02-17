@@ -5,6 +5,7 @@
 #include <QRegularExpressionValidator>
 #include <QScrollBar>
 #include <QSqlError>
+#include <QStandardItemModel>
 
 #include "bookadddialog.h"
 #include "booksectiondao.h"
@@ -25,21 +26,22 @@ BookSection::BookSection(QWidget *parent)
   m_dao = new BookSectionDAO;
   m_bookAddDialog = new BookAddDialog(this);
   m_searchFilterDialog = new SearchFilterDialog(m_dao, this);
+  m_model = new QStandardItemModel(this);
 
-  QListWidget *bookList = ui->booksListWidget;
+  ui->bookListView->setModel(m_model);
 
   for (int i = 0; i < kItemsPerPage; ++i) {
-    QListWidgetItem *bookItem = new QListWidgetItem(bookList);
-    BookCard *bookCard = new BookCard(bookList);
+    QStandardItem *bookItem = new QStandardItem;
+    BookCard *bookCard = new BookCard(ui->bookListView);
 
     bookItem->setSizeHint(bookCard->sizeHint());
-
-    bookList->addItem(bookItem);
-    bookList->setItemWidget(bookItem, bookCard);
+    m_model->insertRow(i, bookItem);
+    ui->bookListView->setIndexWidget(ui->bookListView->model()->index(i, 0),
+                                     bookCard);
   }
 
-  bookList->verticalScrollBar()->setSingleStep(8);
-  bookList->setAcceptDrops(false);
+  ui->bookListView->verticalScrollBar()->setSingleStep(8);
+  ui->bookListView->setAcceptDrops(false);
 
   ui->searchLineEdit->setClearButtonEnabled(true);
   QAction *action = ui->searchLineEdit->addAction(
@@ -72,7 +74,7 @@ BookSection::~BookSection() {
 
 void BookSection::hideItems(quint32 itemStart) {
   for (quint32 i = itemStart; i < kItemsPerPage; ++i) {
-    ui->booksListWidget->item(i)->setHidden(true);
+    ui->bookListView->setRowHidden(i, true);
   }
 }
 
@@ -117,11 +119,12 @@ bool BookSection::loadPage(qint32 pageNumber) {
             for (qsizetype itemNumber = 0; itemNumber < bookCards.size();
                  ++itemNumber) {
               const BookCardData &data = bookCards[itemNumber];
-              QListWidgetItem *bookItem = ui->booksListWidget->item(itemNumber);
+              QModelIndex itemIndex =
+                ui->bookListView->model()->index(itemNumber, 0);
               BookCard *bookCard = qobject_cast<BookCard *>(
-                ui->booksListWidget->itemWidget(bookItem));
+                ui->bookListView->indexWidget(itemIndex));
 
-              bookItem->setHidden(false);
+              ui->bookListView->setRowHidden(itemNumber, false);
               bookCard->setCover(data.cover);
 
               bookCard->setTitle(data.title);
@@ -199,8 +202,8 @@ void BookSection::searchTextChanged(const QString &text) {
 }
 
 void BookSection::distributeGridSize() {
-  QListWidget *bookList = ui->booksListWidget;
-  QListWidgetItem *item = bookList->item(0);
+  QListView *bookList = ui->bookListView;
+  QStandardItem *item = m_model->item(0);
 
   if (!item) {
     return;
@@ -234,7 +237,7 @@ void BookSection::updatePageButtons(qint32 pageNumber) {
   ui->nextPageButton->setDisabled(isEndPage(pageNumber));
 
   if (widget != focusWidget()) {
-    ui->booksListWidget->setFocus();
+    ui->bookListView->setFocus();
   }
 }
 

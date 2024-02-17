@@ -4,6 +4,8 @@
 #include <QFuture>
 #include <QWidget>
 
+class QStandardItemModel;
+
 class BookAddDialog;
 class BookSectionDAO;
 class SearchFilterDialog;
@@ -55,6 +57,8 @@ private:
   BookAddDialog *m_bookAddDialog;
   SearchFilterDialog *m_searchFilterDialog;
   BookSectionDAO *m_dao;
+
+  QStandardItemModel *m_model;
 
   bool m_pageLoading;
 
