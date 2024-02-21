@@ -49,8 +49,8 @@ CREATE TABLE IF NOT EXISTS book_author (
   book_id INT UNSIGNED NOT NULL,
   author_id INT UNSIGNED NOT NULL,
   PRIMARY KEY (book_id, author_id),
-  CONSTRAINT fk_book_author_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT fk_book_author_author FOREIGN KEY (author_id) REFERENCES author (author_id) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT fk_book_author_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_book_author_author FOREIGN KEY (author_id) REFERENCES author (author_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 
@@ -61,8 +61,8 @@ CREATE TABLE IF NOT EXISTS book_category (
   book_id INT UNSIGNED NOT NULL,
   category_id TINYINT UNSIGNED NOT NULL,
   PRIMARY KEY (book_id, category_id),
-  CONSTRAINT fk_book_category_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT fk_book_category_category FOREIGN KEY (category_id) REFERENCES category (category_id) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT fk_book_category_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_book_category_category FOREIGN KEY (category_id) REFERENCES category (category_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 
@@ -91,8 +91,8 @@ CREATE TABLE IF NOT EXISTS book_rating (
   rating TINYINT UNSIGNED NOT NULL DEFAULT 1,
   rating_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (book_id, user_id),
-  CONSTRAINT fk_book_rating_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT fk_book_rating_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT fk_book_rating_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_book_rating_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 
@@ -106,8 +106,8 @@ CREATE TABLE IF NOT EXISTS loan (
   loan_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   returned_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (loan_id),
-  CONSTRAINT fk_loan_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT fk_loan_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT fk_loan_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_loan_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 
@@ -121,15 +121,15 @@ CREATE TABLE IF NOT EXISTS fine (
   fine_amount DECIMAL(5, 2) NOT NULL,
   fine_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (fine_id),
-  CONSTRAINT fk_fine_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT fk_fine_loan FOREIGN KEY (loan_id) REFERENCES loan (loan_id) ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT fk_fine_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_fine_loan FOREIGN KEY (loan_id) REFERENCES loan (loan_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 
 --
--- View structure for view `book_author_vw`
+-- View structure for view `book_info_vw`
 --
-CREATE VIEW book_author_vw (
+CREATE VIEW book_info_vw (
   book_id,
   book_title,
   categories,

@@ -1,5 +1,5 @@
 #include "searchfilterdialog.h"
-#include "ui_searchfilterdialog.h"
+#include "forms/ui_searchfilterdialog.h"
 
 #include "booksectiondao.h"
 

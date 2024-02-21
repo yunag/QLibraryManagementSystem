@@ -13,8 +13,8 @@
 
 #include "bookcard.h"
 #include "booksection.h"
-#include "librarydatabase.h"
-#include "ui_booksection.h"
+#include "database/librarydatabase.h"
+#include "forms/ui_booksection.h"
 
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection) {
@@ -47,10 +47,19 @@ BookSection::BookSection(QWidget *parent)
   QAction *action = ui->searchLineEdit->addAction(
     QIcon(":/resources/icons/searchIcon"), QLineEdit::LeadingPosition);
 
-  LibraryDatabase::transaction();
+  LibraryDatabase::transaction().onFailed(
+    [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
 
   connect(action, &QAction::triggered, this,
-          [this](auto) { m_searchFilterDialog->show(); });
+          [this]() { m_searchFilterDialog->show(); });
+
+  connect(ui->bookListView, &QListView::clicked, this,
+          [this](const QModelIndex &index) {
+            BookCard *bookCard =
+              qobject_cast<BookCard *>(ui->bookListView->indexWidget(index));
+            Book b("updateTest", "27-02-23", "", 2);
+            LibraryDatabase::updateById(bookCard->bookId(), b);
+          });
 
   connect(ui->saveChangesButton, &QPushButton::clicked, this,
           &BookSection::saveChanges);
@@ -138,7 +147,7 @@ bool BookSection::loadPage(qint32 pageNumber) {
           })
     .onFailed(this,
               [this](const QSqlError &e) { databaseErrorMessageBox(this, e); })
-    .then([this]() { m_pageLoading = false; });
+    .then(this, [this]() { m_pageLoading = false; });
 
   return true;
 }
@@ -258,5 +267,7 @@ void BookSection::saveChanges() {
 
   LibraryDatabase::commit()
     .then(QtFuture::Launch::Async, []() { LibraryDatabase::transaction(); })
-    .then(this, [this]() { ui->saveChangesButton->setEnabled(true); });
+    .then(this, [this]() { ui->saveChangesButton->setEnabled(true); })
+    .onFailed(
+      [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
 }

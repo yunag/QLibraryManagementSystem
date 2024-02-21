@@ -4,14 +4,14 @@
 
 const QString BookSectionDAO::kQuery = R"(
 SELECT
-  ba.book_id,
-  ba.book_title,
-  ba.categories,
-  ba.authors,
-  ba.cover_path,
-  ba.rating
+  bi.book_id,
+  bi.book_title,
+  bi.categories,
+  bi.authors,
+  bi.cover_path,
+  bi.rating
 FROM
-  book_author_vw AS ba
+  book_info_vw AS bi
 WHERE 
   %1
 ORDER BY
@@ -23,7 +23,7 @@ OFFSET
 )";
 
 BookSectionDAO::BookSectionDAO() {
-  m_orderBy = "ba.book_id";
+  m_orderBy = "bi.book_id";
 }
 
 void BookSectionDAO::setFilter(Filter filter, const QString &value) {
@@ -72,11 +72,11 @@ BookSectionDAO::loadBookCards(int itemsCount, int offset,
 }
 
 void BookSectionDAO::setSearchFilter(const QString &search) {
-  QString condition = "lower(ba.book_title) LIKE :search";
+  QString condition = "lower(bi.book_title) LIKE :search";
   QString reg = search.toLower().split("").join("%").replace("%%%", "%\\%%");
 
   m_orderBy =
-    search.isEmpty() ? "ba.book_id" : "length(ba.book_title) - :length";
+    search.isEmpty() ? "bi.book_id" : "length(bi.book_title) - :length";
 
   m_bindings[":search"] = reg;
   m_bindings[":length"] = search.length();
@@ -85,7 +85,7 @@ void BookSectionDAO::setSearchFilter(const QString &search) {
 }
 
 QFuture<quint32> BookSectionDAO::bookCardsCount() {
-  QString cmd = "SELECT count(*) FROM book_author_vw AS ba WHERE %1";
+  QString cmd = "SELECT count(*) FROM book_info_vw AS bi WHERE %1";
   QString filters = applyFilters();
 
   return LibraryDatabase::exec(cmd.arg(filters), m_bindings)
@@ -97,13 +97,13 @@ void BookSectionDAO::orderBy(Column column, Qt::SortOrder order) {
 
   switch (column) {
     case Id:
-      m_orderBy = "ba.book_id";
+      m_orderBy = "bi.book_id";
       break;
     case Title:
-      m_orderBy = "ba.book_title";
+      m_orderBy = "bi.book_title";
       break;
     case Rating:
-      m_orderBy = "ba.rating";
+      m_orderBy = "bi.rating";
       break;
     default:
       qDebug() << "Invalid column";

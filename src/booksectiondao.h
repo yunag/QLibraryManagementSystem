@@ -2,7 +2,7 @@
 #define BOOKSECTIONDAO_H
 
 #include "bookcard.h"
-#include "librarydatabase.h"
+#include "database/librarydatabase.h"
 
 class BookSectionDAO {
 public:

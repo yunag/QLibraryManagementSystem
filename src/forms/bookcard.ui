@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>789</width>
-    <height>451</height>
+    <width>619</width>
+    <height>358</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -76,6 +76,12 @@ QLineEdit:focus {
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
      <item>
       <spacer name="verticalSpacer">
        <property name="orientation">
@@ -390,6 +396,11 @@ QLineEdit:focus {
  </widget>
  <customwidgets>
   <customwidget>
+   <class>ImagePickerLabel</class>
+   <extends>QLabel</extends>
+   <header>imagepickerlabel.h</header>
+  </customwidget>
+  <customwidget>
    <class>KRatingWidget</class>
    <extends>QFrame</extends>
    <header>kratingwidget.h</header>
@@ -399,11 +410,6 @@ QLineEdit:focus {
    <class>PreviewLineEdit</class>
    <extends>QLineEdit</extends>
    <header>previewlineedit.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ImagePickerLabel</class>
-   <extends>QLabel</extends>
-   <header>imagepickerlabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

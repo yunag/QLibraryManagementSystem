@@ -1,7 +1,7 @@
 #include <QCryptographicHash>
 #include <QRandomGenerator>
 
-#include "librarydatabase.h"
+#include "database/librarydatabase.h"
 #include "user.h"
 
 QFuture<bool> User::validate(const QString &username, const QString &password) {

@@ -24,7 +24,9 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
 void LibraryApplication::setupSettings() {
   QSettings settings;
 
-  QString configPath = applicationDirPath();
+  /* TODO: Copy config to build dir */
+  QString configPath = applicationDirPath() + "/../..";
+
   setOrganizationName("LibraryManagementOrganization");
   setOrganizationDomain("LibraryManagementDomain");
   setApplicationName("LibraryManagementSystem");

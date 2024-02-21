@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include "book.h"
+#include "database/book.h"
 
 namespace Ui {
 class BookCard;

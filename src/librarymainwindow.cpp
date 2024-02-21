@@ -1,9 +1,9 @@
 #include <QScreen>
 
 #include "booksection.h"
+#include "forms/ui_librarymainwindow.h"
 #include "librarymainwindow.h"
 #include "loginform.h"
-#include "ui_librarymainwindow.h"
 
 LibraryMainWindow::LibraryMainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::LibraryMainWindow), m_loginForm(nullptr) {

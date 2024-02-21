@@ -1,0 +1,19 @@
+{
+  "format": {
+    "line_width": 120,
+    "tab_size": 2,
+    "enable_sort": true,
+    "autosort": true
+  },
+  "additional_commands": {
+    "find_qt": {
+      "flags": [],
+      "kwargs": {
+        "COMPONENTS": "+",
+        "COMPONENTS_WIN": "+",
+        "COMPONENTS_MACOS": "+",
+        "COMPONENTS_LINUX": "+"
+      }
+    }
+  }
+}

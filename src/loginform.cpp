@@ -6,8 +6,8 @@
 #include <QSettings>
 #include <QValidator>
 
-#include "./ui_loginform.h"
-#include "librarydatabase.h"
+#include "database/librarydatabase.h"
+#include "forms/ui_loginform.h"
 #include "loginform.h"
 #include "user.h"
 #include "widgetutils.h"

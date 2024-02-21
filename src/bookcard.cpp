@@ -1,7 +1,7 @@
 #include <QClipboard>
 
 #include "bookcard.h"
-#include "ui_bookcard.h"
+#include "forms/ui_bookcard.h"
 
 BookCard::BookCard(QWidget *parent) : QWidget(parent), ui(new Ui::BookCard) {
   ui->setupUi(this);
