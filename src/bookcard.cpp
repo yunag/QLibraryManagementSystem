@@ -10,6 +10,8 @@ BookCard::BookCard(QWidget *parent) : QWidget(parent), ui(new Ui::BookCard) {
   ui->ratingWidget->setAlignment(Qt::AlignLeft);
   ui->ratingWidget->setCustomPixmap(starPixmap);
 
+  setObjectName("BookCard");
+
   connect(ui->copyButton, &QPushButton::clicked, this,
           &BookCard::copyButtonClicked);
 }

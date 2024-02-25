@@ -19,35 +19,6 @@ BookAddDialog::BookAddDialog(QWidget *parent)
   ui->coverLabel->setPixmap(pixmap);
   ui->coverLabel->setAspectRatio(Qt::KeepAspectRatio);
 
-  LibraryDatabase::getEntries<Category>().then(
-    this, [this](const QList<Category> &categories) {
-      QList<QStandardItem *> items;
-
-      for (const Category &category : categories) {
-        QStandardItem *item = new QStandardItem(category.name);
-        item->setData(category.category_id);
-
-        items.append(item);
-      }
-
-      ui->categories->addItems(items);
-    });
-
-  LibraryDatabase::getEntries<Author>().then(
-    this, [this](const QList<Author> &authors) {
-      QList<QStandardItem *> items;
-
-      for (const Author &author : authors) {
-        QStandardItem *item =
-          new QStandardItem(author.first_name + " " + author.last_name);
-        item->setData(author.author_id);
-
-        items.append(item);
-      }
-
-      ui->authors->addItems(items);
-    });
-
   connect(ui->buttonBox, &QDialogButtonBox::accepted, this,
           &BookAddDialog::accept);
   connect(ui->buttonBox, &QDialogButtonBox::rejected, this,
@@ -59,12 +30,12 @@ BookAddDialog::~BookAddDialog() {
 }
 
 static QList<quint32> getIds(QList<QStandardItem *> items) {
-  QList<quint32> author_id;
+  QList<quint32> ids;
   for (QStandardItem *item : items) {
-    author_id << item->data().toUInt();
+    ids << item->data().toUInt();
   }
 
-  return author_id;
+  return ids;
 }
 
 void BookAddDialog::accept() {
@@ -82,20 +53,64 @@ void BookAddDialog::accept() {
   Book book(title, publicationDate, coverPath, 0);
 
   LibraryDatabase::insert(book)
-    .then(this,
+    .then(QtFuture::Launch::Async,
           [author_ids = std::move(author_ids)](QVariant id) {
             BookAuthor::update(id.toUInt(), author_ids).waitForFinished();
 
             return id.toUInt();
           })
-    .then(this,
-          [category_ids, this](quint32 book_id) {
-            Category::update(book_id, category_ids).waitForFinished();
-
+    .then(QtFuture::Launch::Async,
+          [category_ids = std::move(category_ids), this](quint32 book_id) {
+            BookCategory::update(book_id, category_ids).waitForFinished();
             emit inserted(book_id);
           })
-    .onFailed(this,
-              [this](const QSqlError &e) { databaseErrorMessageBox(this, e); });
+    .onFailed(this, [this](const QSqlError &err) {
+      databaseErrorMessageBox(this, err);
+    });
 
   QDialog::accept();
+}
+
+void BookAddDialog::open() {
+  if (!ui->categories->hasResults()) {
+    updateCategories();
+  }
+  if (!ui->authors->hasResults()) {
+    updateAuthors();
+  }
+
+  QDialog::open();
+};
+
+void BookAddDialog::updateAuthors() {
+  LibraryDatabase::getEntries<Author>().then(
+    this, [this](const QList<Author> &authors) {
+      QList<QStandardItem *> items;
+
+      for (const Author &author : authors) {
+        QStandardItem *item =
+          new QStandardItem(author.first_name + " " + author.last_name);
+        item->setData(author.author_id);
+
+        items.append(item);
+      }
+
+      ui->authors->addItems(items);
+    });
+}
+
+void BookAddDialog::updateCategories() {
+  LibraryDatabase::getEntries<Category>().then(
+    this, [this](const QList<Category> &categories) {
+      QList<QStandardItem *> items;
+
+      for (const Category &category : categories) {
+        QStandardItem *item = new QStandardItem(category.name);
+        item->setData(category.category_id);
+
+        items.append(item);
+      }
+
+      ui->categories->addItems(items);
+    });
 }

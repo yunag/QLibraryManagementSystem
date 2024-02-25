@@ -140,7 +140,7 @@ QSqlQuery LibraryDatabase::execQuery(const QString &cmd) {
   QSqlQuery query(db);
 
   if (!query.exec(cmd)) {
-    qWarning() << query.lastError();
+    qWarning() << query.lastError() << cmd;
     throw query.lastError();
   }
 
@@ -188,7 +188,7 @@ LibraryDatabase::preparedExecBatchQuery(const QString &cmd,
   }
 
   if (!query.execBatch()) {
-    qWarning() << query.lastError();
+    qWarning() << query.lastError() << cmd;
     throw query.lastError();
   }
   return query;

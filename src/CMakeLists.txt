@@ -21,6 +21,7 @@ set(PROJECT_SOURCES
     database/category.cpp
     database/category.h
     database/bookcategory.h
+    database/bookcategory.cpp
     libraryapplication.cpp
     librarymainwindow.cpp
     bookadddialog.h

@@ -13,6 +13,7 @@ class LibrarySideMenu : public QWidget {
 public:
   explicit LibrarySideMenu(QWidget *parent = nullptr);
   ~LibrarySideMenu();
+  void toggle();
 
 signals:
   void booksMenuClicked();

@@ -9,6 +9,8 @@ LibrarySideMenu::LibrarySideMenu(QWidget *parent)
           &LibrarySideMenu::sideMenuButtonClicked);
   connect(ui->booksMenu, &ClickableFrame::clicked, this,
           &LibrarySideMenu::booksMenuClicked);
+
+  toggle();
 }
 
 LibrarySideMenu::~LibrarySideMenu() {
@@ -16,6 +18,10 @@ LibrarySideMenu::~LibrarySideMenu() {
 }
 
 void LibrarySideMenu::sideMenuButtonClicked() {
+  toggle();
+}
+
+void LibrarySideMenu::toggle() {
   ui->authorsText->setHidden(!ui->authorsText->isHidden());
   ui->booksText->setHidden(!ui->booksText->isHidden());
-}
+};

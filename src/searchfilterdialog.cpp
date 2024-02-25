@@ -22,8 +22,6 @@ SearchFilterDialog::SearchFilterDialog(BookSectionDAO *dao, QWidget *parent)
     ui->sortByComboBox->addItem(item.sortBy, item.column);
   }
 
-  ui->sortByComboBox->setCurrentIndex(0);
-
   connect(ui->sortByComboBox, &QComboBox::currentIndexChanged, this,
           &SearchFilterDialog::indexChanged);
 
@@ -31,8 +29,6 @@ SearchFilterDialog::SearchFilterDialog(BookSectionDAO *dao, QWidget *parent)
           [this](bool checked) {
             m_order = checked ? Qt::AscendingOrder : Qt::DescendingOrder;
           });
-
-  ui->ascRadioButton->toggle();
 }
 
 SearchFilterDialog::~SearchFilterDialog() {
@@ -48,4 +44,15 @@ void SearchFilterDialog::accept() {
   m_dao->orderBy(m_column, m_order);
 
   QDialog::accept();
+}
+
+void SearchFilterDialog::open() {
+  ui->sortByComboBox->setCurrentIndex(m_dao->orderColumn());
+  if (m_dao->order() == Qt::AscendingOrder) {
+    ui->ascRadioButton->toggle();
+  } else {
+    ui->descRadioButton->toggle();
+  }
+
+  QDialog::open();
 }

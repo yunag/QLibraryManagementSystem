@@ -14,7 +14,10 @@ public:
   explicit BookAddDialog(QWidget *parent = nullptr);
   ~BookAddDialog();
 
-  void accept();
+  void open() override;
+  void accept() override;
+  void updateAuthors();
+  void updateCategories();
 
 signals:
   void inserted(quint32 book_id);

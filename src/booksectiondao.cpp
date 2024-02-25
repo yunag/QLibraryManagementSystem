@@ -42,28 +42,24 @@ QString BookSectionDAO::applyFilters() {
   return filters;
 }
 
-QFuture<QList<BookCardData>>
-BookSectionDAO::loadBookCards(int itemsCount, int offset,
-                              const QPixmap &defaultBookCover) {
+QFuture<QList<BookCardData>> BookSectionDAO::loadBookCards(int itemsCount,
+                                                           int offset) {
   QString filters = applyFilters();
   QString cmd = kQuery.arg(filters, QString::number(itemsCount),
                            QString::number(offset), m_orderBy);
 
   return LibraryDatabase::exec(cmd, m_bindings)
-    .then(QtFuture::Launch::Async, [itemsCount,
-                                    defaultBookCover](LibraryTable table) {
+    .then(QtFuture::Launch::Async, [itemsCount](LibraryTable table) {
       Q_ASSERT(table.size() <= itemsCount);
 
-      return QtConcurrent::blockingMapped(table, [defaultBookCover](
-                                                   const QVariantList &row) {
+      return QtConcurrent::blockingMapped(table, [](const QVariantList &row) {
         quint32 book_id = row[0].toUInt();
         QString title = row[1].toString();
 
         QStringList categories = row[2].toString().split(", ");
         QStringList authors = row[3].toString().split(", ");
 
-        QPixmap cover(row[4].toString().isNull() ? defaultBookCover
-                                                 : row[4].toString());
+        QPixmap cover(row[4].toString());
         qreal rating = row[5].toDouble();
 
         return BookCardData(cover, title, book_id, authors, categories, rating);
@@ -92,21 +88,32 @@ QFuture<quint32> BookSectionDAO::bookCardsCount() {
     .then([](LibraryTable table) { return table[0][0].toUInt(); });
 }
 
-void BookSectionDAO::orderBy(Column column, Qt::SortOrder order) {
-  QString orderStr = order == Qt::AscendingOrder ? "ASC" : "DESC";
-
+static QString toDbColumn(BookSectionDAO::Column column) {
   switch (column) {
-    case Id:
-      m_orderBy = "bi.book_id";
-      break;
-    case Title:
-      m_orderBy = "bi.book_title";
-      break;
-    case Rating:
-      m_orderBy = "bi.rating";
-      break;
+    case BookSectionDAO::Id:
+      return "bi.book_id";
+    case BookSectionDAO::Title:
+      return "bi.book_title";
+    case BookSectionDAO::Rating:
+      return "bi.rating";
     default:
       qDebug() << "Invalid column";
   }
-  m_orderBy += " " + orderStr;
+}
+
+void BookSectionDAO::orderBy(Column column, Qt::SortOrder order) {
+  QString orderStr = order == Qt::AscendingOrder ? "ASC" : "DESC";
+
+  m_orderBy = toDbColumn(column) + " " + orderStr;
+
+  m_order = order;
+  m_column = column;
+}
+
+Qt::SortOrder BookSectionDAO::order() const {
+  return m_order;
+}
+
+BookSectionDAO::Column BookSectionDAO::orderColumn() const {
+  return m_column;
 }

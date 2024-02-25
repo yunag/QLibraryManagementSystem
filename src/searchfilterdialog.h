@@ -18,8 +18,9 @@ public:
   explicit SearchFilterDialog(BookSectionDAO *dao, QWidget *parent = nullptr);
   ~SearchFilterDialog();
 
-public slots:
-  void accept();
+public:
+  void open() override;
+  void accept() override;
 
 private slots:
   void indexChanged(int index);

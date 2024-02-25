@@ -50,6 +50,8 @@ private slots:
   void addButtonClicked();
   void bookInsertedHandle();
   void saveChanges();
+  void searchFilterAccepted();
+  void deleteButtonClicked();
 
 private:
   Ui::BookSection *ui;
@@ -57,8 +59,6 @@ private:
   BookAddDialog *m_bookAddDialog;
   SearchFilterDialog *m_searchFilterDialog;
   BookSectionDAO *m_dao;
-
-  QStandardItemModel *m_model;
 
   bool m_pageLoading;
 

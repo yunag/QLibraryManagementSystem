@@ -15,6 +15,8 @@ public:
   SCHEMA_NAME(book_category);
   SCHEMA_KEY(quint32, book_id);
   SCHEMA_FIELD(quint32, category_id);
+
+  static QFuture<void> update(quint32 book_id, QList<quint32> category_id);
 };
 
 #endif /* !BOOKCATEGORY_H */

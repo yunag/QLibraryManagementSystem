@@ -26,41 +26,44 @@ BookSection::BookSection(QWidget *parent)
   m_dao = new BookSectionDAO;
   m_bookAddDialog = new BookAddDialog(this);
   m_searchFilterDialog = new SearchFilterDialog(m_dao, this);
-  m_model = new QStandardItemModel(this);
+  QStandardItemModel *model = new QStandardItemModel(this);
 
-  ui->bookListView->setModel(m_model);
+  ui->bookListView->setModel(model);
 
   for (int i = 0; i < kItemsPerPage; ++i) {
     QStandardItem *bookItem = new QStandardItem;
     BookCard *bookCard = new BookCard(ui->bookListView);
 
     bookItem->setSizeHint(bookCard->sizeHint());
-    m_model->insertRow(i, bookItem);
-    ui->bookListView->setIndexWidget(ui->bookListView->model()->index(i, 0),
-                                     bookCard);
+    model->insertRow(i, bookItem);
+    ui->bookListView->setIndexWidget(model->index(i, 0), bookCard);
   }
 
   ui->bookListView->verticalScrollBar()->setSingleStep(8);
   ui->bookListView->setAcceptDrops(false);
+  ui->bookListView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
   ui->searchLineEdit->setClearButtonEnabled(true);
   QAction *action = ui->searchLineEdit->addAction(
     QIcon(":/resources/icons/searchIcon"), QLineEdit::LeadingPosition);
 
   LibraryDatabase::transaction().onFailed(
-    [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
+    this, [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
 
   connect(action, &QAction::triggered, this,
-          [this]() { m_searchFilterDialog->show(); });
+          [this]() { m_searchFilterDialog->open(); });
+  connect(m_searchFilterDialog, &QDialog::accepted, this,
+          &BookSection::searchFilterAccepted);
 
-  connect(ui->bookListView, &QListView::clicked, this,
+  connect(ui->bookListView, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
             BookCard *bookCard =
               qobject_cast<BookCard *>(ui->bookListView->indexWidget(index));
-            Book b("updateTest", "27-02-23", "", 2);
-            LibraryDatabase::updateById(bookCard->bookId(), b);
+            qDebug() << "Clicked:" << bookCard->bookId();
           });
 
+  connect(ui->deleteButton, &QPushButton::clicked, this,
+          &BookSection::deleteButtonClicked);
   connect(ui->saveChangesButton, &QPushButton::clicked, this,
           &BookSection::saveChanges);
   connect(m_bookAddDialog, &BookAddDialog::inserted, this,
@@ -97,8 +100,8 @@ void BookSection::updateLastSync() {
 QFuture<void> BookSection::updateNumberOfBooks() {
   return m_dao->bookCardsCount()
     .then(this, [this](quint32 count) { setBooksCount(count); })
-    .onFailed(this, [this](const QSqlError &e) {
-      databaseErrorMessageBox(this, e);
+    .onFailed(this, [this](const QSqlError &err) {
+      databaseErrorMessageBox(this, err);
 
       setBooksCount(0);
     });
@@ -122,9 +125,10 @@ bool BookSection::loadPage(qint32 pageNumber) {
 
   QPixmap defaultBookCover(":/resources/images/DefaultBookCover");
 
-  m_dao->loadBookCards(kItemsPerPage, offset, defaultBookCover)
+  m_dao->loadBookCards(kItemsPerPage, offset)
     .then(this,
-          [this](const QList<BookCardData> &bookCards) {
+          [this, defaultBookCover = std::move(defaultBookCover)](
+            const QList<BookCardData> &bookCards) {
             for (qsizetype itemNumber = 0; itemNumber < bookCards.size();
                  ++itemNumber) {
               const BookCardData &data = bookCards[itemNumber];
@@ -134,7 +138,8 @@ bool BookSection::loadPage(qint32 pageNumber) {
                 ui->bookListView->indexWidget(itemIndex));
 
               ui->bookListView->setRowHidden(itemNumber, false);
-              bookCard->setCover(data.cover);
+              bookCard->setCover(data.cover.isNull() ? defaultBookCover
+                                                     : data.cover);
 
               bookCard->setTitle(data.title);
               bookCard->setBookId(data.bookId);
@@ -193,7 +198,7 @@ void BookSection::prevPageButtonClicked() {
 }
 
 void BookSection::addButtonClicked() {
-  m_bookAddDialog->exec();
+  m_bookAddDialog->open();
 }
 
 void BookSection::resizeEvent(QResizeEvent *event) {
@@ -207,12 +212,14 @@ void BookSection::searchTextChanged(const QString &text) {
   /* Reset page to first */
   m_currentPage = 0;
 
-  updateNumberOfBooks().then([this]() { loadPage(m_currentPage); });
+  updateNumberOfBooks().then(this, [this]() { loadPage(m_currentPage); });
 }
 
 void BookSection::distributeGridSize() {
   QListView *bookList = ui->bookListView;
-  QStandardItem *item = m_model->item(0);
+  QStandardItemModel *model =
+    qobject_cast<QStandardItemModel *>(bookList->model());
+  QStandardItem *item = model->item(0);
 
   if (!item) {
     return;
@@ -268,6 +275,24 @@ void BookSection::saveChanges() {
   LibraryDatabase::commit()
     .then(QtFuture::Launch::Async, []() { LibraryDatabase::transaction(); })
     .then(this, [this]() { ui->saveChangesButton->setEnabled(true); })
-    .onFailed(
-      [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
+    .onFailed(this, [this](const QSqlError &err) {
+      databaseErrorMessageBox(this, err);
+    });
+}
+
+void BookSection::searchFilterAccepted() {
+  loadPage(m_currentPage);
+}
+
+void BookSection::deleteButtonClicked() {
+  QModelIndexList selectedIndexes =
+    ui->bookListView->selectionModel()->selectedIndexes();
+
+  for (QModelIndex index : selectedIndexes) {
+    BookCard *bookCard =
+      qobject_cast<BookCard *>(ui->bookListView->indexWidget(index));
+
+    qDebug() << bookCard->bookId();
+    LibraryDatabase::deleteById<Book>(bookCard->bookId());
+  }
 }

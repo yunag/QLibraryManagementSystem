@@ -12,8 +12,7 @@ public:
 
 public:
   BookSectionDAO();
-  QFuture<QList<BookCardData>> loadBookCards(int itemsCount, int offset,
-                                             const QPixmap &defaultBookCover);
+  QFuture<QList<BookCardData>> loadBookCards(int itemsCount, int offset);
   QFuture<quint32> bookCardsCount();
 
   void setSearchFilter(const QString &search);
@@ -21,6 +20,8 @@ public:
   void setFilter(Filter filter, const QString &value = "");
 
   void orderBy(Column column, Qt::SortOrder order = Qt::AscendingOrder);
+  Qt::SortOrder order() const;
+  Column orderColumn() const;
 
 private:
   QString applyFilters();
@@ -31,6 +32,9 @@ private:
 
   QString m_filters[_LastFilter + 1];
   QString m_orderBy;
+
+  Qt::SortOrder m_order;
+  Column m_column;
 };
 
 Q_DECLARE_METATYPE(BookSectionDAO::Column)

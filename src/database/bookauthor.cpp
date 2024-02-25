@@ -11,6 +11,6 @@ QFuture<void> BookAuthor::update(quint32 book_id,
         bookAuthors.push_back(bookAuthor);
       }
 
-      LibraryDatabase::insertBatch(bookAuthors);
+      LibraryDatabase::insertBatch(bookAuthors, true);
     });
 }

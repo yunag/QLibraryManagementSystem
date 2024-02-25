@@ -227,8 +227,26 @@
    </item>
    <item>
     <widget class="QListView" name="bookListView">
+     <property name="styleSheet">
+      <string notr="true">QListView::item:selected {
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+	border-right: 2px solid black;
+	outline: none;
+}
+
+QListView {
+	outline: 0;
+}</string>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::NoDragDrop</enum>
+     </property>
      <property name="viewMode">
       <enum>QListView::IconMode</enum>
+     </property>
+     <property name="selectionRectVisible">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -238,6 +256,13 @@
       <widget class="QPushButton" name="addButton">
        <property name="text">
         <string>Add</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="deleteButton">
+       <property name="text">
+        <string>Delete</string>
        </property>
       </widget>
      </item>
