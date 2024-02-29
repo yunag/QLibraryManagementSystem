@@ -256,7 +256,7 @@ template <typename T>
 void LibraryDatabase::insertBatchImpl(const QList<T> &entries, bool insertKey) {
   const QMetaObject metaObj = T::staticMetaObject;
 
-  Q_ASSERT(entries.size() > 0);
+  Q_ASSERT(!entries.isEmpty());
   Q_ASSERT(metaObj.propertyCount() > 0);
 
   QString schemaName = T::schemaName;

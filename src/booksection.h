@@ -8,6 +8,7 @@ class QStandardItemModel;
 
 class BookAddDialog;
 class BookSectionDAO;
+class BookDetailsDialog;
 class SearchFilterDialog;
 
 namespace Ui {
@@ -59,6 +60,7 @@ private:
   BookAddDialog *m_bookAddDialog;
   SearchFilterDialog *m_searchFilterDialog;
   BookSectionDAO *m_dao;
+  BookDetailsDialog *m_bookDetails;
 
   bool m_pageLoading;
 

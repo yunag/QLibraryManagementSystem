@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS category (
 CREATE TABLE IF NOT EXISTS book (
   book_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   title VARCHAR(255) NOT NULL,
+  description TEXT,
   cover_path VARCHAR(255),
   publication_date DATE,
   copies_owned SMALLINT UNSIGNED,

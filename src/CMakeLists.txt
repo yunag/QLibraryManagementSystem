@@ -1,4 +1,4 @@
-set(PROJECT_SOURCES
+set(PROJECT_FORMS
     forms/loginform.ui
     forms/bookadddialog.ui
     forms/bookcard.ui
@@ -7,59 +7,70 @@ set(PROJECT_SOURCES
     forms/librarysidemenu.ui
     forms/searchfilterdialog.ui
     forms/twowaylist.ui
-    main.cpp
-    ../resource.qrc
+    forms/bookdetails.ui)
+
+set(PROJECT_DB_SOURCES
+    database/bookdetailsdao.h
+    database/bookdetailsdao.cpp
     database/librarydatabase.h
+    database/librarydatabase.cpp
     database/schema.h
     database/book.h
     database/book.cpp
-    database/librarydatabase.cpp
     database/bookauthor.h
     database/bookauthor.cpp
-    database/author.cpp
     database/author.h
-    database/category.cpp
+    database/author.cpp
     database/category.h
+    database/category.cpp
     database/bookcategory.h
     database/bookcategory.cpp
+    database/booksectiondao.h
+    database/booksectiondao.cpp)
+
+set(PROJECT_SOURCES
+    main.cpp
+    ../resource.qrc
+    bookdetails.h
+    bookdetails.cpp
+    libraryapplication.h
     libraryapplication.cpp
+    librarymainwindow.h
     librarymainwindow.cpp
     bookadddialog.h
+    bookadddialog.cpp
+    widgetutils.h
     widgetutils.cpp
+    bookcard.cpp
     bookcard.h
+    user.h
     user.cpp
     booksection.h
-    qlabeldragdrop.cpp
-    booksectiondao.h
     booksection.cpp
+    qlabeldragdrop.h
+    qlabeldragdrop.cpp
     clickableframe.h
-    bookcard.cpp
+    clickableframe.cpp
     dragdroplistview.h
-    bookadddialog.cpp
+    dragdroplistview.cpp
     fadebutton.h
+    fadebutton.cpp
+    passwordlineedit.h
     passwordlineedit.cpp
     imagepickerlabel.h
-    booksectiondao.cpp
-    libraryapplication.h
-    previewlineedit.cpp
-    librarymainwindow.h
     imagepickerlabel.cpp
-    librarysidemenu.h
-    twowaylist.cpp
-    loginform.h
-    dragdroplistview.cpp
-    passwordlineedit.h
-    fadebutton.cpp
     previewlineedit.h
-    qlabeldragdrop.h
+    previewlineedit.cpp
+    librarysidemenu.h
+    librarysidemenu.cpp
+    twowaylist.cpp
+    twowaylist.h
+    loginform.h
+    loginform.cpp
     searchfilterdialog.h
     searchfilterdialog.cpp
-    twowaylist.h
-    librarysidemenu.cpp
-    user.h
-    loginform.cpp
-    widgetutils.h
-    clickableframe.cpp)
+    ${PROJECT_FORMS}
+    ${PROJECT_DB_SOURCES})
 
 # list(TRANSFORM SOURCES PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

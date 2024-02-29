@@ -8,11 +8,13 @@
 #include <QStandardItemModel>
 
 #include "bookadddialog.h"
-#include "booksectiondao.h"
+#include "bookdetails.h"
 #include "searchfilterdialog.h"
 
 #include "bookcard.h"
 #include "booksection.h"
+
+#include "database/booksectiondao.h"
 #include "database/librarydatabase.h"
 #include "forms/ui_booksection.h"
 
@@ -26,6 +28,7 @@ BookSection::BookSection(QWidget *parent)
   m_dao = new BookSectionDAO;
   m_bookAddDialog = new BookAddDialog(this);
   m_searchFilterDialog = new SearchFilterDialog(m_dao, this);
+  m_bookDetails = new BookDetailsDialog(this);
   QStandardItemModel *model = new QStandardItemModel(this);
 
   ui->bookListView->setModel(model);
@@ -40,6 +43,7 @@ BookSection::BookSection(QWidget *parent)
   }
 
   ui->bookListView->verticalScrollBar()->setSingleStep(8);
+  ui->bookListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   ui->bookListView->setAcceptDrops(false);
   ui->bookListView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
@@ -59,7 +63,7 @@ BookSection::BookSection(QWidget *parent)
           [this](const QModelIndex &index) {
             BookCard *bookCard =
               qobject_cast<BookCard *>(ui->bookListView->indexWidget(index));
-            qDebug() << "Clicked:" << bookCard->bookId();
+            m_bookDetails->openBook(bookCard->bookId());
           });
 
   connect(ui->deleteButton, &QPushButton::clicked, this,
@@ -238,9 +242,9 @@ void BookSection::distributeGridSize() {
     int remaindedWidth = viewportWidth - totalItemsWidth;
     int evenlyDistributedWidth = remaindedWidth / numItemsInRow;
 
-    const int extraHOffset = 5;
+    const int extraHOffset = -3;
     const int extraVSpace = 6;
-    QSize newGridSize(itemWidth + evenlyDistributedWidth - extraHOffset,
+    QSize newGridSize(itemWidth + evenlyDistributedWidth + extraHOffset,
                       itemHeight + extraVSpace);
     bookList->setGridSize(newGridSize);
   }
@@ -292,7 +296,6 @@ void BookSection::deleteButtonClicked() {
     BookCard *bookCard =
       qobject_cast<BookCard *>(ui->bookListView->indexWidget(index));
 
-    qDebug() << bookCard->bookId();
     LibraryDatabase::deleteById<Book>(bookCard->bookId());
   }
 }

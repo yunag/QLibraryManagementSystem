@@ -47,21 +47,26 @@ void BookAddDialog::accept() {
   QList<quint32> category_ids = getIds(ui->categories->resultList());
 
   QString title = ui->titleLineEdit->text();
-  QString publicationDate = ui->dateEdit->date().toString(Qt::ISODate);
+  QDate publicationDate = ui->dateEdit->date();
   QString coverPath = ui->coverLabel->imagePath();
+  QString description = ui->descriptionText->toPlainText();
 
-  Book book(title, publicationDate, coverPath, 0);
+  Book book(title, description, publicationDate, coverPath, 0);
 
   LibraryDatabase::insert(book)
     .then(QtFuture::Launch::Async,
           [author_ids = std::move(author_ids)](QVariant id) {
-            BookAuthor::update(id.toUInt(), author_ids).waitForFinished();
+            if (!author_ids.isEmpty()) {
+              BookAuthor::update(id.toUInt(), author_ids).waitForFinished();
+            }
 
             return id.toUInt();
           })
     .then(QtFuture::Launch::Async,
           [category_ids = std::move(category_ids), this](quint32 book_id) {
-            BookCategory::update(book_id, category_ids).waitForFinished();
+            if (!category_ids.isEmpty()) {
+              BookCategory::update(book_id, category_ids).waitForFinished();
+            }
             emit inserted(book_id);
           })
     .onFailed(this, [this](const QSqlError &err) {

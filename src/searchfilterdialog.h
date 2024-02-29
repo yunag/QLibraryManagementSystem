@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "booksectiondao.h"
+#include "database/booksectiondao.h"
 
 namespace Ui {
 class SearchFilterDialog;

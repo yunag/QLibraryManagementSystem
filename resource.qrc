@@ -20,5 +20,6 @@
         <file>resources/icons/books.svg</file>
         <file>resources/icons/author.svg</file>
         <file>resources/icons/user.svg</file>
+        <file>resources/icons/reload.svg</file>
     </qresource>
 </RCC>

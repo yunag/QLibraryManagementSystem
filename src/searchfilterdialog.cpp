@@ -1,8 +1,6 @@
 #include "searchfilterdialog.h"
 #include "forms/ui_searchfilterdialog.h"
 
-#include "booksectiondao.h"
-
 SearchFilterDialog::SearchFilterDialog(BookSectionDAO *dao, QWidget *parent)
     : QDialog(parent), ui(new Ui::SearchFilterDialog) {
   ui->setupUi(this);

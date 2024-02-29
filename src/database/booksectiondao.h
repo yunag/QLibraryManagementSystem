@@ -4,14 +4,14 @@
 #include "bookcard.h"
 #include "database/librarydatabase.h"
 
-class BookSectionDAO {
+class BookSectionDAO : public QObject {
 public:
   enum Filter { Search = 0, Category, _LastFilter = Category };
 
   enum Column { Id = 0, Title, Rating, _LastColumn = Rating };
 
 public:
-  BookSectionDAO();
+  BookSectionDAO(QObject *parent = nullptr);
   QFuture<QList<BookCardData>> loadBookCards(int itemsCount, int offset);
   QFuture<quint32> bookCardsCount();
 
@@ -31,10 +31,9 @@ private:
   SqlBindingHash m_bindings;
 
   QString m_filters[_LastFilter + 1];
-  QString m_orderBy;
 
   Qt::SortOrder m_order;
-  Column m_column;
+  Column m_columnOrder;
 };
 
 Q_DECLARE_METATYPE(BookSectionDAO::Column)

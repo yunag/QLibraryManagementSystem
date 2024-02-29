@@ -93,100 +93,147 @@ COMMIT;
 
 
 INSERT INTO
-  book (title, publication_date, copies_owned)
+  book (
+    title,
+    publication_date,
+    copies_owned,
+    description
+  )
 VALUES
-  ('Things Fall Apart', '1958-01-01', 78),
-  ('The Divine Comedy', '1315-01-01', 87),
-  ('Pride and Prejudice', '1813-01-01', 91),
+  (
+    'Things Fall Apart',
+    '1958-01-01',
+    78,
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ullamcorper luctus leo, et sollicitudin nulla condimentum id. Maecenas iaculis urna vitae magna finibus, a volutpat elit cursus. Proin eu felis at lectus condimentum tempus. Quisque justo odio, finibus non vulputate at, dapibus eget augue. Aliquam aliquam ligula ut mauris venenatis, nec sodales leo tincidunt. Nullam et blandit velit, sit amet vestibulum tortor. Suspendisse potenti. In eu imperdiet augue. Integer cursus, libero vel bibendum dapibus, felis lorem convallis lacus, vitae dignissim justo enim eu orci. Vivamus sed faucibus eros. Pellentesque posuere urna et ex luctus consectetur. Mauris facilisis nisi nec orci tristique suscipit.
+
+Sed lobortis imperdiet tortor et pulvinar. Morbi aliquam ac nulla nec elementum. Fusce non lorem eu enim consequat viverra et eu urna. In vulputate neque velit, nec tincidunt felis ultricies eget. Morbi eu tellus rutrum, bibendum augue vel, elementum elit. Suspendisse facilisis, magna quis hendrerit blandit, magna nibh semper enim, sed consequat odio purus tristique augue. Vestibulum sodales massa sed suscipit sagittis. Suspendisse fermentum risus efficitur lectus congue, in placerat magna fermentum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent ac hendrerit leo, vitae euismod libero. Nam scelerisque felis nibh, non congue justo pellentesque quis. Curabitur eget orci vitae sem hendrerit tincidunt.'
+  ),
+  ('The Divine Comedy', '1315-01-01', 87, NULL),
+  ('Pride and Prejudice', '1813-01-01', 91, NULL),
   (
     'Molloy, Malone Dies, The Unnamable, the trilogy',
     '1952-01-01',
-    72
+    72,
+    NULL
   ),
-  ('The Decameron', '1351-01-01', 72),
-  ('Wuthering Heights', '1847-01-01', 62),
-  ('The Stranger', '1942-01-01', 52),
-  ('Poems', '1952-01-01', 18),
+  ('The Decameron', '1351-01-01', 72, NULL),
+  ('Wuthering Heights', '1847-01-01', 62, NULL),
+  ('The Stranger', '1942-01-01', 52, NULL),
+  ('Poems', '1952-01-01', 18, NULL),
   (
     'Journey to the End of the Night',
     '1932-01-01',
-    19
+    19,
+    NULL
   ),
-  ('The Canterbury Tales', '1450-01-01', 75),
-  ('Stories', '1886-01-01', 78),
-  ('Nostromo', '1904-01-01', 84),
-  ('Great Expectations', '1861-01-01', 6),
-  ('Jacques the Fatalist', '1796-01-01', 99),
-  ('Berlin Alexanderplatz', '1929-01-01', 81),
-  ('Crime and Punishment', '1866-01-01', 56),
-  ('The Idiot', '1869-01-01', 17),
-  ('The Possessed', '1872-01-01', 74),
-  ('The Brothers Karamazov', '1880-01-01', 45),
-  ('Middlemarch', '1871-01-01', 36),
-  ('Invisible Man', '1952-01-01', 28),
-  ('Absalom, Absalom!', '1936-01-01', 41),
-  ('The Sound and the Fury', '1929-01-01', 23),
-  ('Madame Bovary', '1857-01-01', 54),
-  ('Sentimental Education', '1869-01-01', 5),
-  ('Dead Souls', '1842-01-01', 39),
-  ('The Tin Drum', '1959-01-01', 64),
-  ('Hunger', '1890-01-01', 43),
-  ('The Old Man and the Sea', '1952-01-01', 89),
-  ('A Doll''s House', '1879-01-01', 5),
-  ('Ulysses', '1922-01-01', 10),
-  ('Stories', '1924-01-01', 17),
-  ('The Trial', '1925-01-01', 59),
-  ('The Castle', '1926-01-01', 26),
-  ('The Sound of the Mountain', '1954-01-01', 10),
-  ('Zorba the Greek', '1946-01-01', 13),
-  ('Independent People', '1934-01-01', 36),
-  ('Poems', '1818-01-01', 84),
-  ('The Golden Notebook', '1962-01-01', 81),
-  ('Pippi Longstocking', '1945-01-01', 37),
-  ('Diary of a Madman', '1918-01-01', 92),
-  ('Children of Gebelawi', '1959-01-01', 15),
-  ('Buddenbrooks', '1901-01-01', 9),
-  ('The Magic Mountain', '1924-01-01', 46),
-  ('Moby Dick', '1851-01-01', 57),
-  ('History', '1974-01-01', 46),
-  ('Beloved', '1987-01-01', 95),
-  ('The Tale of Genji', '1006-01-01', 87),
-  ('The Man Without Qualities', '1931-01-01', 55),
-  ('Lolita', '1955-01-01', 84),
-  ('Nineteen Eighty-Four', '1949-01-01', 31),
-  ('The Book of Disquiet', '1928-01-01', 86),
-  ('In Search of Lost Time', '1920-01-01', 52),
-  ('Gargantua and Pantagruel', '1533-01-01', 76),
-  ('Pedro Páramo', '1955-01-01', 67),
-  ('Midnight''s Children', '1981-01-01', 59),
+  ('The Canterbury Tales', '1450-01-01', 75, NULL),
+  ('Stories', '1886-01-01', 78, NULL),
+  ('Nostromo', '1904-01-01', 84, NULL),
+  (
+    'Great Expectations',
+    '1861-01-01',
+    6,
+    "Lorem Ipsum"
+  ),
+  (
+    'Jacques the Fatalist',
+    '1796-01-01',
+    99,
+    "Lorem Ipsum"
+  ),
+  ('Berlin Alexanderplatz', '1929-01-01', 81, NULL),
+  ('Crime and Punishment', '1866-01-01', 56, NULL),
+  ('The Idiot', '1869-01-01', 17, NULL),
+  ('The Possessed', '1872-01-01', 74, NULL),
+  ('The Brothers Karamazov', '1880-01-01', 45, NULL),
+  ('Middlemarch', '1871-01-01', 36, NULL),
+  ('Invisible Man', '1952-01-01', 28, NULL),
+  ('Absalom, Absalom!', '1936-01-01', 41, NULL),
+  ('The Sound and the Fury', '1929-01-01', 23, NULL),
+  ('Madame Bovary', '1857-01-01', 54, NULL),
+  ('Sentimental Education', '1869-01-01', 5, NULL),
+  ('Dead Souls', '1842-01-01', 39, NULL),
+  ('The Tin Drum', '1959-01-01', 64, NULL),
+  ('Hunger', '1890-01-01', 43, NULL),
+  ('The Old Man and the Sea', '1952-01-01', 89, NULL),
+  ('A Doll''s House', '1879-01-01', 5, NULL),
+  ('Ulysses', '1922-01-01', 10, NULL),
+  ('Stories', '1924-01-01', 17, NULL),
+  ('The Trial', '1925-01-01', 59, NULL),
+  ('The Castle', '1926-01-01', 26, NULL),
+  (
+    'The Sound of the Mountain',
+    '1954-01-01',
+    10,
+    NULL
+  ),
+  ('Zorba the Greek', '1946-01-01', 13, NULL),
+  ('Independent People', '1934-01-01', 36, NULL),
+  ('Poems', '1818-01-01', 84, NULL),
+  ('The Golden Notebook', '1962-01-01', 81, NULL),
+  ('Pippi Longstocking', '1945-01-01', 37, NULL),
+  ('Diary of a Madman', '1918-01-01', 92, NULL),
+  ('Children of Gebelawi', '1959-01-01', 15, NULL),
+  ('Buddenbrooks', '1901-01-01', 9, NULL),
+  ('The Magic Mountain', '1924-01-01', 46, NULL),
+  ('Moby Dick', '1851-01-01', 57, NULL),
+  ('History', '1974-01-01', 46, NULL),
+  ('Beloved', '1987-01-01', 95, NULL),
+  ('The Tale of Genji', '1006-01-01', 87, NULL),
+  (
+    'The Man Without Qualities',
+    '1931-01-01',
+    55,
+    NULL
+  ),
+  ('Lolita', '1955-01-01', 84, NULL),
+  ('Nineteen Eighty-Four', '1949-01-01', 31, NULL),
+  ('The Book of Disquiet', '1928-01-01', 86, NULL),
+  ('In Search of Lost Time', '1920-01-01', 52, NULL),
+  (
+    'Gargantua and Pantagruel',
+    '1533-01-01',
+    76,
+    NULL
+  ),
+  ('Pedro Páramo', '1955-01-01', 67, NULL),
+  ('Midnight''s Children', '1981-01-01', 59, NULL),
   (
     'Season of Migration to the North',
     '1966-01-01',
-    14
+    14,
+    NULL
   ),
-  ('Blindness', '1995-01-01', 13),
-  ('Hamlet', '1603-01-01', 94),
-  ('King Lear', '1608-01-01', 9),
-  ('Othello', '1609-01-01', 45),
+  ('Blindness', '1995-01-01', 13, NULL),
+  ('Hamlet', '1603-01-01', 94, NULL),
+  ('King Lear', '1608-01-01', 9, NULL),
+  ('Othello', '1609-01-01', 45, NULL),
   (
     'The Life And Opinions of Tristram Shandy',
     '1760-01-01',
-    50
+    50,
+    NULL
   ),
-  ('Confessions of Zeno', '1923-01-01', 71),
-  ('Gulliver''s Travels', '1726-01-01', 63),
-  ('War and Peace', '1867-01-01', 67),
-  ('Anna Karenina', '1877-01-01', 55),
-  ('The Death of Ivan Ilyich', '1886-01-01', 48),
+  ('Confessions of Zeno', '1923-01-01', 71, NULL),
+  ('Gulliver''s Travels', '1726-01-01', 63, NULL),
+  ('War and Peace', '1867-01-01', 67, NULL),
+  ('Anna Karenina', '1877-01-01', 55, NULL),
+  (
+    'The Death of Ivan Ilyich',
+    '1886-01-01',
+    48,
+    NULL
+  ),
   (
     'The Adventures of Huckleberry Finn',
     '1884-01-01',
-    19
+    19,
+    NULL
   ),
-  ('Leaves of Grass', '1855-01-01', 88),
-  ('Mrs Dalloway', '1925-01-01', 62),
-  ('To the Lighthouse', '1927-01-01', 72),
-  ('Memoirs of Hadrian', '1951-01-01', 87);
+  ('Leaves of Grass', '1855-01-01', 88, NULL),
+  ('Mrs Dalloway', '1925-01-01', 62, NULL),
+  ('To the Lighthouse', '1927-01-01', 72, NULL),
+  ('Memoirs of Hadrian', '1951-01-01', 87, NULL);
 
 
 COMMIT;

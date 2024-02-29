@@ -112,6 +112,9 @@ QLineEdit:focus {
            <pointsize>12</pointsize>
           </font>
          </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -253,7 +256,7 @@ QLineEdit:focus {
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="authorLineEdit">
+        <widget class="PreviewLineEdit" name="authorLineEdit">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -267,6 +270,9 @@ QLineEdit:focus {
          </property>
          <property name="styleSheet">
           <string notr="true"/>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -296,7 +302,7 @@ QLineEdit:focus {
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="QLineEdit" name="categoryLineEdit">
+        <widget class="PreviewLineEdit" name="categoryLineEdit">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -310,6 +316,9 @@ QLineEdit:focus {
          </property>
          <property name="styleSheet">
           <string notr="true"/>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
          </property>
         </widget>
        </item>

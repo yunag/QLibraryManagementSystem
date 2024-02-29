@@ -22,8 +22,9 @@ OFFSET
   %3
 )";
 
-BookSectionDAO::BookSectionDAO() {
-  m_orderBy = "bi.book_id";
+BookSectionDAO::BookSectionDAO(QObject *parent) : QObject(parent) {
+  m_order = Qt::AscendingOrder;
+  m_columnOrder = Id;
 }
 
 void BookSectionDAO::setFilter(Filter filter, const QString &value) {
@@ -42,11 +43,31 @@ QString BookSectionDAO::applyFilters() {
   return filters;
 }
 
+static QString columnToDbColumn(BookSectionDAO::Column column) {
+  switch (column) {
+    case BookSectionDAO::Id:
+      return "bi.book_id";
+    case BookSectionDAO::Title:
+      return "bi.book_title";
+    case BookSectionDAO::Rating:
+      return "bi.rating";
+    default:
+      qDebug() << "Invalid column";
+      return "";
+  }
+}
+
+static QString sortOrderToDbOrder(Qt::SortOrder order) {
+  return order == Qt::AscendingOrder ? "ASC" : "DESC";
+}
+
 QFuture<QList<BookCardData>> BookSectionDAO::loadBookCards(int itemsCount,
                                                            int offset) {
   QString filters = applyFilters();
+  QString orderBy =
+    columnToDbColumn(m_columnOrder) + " " + sortOrderToDbOrder(m_order);
   QString cmd = kQuery.arg(filters, QString::number(itemsCount),
-                           QString::number(offset), m_orderBy);
+                           QString::number(offset), orderBy);
 
   return LibraryDatabase::exec(cmd, m_bindings)
     .then(QtFuture::Launch::Async, [itemsCount](LibraryTable table) {
@@ -71,11 +92,7 @@ void BookSectionDAO::setSearchFilter(const QString &search) {
   QString condition = "lower(bi.book_title) LIKE :search";
   QString reg = search.toLower().split("").join("%").replace("%%%", "%\\%%");
 
-  m_orderBy =
-    search.isEmpty() ? "bi.book_id" : "length(bi.book_title) - :length";
-
   m_bindings[":search"] = reg;
-  m_bindings[":length"] = search.length();
 
   setFilter(BookSectionDAO::Search, condition);
 }
@@ -88,26 +105,9 @@ QFuture<quint32> BookSectionDAO::bookCardsCount() {
     .then([](LibraryTable table) { return table[0][0].toUInt(); });
 }
 
-static QString toDbColumn(BookSectionDAO::Column column) {
-  switch (column) {
-    case BookSectionDAO::Id:
-      return "bi.book_id";
-    case BookSectionDAO::Title:
-      return "bi.book_title";
-    case BookSectionDAO::Rating:
-      return "bi.rating";
-    default:
-      qDebug() << "Invalid column";
-  }
-}
-
 void BookSectionDAO::orderBy(Column column, Qt::SortOrder order) {
-  QString orderStr = order == Qt::AscendingOrder ? "ASC" : "DESC";
-
-  m_orderBy = toDbColumn(column) + " " + orderStr;
-
   m_order = order;
-  m_column = column;
+  m_columnOrder = column;
 }
 
 Qt::SortOrder BookSectionDAO::order() const {
@@ -115,5 +115,5 @@ Qt::SortOrder BookSectionDAO::order() const {
 }
 
 BookSectionDAO::Column BookSectionDAO::orderColumn() const {
-  return m_column;
+  return m_columnOrder;
 }
