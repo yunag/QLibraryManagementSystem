@@ -22,7 +22,8 @@ void BookCard::setCover(const QPixmap &pixmap) {
   int w = ui->bookCoverLabel->width();
   int h = ui->bookCoverLabel->height();
 
-  ui->bookCoverLabel->setPixmap(pixmap.scaled(w, h));
+  ui->bookCoverLabel->setPixmap(
+    pixmap.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 }
 
 QSize BookCard::coverSize() const {
@@ -30,30 +31,30 @@ QSize BookCard::coverSize() const {
 }
 
 void BookCard::setTitle(const QString &title) {
-  ui->titleLineEdit->setText(title);
+  ui->title->setText(title);
 }
 
 QString BookCard::title() const {
-  return ui->titleLineEdit->text();
+  return ui->title->text();
 }
 
 void BookCard::setBookId(quint32 id) {
-  ui->bookIDLineEdit->setText(QString::number(id));
+  ui->bookId->setText(QString::number(id));
 }
 
 quint32 BookCard::bookId() const {
-  return ui->bookIDLineEdit->text().toUInt();
+  return ui->bookId->text().toUInt();
 }
 
 void BookCard::setAuthors(const QStringList &authors) {
   QString labelName = authors.count() > 1 ? tr("Authors") : tr("Author");
   ui->authorLabel->setText(labelName);
 
-  ui->authorLineEdit->setText(authors.join(", "));
+  ui->author->setText(authors.join(", "));
 }
 
 QString BookCard::author() const {
-  return ui->authorLineEdit->text();
+  return ui->author->text();
 }
 
 void BookCard::setCategories(const QStringList &categories) {
@@ -61,11 +62,11 @@ void BookCard::setCategories(const QStringList &categories) {
     categories.count() > 1 ? tr("Categories") : tr("Category");
   ui->categoryLabel->setText(labelName);
 
-  ui->categoryLineEdit->setText(categories.join(", "));
+  ui->category->setText(categories.join(", "));
 }
 
 QString BookCard::category() const {
-  return ui->categoryLineEdit->text();
+  return ui->category->text();
 }
 
 void BookCard::setRating(int rating) {
@@ -78,5 +79,5 @@ int BookCard::rating() const {
 
 void BookCard::copyButtonClicked() {
   QClipboard *clipboard = QApplication::clipboard();
-  clipboard->setText(ui->titleLineEdit->text());
+  clipboard->setText(ui->title->text());
 }

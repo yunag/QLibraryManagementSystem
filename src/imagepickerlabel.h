@@ -24,9 +24,12 @@ public slots:
   void setPixmap(const QPixmap &pixmap);
 
 protected:
-  virtual void resizeEvent(QResizeEvent *e) override;
-  virtual void enterEvent(QEnterEvent *e) override;
-  virtual void leaveEvent(QEvent *e) override;
+  QSize sizeHint() const override;
+  int heightForWidth(int width) const override;
+
+  void resizeEvent(QResizeEvent *e) override;
+  void enterEvent(QEnterEvent *e) override;
+  void leaveEvent(QEvent *e) override;
 
 private:
   void handlePickerButtonClick();

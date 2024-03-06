@@ -8,11 +8,12 @@
 #include <QStandardItemModel>
 
 #include "bookadddialog.h"
-#include "bookdetails.h"
+#include "bookdetailsdialog.h"
 #include "searchfilterdialog.h"
 
 #include "bookcard.h"
 #include "booksection.h"
+#include "smoothscrollbar.h"
 
 #include "database/booksectiondao.h"
 #include "database/librarydatabase.h"
@@ -22,13 +23,11 @@ BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection) {
   ui->setupUi(this);
 
-  m_pageLoading = false;
   m_currentPage = 0;
 
-  m_dao = new BookSectionDAO;
+  m_dao = new BookSectionDAO(this);
   m_bookAddDialog = new BookAddDialog(this);
   m_searchFilterDialog = new SearchFilterDialog(m_dao, this);
-  m_bookDetails = new BookDetailsDialog(this);
   QStandardItemModel *model = new QStandardItemModel(this);
 
   ui->bookListView->setModel(model);
@@ -42,8 +41,11 @@ BookSection::BookSection(QWidget *parent)
     ui->bookListView->setIndexWidget(model->index(i, 0), bookCard);
   }
 
-  ui->bookListView->verticalScrollBar()->setSingleStep(8);
+  SmoothScrollBar *vScrollBar = new SmoothScrollBar(ui->bookListView);
+  ui->bookListView->setVerticalScrollBar(vScrollBar);
   ui->bookListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  ui->bookListView->horizontalScrollBar()->setDisabled(true);
+
   ui->bookListView->setAcceptDrops(false);
   ui->bookListView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
@@ -63,7 +65,7 @@ BookSection::BookSection(QWidget *parent)
           [this](const QModelIndex &index) {
             BookCard *bookCard =
               qobject_cast<BookCard *>(ui->bookListView->indexWidget(index));
-            m_bookDetails->openBook(bookCard->bookId());
+            emit bookDetailsRequested(bookCard->bookId());
           });
 
   connect(ui->deleteButton, &QPushButton::clicked, this,
@@ -111,25 +113,18 @@ QFuture<void> BookSection::updateNumberOfBooks() {
     });
 }
 
-bool BookSection::loadPage(qint32 pageNumber) {
-  if (!m_booksCount) {
+void BookSection::loadPage(qint32 pageNumber) {
+  if (!m_booksCount || !isValidPage(pageNumber)) {
     hideItems();
-    return false;
+    return;
   }
-
-  qint32 offset = pageNumber * kItemsPerPage;
-
-  if (m_pageLoading || offset >= m_booksCount || pageNumber < 0) {
-    return false;
-  }
-
-  m_pageLoading = true;
 
   updatePageButtons(pageNumber);
 
+  qint32 accumulatedItems = pageNumber * kItemsPerPage;
   QPixmap defaultBookCover(":/resources/images/DefaultBookCover");
 
-  m_dao->loadBookCards(kItemsPerPage, offset)
+  m_dao->loadBookCards(kItemsPerPage, accumulatedItems)
     .then(this,
           [this, defaultBookCover = std::move(defaultBookCover)](
             const QList<BookCardData> &bookCards) {
@@ -154,11 +149,9 @@ bool BookSection::loadPage(qint32 pageNumber) {
 
             hideItems(bookCards.size());
           })
-    .onFailed(this,
-              [this](const QSqlError &e) { databaseErrorMessageBox(this, e); })
-    .then(this, [this]() { m_pageLoading = false; });
-
-  return true;
+    .onFailed(this, [this](const QSqlError &err) {
+      databaseErrorMessageBox(this, err);
+    });
 }
 
 bool BookSection::isEndPage(qint32 pageNumber) {
@@ -183,21 +176,24 @@ void BookSection::synchronizeNowButtonClicked() {
     .then(QtFuture::Launch::Async,
           [this]() { updateNumberOfBooks().waitForFinished(); })
     .then(this, [this]() { loadPage(m_currentPage); })
-    .onFailed(this,
-              [this](const QSqlError &e) { databaseErrorMessageBox(this, e); });
+    .onFailed(this, [this](const QSqlError &err) {
+      databaseErrorMessageBox(this, err);
+    });
 
   updateLastSync();
 }
 
 void BookSection::nextPageButtonClicked() {
-  if (loadPage(m_currentPage + 1)) {
+  if (isValidPage(m_currentPage + 1)) {
     m_currentPage += 1;
+    loadPage(m_currentPage);
   }
 }
 
 void BookSection::prevPageButtonClicked() {
-  if (loadPage(m_currentPage - 1)) {
+  if (isValidPage(m_currentPage - 1)) {
     m_currentPage -= 1;
+    loadPage(m_currentPage);
   }
 }
 
@@ -298,4 +294,10 @@ void BookSection::deleteButtonClicked() {
 
     LibraryDatabase::deleteById<Book>(bookCard->bookId());
   }
+}
+
+bool BookSection::isValidPage(qint32 pageNumber) {
+  qint32 accumulatedItems = pageNumber * kItemsPerPage;
+
+  return pageNumber >= 0 && accumulatedItems < m_booksCount;
 }

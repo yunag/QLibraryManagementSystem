@@ -10,6 +10,11 @@ LibrarySideMenu::LibrarySideMenu(QWidget *parent)
   connect(ui->booksMenu, &ClickableFrame::clicked, this,
           &LibrarySideMenu::booksMenuClicked);
 
+  QPalette p = palette();
+  p.setColor(QPalette::Inactive, QPalette::Window, Qt::white);
+  p.setColor(QPalette::Active, QPalette::Window, Qt::white);
+  setPalette(p);
+
   toggle();
 }
 

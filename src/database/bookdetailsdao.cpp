@@ -12,6 +12,7 @@ SELECT
   b.description,
   b.publication_date,
   b.copies_owned,
+  b.cover_path,
   COALESCE(
     (
       SELECT
@@ -30,6 +31,8 @@ SELECT
         INNER JOIN book_author ba ON ba.author_id = a.author_id
       WHERE
         ba.book_id = b.book_id
+      ORDER BY
+        a.first_name
     ),
     JSON_ARRAY()
   ) AS authors,
@@ -42,6 +45,8 @@ SELECT
         INNER JOIN book_category bc ON bc.category_id = c.category_id
       WHERE
         bc.book_id = b.book_id
+      ORDER BY
+        c.name
     ),
     JSON_ARRAY()
   ) AS categories
@@ -68,9 +73,10 @@ QFuture<BookDetails> BookDetailsDAO::fetchDetails(quint32 bookId) {
       book.description = row[1].toString();
       book.publication_date = row[2].toDate();
       book.copies_owned = row[3].toUInt();
+      book.cover_path = row[4].toString();
 
-      QString authorsJson = row[4].toString();
-      QString categoriesJson = row[5].toString();
+      QString authorsJson = row[5].toString();
+      QString categoriesJson = row[6].toString();
 
       QJsonDocument authorsDocument =
         QJsonDocument::fromJson(authorsJson.toUtf8());

@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>BookDetailsDialog</class>
- <widget class="QDialog" name="BookDetailsDialog">
-  <property name="enabled">
-   <bool>true</bool>
-  </property>
+ <class>AuthorDetailsDialog</class>
+ <widget class="QDialog" name="AuthorDetailsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1058</width>
-    <height>667</height>
+    <width>858</width>
+    <height>701</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Dialog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QScrollArea" name="scrollArea">
+    <widget class="SmoothScrollArea" name="scrollArea">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
        <horstretch>0</horstretch>
@@ -44,9 +35,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>1021</width>
-        <height>994</height>
+        <y>-6</y>
+        <width>821</width>
+        <height>714</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -56,14 +47,20 @@
           <number>30</number>
          </property>
          <item>
-          <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,4">
+          <layout class="QVBoxLayout" name="verticalLayout_3" stretch="12,0">
            <item>
-            <widget class="QLabel" name="label">
+            <widget class="ImagePickerLabel" name="authorImage">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>200</height>
+              </size>
              </property>
              <property name="styleSheet">
               <string notr="true">image: url(:/resources/images/DefaultBookCover.jpg);</string>
@@ -72,116 +69,32 @@
               <string/>
              </property>
              <property name="alignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              <set>Qt::AlignCenter</set>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QFormLayout" name="formLayout">
-             <property name="fieldGrowthPolicy">
-              <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
              </property>
-             <property name="labelAlignment">
-              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
              </property>
-             <property name="formAlignment">
-              <set>Qt::AlignHCenter|Qt::AlignTop</set>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>50</height>
+              </size>
              </property>
-             <property name="horizontalSpacing">
-              <number>20</number>
-             </property>
-             <property name="verticalSpacing">
-              <number>6</number>
-             </property>
-             <property name="topMargin">
-              <number>5</number>
-             </property>
-             <property name="rightMargin">
-              <number>20</number>
-             </property>
-             <property name="bottomMargin">
-              <number>20</number>
-             </property>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_4">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>Book Id:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLabel" name="bookIdLabel">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>&lt;id&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="label_5">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>Publication Date:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLabel" name="bookDateLabel">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>&lt;date&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_8">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>Copies Owned:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="numCopiesOwnedLabel">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
-               <property name="text">
-                <string>&lt;copies&gt;</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            </spacer>
            </item>
           </layout>
          </item>
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QLabel" name="bookTitleLabel">
+            <widget class="QLabel" name="authorNameLabel">
              <property name="minimumSize">
               <size>
                <width>300</width>
@@ -197,7 +110,7 @@
               </font>
              </property>
              <property name="text">
-              <string>&lt;Book Title&gt;</string>
+              <string>&lt;Author name&gt;</string>
              </property>
              <property name="wordWrap">
               <bool>true</bool>
@@ -231,7 +144,7 @@
               </font>
              </property>
              <property name="text">
-              <string>Description</string>
+              <string>Bio</string>
              </property>
             </widget>
            </item>
@@ -252,7 +165,7 @@
             </spacer>
            </item>
            <item>
-            <widget class="QTextEdit" name="descriptionText">
+            <widget class="QTextEdit" name="bioText">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -312,97 +225,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </font>
          </property>
          <property name="text">
-          <string>Authors</string>
+          <string>Books</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="authorsList">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-          </font>
-         </property>
-         <property name="verticalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
-         </property>
-         <property name="sizeAdjustPolicy">
-          <enum>QAbstractScrollArea::AdjustIgnored</enum>
-         </property>
-         <property name="dragDropMode">
-          <enum>QAbstractItemView::NoDragDrop</enum>
-         </property>
-         <property name="horizontalScrollMode">
-          <enum>QAbstractItemView::ScrollPerPixel</enum>
-         </property>
-         <property name="movement">
-          <enum>QListView::Static</enum>
-         </property>
-         <property name="flow">
-          <enum>QListView::LeftToRight</enum>
-         </property>
-         <property name="isWrapping" stdset="0">
-          <bool>false</bool>
-         </property>
-         <property name="resizeMode">
-          <enum>QListView::Adjust</enum>
-         </property>
-         <property name="layoutMode">
-          <enum>QListView::SinglePass</enum>
-         </property>
-         <property name="viewMode">
-          <enum>QListView::IconMode</enum>
-         </property>
-         <property name="uniformItemSizes">
-          <bool>true</bool>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-         <property name="selectionRectVisible">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_10">
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-           <pointsize>18</pointsize>
-           <bold>true</bold>
-           <underline>false</underline>
-          </font>
-         </property>
-         <property name="text">
-          <string>Categories</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListView" name="categoriesList">
+        <widget class="QListView" name="booksList">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
@@ -461,6 +289,19 @@ li.checked::marker { content: &quot;\2612&quot;; }
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImagePickerLabel</class>
+   <extends>QLabel</extends>
+   <header>imagepickerlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SmoothScrollArea</class>
+   <extends>QScrollArea</extends>
+   <header>smoothscrollarea.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

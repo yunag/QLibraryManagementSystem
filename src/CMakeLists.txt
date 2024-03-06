@@ -7,7 +7,9 @@ set(PROJECT_FORMS
     forms/librarysidemenu.ui
     forms/searchfilterdialog.ui
     forms/twowaylist.ui
-    forms/bookdetails.ui)
+    forms/bookdetailsdialog.ui
+    forms/authordetailsdialog.ui
+    forms/authorsection.ui)
 
 set(PROJECT_DB_SOURCES
     database/bookdetailsdao.h
@@ -26,13 +28,15 @@ set(PROJECT_DB_SOURCES
     database/bookcategory.h
     database/bookcategory.cpp
     database/booksectiondao.h
-    database/booksectiondao.cpp)
+    database/booksectiondao.cpp
+    database/authordetailsdao.h
+    database/authordetailsdao.cpp)
 
 set(PROJECT_SOURCES
     main.cpp
     ../resource.qrc
-    bookdetails.h
-    bookdetails.cpp
+    bookdetailsdialog.h
+    bookdetailsdialog.cpp
     libraryapplication.h
     libraryapplication.cpp
     librarymainwindow.h
@@ -69,6 +73,16 @@ set(PROJECT_SOURCES
     loginform.cpp
     searchfilterdialog.h
     searchfilterdialog.cpp
+    smoothscrollarea.h
+    smoothscrollarea.cpp
+    smoothscrollbar.h
+    smoothscrollbar.cpp
+    authordetailsdialog.h
+    authordetailsdialog.cpp
+    imageloader.h
+    imageloader.cpp
+    authorsection.h
+    authorsection.cpp
     ${PROJECT_FORMS}
     ${PROJECT_DB_SOURCES})
 

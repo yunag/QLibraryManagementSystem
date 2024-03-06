@@ -18,6 +18,10 @@ BookAddDialog::BookAddDialog(QWidget *parent)
   QPixmap pixmap(":/resources/images/DefaultBookCover");
   ui->coverLabel->setPixmap(pixmap);
   ui->coverLabel->setAspectRatio(Qt::KeepAspectRatio);
+  ui->coverLabel->setAlignment(Qt::AlignCenter);
+
+  ui->copiesOwned->setValidator(
+    new QIntValidator(0, std::numeric_limits<int>::max(), this));
 
   connect(ui->buttonBox, &QDialogButtonBox::accepted, this,
           &BookAddDialog::accept);
@@ -47,11 +51,12 @@ void BookAddDialog::accept() {
   QList<quint32> category_ids = getIds(ui->categories->resultList());
 
   QString title = ui->titleLineEdit->text();
-  QDate publicationDate = ui->dateEdit->date();
+  QDate publicationDate = ui->publicationDate->date();
   QString coverPath = ui->coverLabel->imagePath();
   QString description = ui->descriptionText->toPlainText();
+  quint32 copiesOwned = ui->copiesOwned->text().toInt();
 
-  Book book(title, description, publicationDate, coverPath, 0);
+  Book book(title, description, publicationDate, coverPath, copiesOwned);
 
   LibraryDatabase::insert(book)
     .then(QtFuture::Launch::Async,

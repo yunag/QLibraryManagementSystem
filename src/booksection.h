@@ -8,7 +8,6 @@ class QStandardItemModel;
 
 class BookAddDialog;
 class BookSectionDAO;
-class BookDetailsDialog;
 class SearchFilterDialog;
 
 namespace Ui {
@@ -27,11 +26,14 @@ public:
 
   void loadBooks();
 
+signals:
+  void bookDetailsRequested(quint32 bookId);
+
 protected:
   virtual void resizeEvent(QResizeEvent *event) override;
 
 private:
-  bool loadPage(qint32 pageNumber);
+  void loadPage(qint32 pageNumber);
   void distributeGridSize();
   void updateLastSync();
   QFuture<void> updateNumberOfBooks();
@@ -42,6 +44,7 @@ private:
   void updatePageButtons(qint32 pageNumber);
   bool isEndPage(qint32 pageNumber);
   bool isStartPage(qint32 pageNumber);
+  bool isValidPage(qint32 pageNumber);
 
 private slots:
   void synchronizeNowButtonClicked();
@@ -60,9 +63,6 @@ private:
   BookAddDialog *m_bookAddDialog;
   SearchFilterDialog *m_searchFilterDialog;
   BookSectionDAO *m_dao;
-  BookDetailsDialog *m_bookDetails;
-
-  bool m_pageLoading;
 
   qint32 m_currentPage;
   qint32 m_booksCount;

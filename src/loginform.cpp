@@ -55,12 +55,9 @@ void LoginForm::loginButtonClicked() {
               emit logged();
             }
           })
-    .onFailed(this,
-              [this](const QSqlError &e) {
-                QMessageBox::warning(this, tr("Database connection failure"),
-                                     tr("Unable to connect to database: ") +
-                                       e.text());
-              })
+    .onFailed(
+      this,
+      [this](const QSqlError &err) { databaseErrorMessageBox(this, err); })
     .then(this, [this]() { ui->loginButton->setEnabled(true); });
 }
 

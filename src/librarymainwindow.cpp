@@ -5,12 +5,12 @@
 #include "librarymainwindow.h"
 #include "loginform.h"
 
+#include "authordetailsdialog.h"
+#include "bookdetailsdialog.h"
+
 LibraryMainWindow::LibraryMainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::LibraryMainWindow), m_loginForm(nullptr) {
   ui->setupUi(this);
-
-  m_currentSection = ui->displayWidget;
-  m_booksSection = nullptr;
 
   connect(ui->booksButton, &QPushButton::clicked, this,
           &LibraryMainWindow::booksButtonClicked);
@@ -38,20 +38,45 @@ void LibraryMainWindow::onLogged() {
   resize(screenRect.width() * 0.75f, screenRect.height() * 0.75f);
   show();
 
-  if (!m_booksSection) {
-    m_booksSection = new BookSection(ui->centralwidget);
-  }
+  m_booksSection = new BookSection(this);
+  m_bookDetails = new BookDetailsDialog;
+  m_authorDetails = new AuthorDetailsDialog;
+
+  connect(this, &LibraryMainWindow::closed, m_bookDetails,
+          &QDialog::deleteLater);
+  connect(this, &LibraryMainWindow::closed, m_authorDetails,
+          &QDialog::deleteLater);
+
+  connect(m_booksSection, &BookSection::bookDetailsRequested, this,
+          [this](quint32 bookId) { m_bookDetails->showDetails(bookId); });
+
+  connect(m_bookDetails, &BookDetailsDialog::authorDetailsRequested, this,
+          [this](quint32 authorId) {
+            m_authorDetails->showDetails(authorId);
+            m_authorDetails->activateWindow();
+            m_authorDetails->raise();
+          });
+
+  connect(m_authorDetails, &AuthorDetailsDialog::bookDetailsRequested, this,
+          [this](quint32 bookId) {
+            m_bookDetails->showDetails(bookId);
+            m_bookDetails->activateWindow();
+            m_bookDetails->raise();
+          });
+
+  ui->display->addWidget(m_booksSection);
 }
 
 void LibraryMainWindow::booksButtonClicked() {
-  if (m_currentSection == m_booksSection) {
+  if (ui->display->currentWidget() == m_booksSection) {
     return;
   }
 
-  ui->centralwidget->layout()->replaceWidget(m_currentSection, m_booksSection);
-  m_currentSection = m_booksSection;
-
-  QCoreApplication::processEvents();
-
+  ui->display->setCurrentWidget(m_booksSection);
   m_booksSection->loadBooks();
+}
+
+void LibraryMainWindow::closeEvent(QCloseEvent *event) {
+  emit closed();
+  QMainWindow::closeEvent(event);
 }

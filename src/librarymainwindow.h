@@ -7,6 +7,8 @@
 class BookSection;
 class LoginForm;
 class LibrarySideMenu;
+class BookDetailsDialog;
+class AuthorDetailsDialog;
 
 namespace Ui {
 class LibraryMainWindow;
@@ -21,14 +23,21 @@ public:
 
   void showLoginForm();
 
+signals:
+  void closed();
+
 public slots:
   void onLogged();
   void booksButtonClicked();
 
+protected:
+  void closeEvent(QCloseEvent *event) override;
+
 private:
   Ui::LibraryMainWindow *ui;
 
-  QWidget *m_currentSection;
+  BookDetailsDialog *m_bookDetails;
+  AuthorDetailsDialog *m_authorDetails;
 
   LoginForm *m_loginForm;
   BookSection *m_booksSection;

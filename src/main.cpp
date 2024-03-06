@@ -6,5 +6,6 @@ int main(int argc, char *argv[]) {
 
   LibraryMainWindow window;
   window.showLoginForm();
+
   return a.exec();
 }

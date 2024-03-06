@@ -91,3 +91,13 @@ Qt::AspectRatioMode ImagePickerLabel::aspectRatio() {
 QString ImagePickerLabel::imagePath() const {
   return m_imagePath;
 }
+
+QSize ImagePickerLabel::sizeHint() const {
+  int w = width();
+  return QSize(w, heightForWidth(w));
+};
+
+int ImagePickerLabel::heightForWidth(int width) const {
+  return m_pixmap.isNull() ? height()
+                           : m_pixmap.height() * width / m_pixmap.width();
+}
