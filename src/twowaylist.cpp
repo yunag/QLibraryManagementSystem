@@ -2,8 +2,8 @@
 #include <QStandardItemModel>
 #include <QStringListModel>
 
-#include "forms/ui_twowaylist.h"
 #include "twowaylist.h"
+#include "ui_twowaylist.h"
 
 TwoWayList::TwoWayList(QWidget *parent)
     : QWidget(parent), ui(new Ui::TwoWayList) {

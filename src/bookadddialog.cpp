@@ -9,13 +9,13 @@
 #include "database/bookcategory.h"
 #include "database/category.h"
 #include "database/librarydatabase.h"
-#include "forms/ui_bookadddialog.h"
+#include "ui_bookadddialog.h"
 
 BookAddDialog::BookAddDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::BookAddDialog) {
   ui->setupUi(this);
 
-  QPixmap pixmap(":/resources/images/DefaultBookCover");
+  QPixmap pixmap(":/images/DefaultBookCover");
   ui->coverLabel->setPixmap(pixmap);
   ui->coverLabel->setAspectRatio(Qt::KeepAspectRatio);
   ui->coverLabel->setAlignment(Qt::AlignCenter);

@@ -1,5 +1,5 @@
 #include "librarysidemenu.h"
-#include "forms/ui_librarysidemenu.h"
+#include "ui_librarysidemenu.h"
 
 LibrarySideMenu::LibrarySideMenu(QWidget *parent)
     : QWidget(parent), ui(new Ui::LibrarySideMenu) {

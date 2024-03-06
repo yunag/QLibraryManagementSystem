@@ -17,7 +17,7 @@
 
 #include "database/booksectiondao.h"
 #include "database/librarydatabase.h"
-#include "forms/ui_booksection.h"
+#include "ui_booksection.h"
 
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection) {
@@ -31,6 +31,7 @@ BookSection::BookSection(QWidget *parent)
   QStandardItemModel *model = new QStandardItemModel(this);
 
   ui->bookListView->setModel(model);
+  ui->bookListView->setUniformItemSizes(true);
 
   for (int i = 0; i < kItemsPerPage; ++i) {
     QStandardItem *bookItem = new QStandardItem;
@@ -50,8 +51,8 @@ BookSection::BookSection(QWidget *parent)
   ui->bookListView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
   ui->searchLineEdit->setClearButtonEnabled(true);
-  QAction *action = ui->searchLineEdit->addAction(
-    QIcon(":/resources/icons/searchIcon"), QLineEdit::LeadingPosition);
+  QAction *action = ui->searchLineEdit->addAction(QIcon(":/icons/searchIcon"),
+                                                  QLineEdit::LeadingPosition);
 
   LibraryDatabase::transaction().onFailed(
     this, [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
@@ -122,7 +123,7 @@ void BookSection::loadPage(qint32 pageNumber) {
   updatePageButtons(pageNumber);
 
   qint32 accumulatedItems = pageNumber * kItemsPerPage;
-  QPixmap defaultBookCover(":/resources/images/DefaultBookCover");
+  QPixmap defaultBookCover(":/images/DefaultBookCover");
 
   m_dao->loadBookCards(kItemsPerPage, accumulatedItems)
     .then(this,

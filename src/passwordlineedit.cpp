@@ -1,8 +1,8 @@
 #include "passwordlineedit.h"
 
 PasswordLineEdit::PasswordLineEdit(QWidget *parent)
-    : QLineEdit(parent), m_eyeClose(":/resources/icons/eyeClose"),
-      m_eyeOpen(":/resources/icons/eyeOpen") {
+    : QLineEdit(parent), m_eyeClose(":/icons/eyeClose"),
+      m_eyeOpen(":/icons/eyeOpen") {
 
   m_eyeAction = new QAction;
   addAction(m_eyeAction, TrailingPosition);

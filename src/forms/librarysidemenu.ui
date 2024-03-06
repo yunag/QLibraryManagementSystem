@@ -29,7 +29,7 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/resources/icons/hamburgerMenu.svg);</string>
+      <string notr="true">image: url(:/icons/hamburgerMenu.svg);</string>
      </property>
      <property name="text">
       <string/>
@@ -85,7 +85,7 @@
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">image: url(:/resources/icons/books.svg);</string>
+         <string notr="true">image: url(:/icons/books.svg);</string>
         </property>
         <property name="text">
          <string/>
@@ -151,7 +151,7 @@
          </size>
         </property>
         <property name="styleSheet">
-         <string notr="true">image: url(:/resources/icons/author.svg);</string>
+         <string notr="true">image: url(:/icons/author.svg);</string>
         </property>
         <property name="text">
          <string/>
@@ -209,7 +209,7 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">image: url(:/resources/icons/user.svg);</string>
+      <string notr="true">image: url(:/icons/user.svg);</string>
      </property>
      <property name="text">
       <string/>

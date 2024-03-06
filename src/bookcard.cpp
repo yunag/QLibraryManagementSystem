@@ -6,7 +6,7 @@
 BookCard::BookCard(QWidget *parent) : QWidget(parent), ui(new Ui::BookCard) {
   ui->setupUi(this);
 
-  QPixmap starPixmap(":/resources/images/starRating");
+  QPixmap starPixmap(":/images/starRating");
   ui->ratingWidget->setAlignment(Qt::AlignLeft);
   ui->ratingWidget->setCustomPixmap(starPixmap);
 
@@ -80,4 +80,11 @@ int BookCard::rating() const {
 void BookCard::copyButtonClicked() {
   QClipboard *clipboard = QApplication::clipboard();
   clipboard->setText(ui->title->text());
+}
+
+static int drawCalls = 0;
+
+void BookCard::paintEvent(QPaintEvent *event) {
+  qDebug() << ++drawCalls;
+  QWidget::paintEvent(event);
 }

@@ -16,7 +16,7 @@
 
 #include "database/bookdetailsdao.h"
 #include "database/librarydatabase.h"
-#include "forms/ui_bookdetailsdialog.h"
+#include "ui_bookdetailsdialog.h"
 
 BookDetailsDialog::BookDetailsDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::BookDetailsDialog) {

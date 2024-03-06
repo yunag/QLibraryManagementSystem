@@ -56,6 +56,9 @@ public:
 signals:
   void edited(Book book);
 
+protected:
+  void paintEvent(QPaintEvent *event) override;
+
 private slots:
   void copyButtonClicked();
 

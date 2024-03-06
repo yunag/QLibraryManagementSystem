@@ -18,7 +18,7 @@ class BookSection : public QWidget {
   Q_OBJECT
 
 public:
-  static constexpr int kItemsPerPage = 20;
+  static constexpr int kItemsPerPage = 300;
 
 public:
   explicit BookSection(QWidget *parent = nullptr);

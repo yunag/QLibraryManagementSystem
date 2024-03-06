@@ -63,7 +63,7 @@
               </size>
              </property>
              <property name="styleSheet">
-              <string notr="true">image: url(:/resources/images/DefaultBookCover.jpg);</string>
+              <string notr="true">image: url(:/images/DefaultBookCover.jpg);</string>
              </property>
              <property name="text">
               <string/>

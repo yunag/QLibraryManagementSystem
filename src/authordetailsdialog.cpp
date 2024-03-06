@@ -3,9 +3,9 @@
 #include <QStandardItemModel>
 
 #include "authordetailsdialog.h"
-#include "forms/ui_authordetailsdialog.h"
 #include "imageloader.h"
 #include "smoothscrollbar.h"
+#include "ui_authordetailsdialog.h"
 
 #include "database/authordetailsdao.h"
 #include "database/librarydatabase.h"

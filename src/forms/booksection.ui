@@ -232,8 +232,8 @@
         <string>Synchronize Now</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
-         <normaloff>:/resources/icons/reload.svg</normaloff>:/resources/icons/reload.svg</iconset>
+        <iconset resource="../../resources/resource.qrc">
+         <normaloff>:/icons/reload.svg</normaloff>:/icons/reload.svg</iconset>
        </property>
       </widget>
      </item>
@@ -344,7 +344,7 @@ QListView {
   </layout>
  </widget>
  <resources>
-  <include location="../../resource.qrc"/>
+  <include location="../../resources/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

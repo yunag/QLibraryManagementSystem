@@ -1,5 +1,5 @@
 #include "authorsection.h"
-#include "forms/ui_authorsection.h"
+#include "ui_authorsection.h"
 
 AuthorSection::AuthorSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::AuthorSection) {

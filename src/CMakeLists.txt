@@ -34,7 +34,7 @@ set(PROJECT_DB_SOURCES
 
 set(PROJECT_SOURCES
     main.cpp
-    ../resource.qrc
+    ../resources/resource.qrc
     bookdetailsdialog.h
     bookdetailsdialog.cpp
     libraryapplication.h
@@ -83,15 +83,22 @@ set(PROJECT_SOURCES
     imageloader.cpp
     authorsection.h
     authorsection.cpp
+    bookcarddelegate.h
+    bookcarddelegate.cpp
+    bookcardmodel.h bookcardmodel.cpp
     ${PROJECT_FORMS}
     ${PROJECT_DB_SOURCES})
 
-# list(TRANSFORM SOURCES PREPEND ${CMAKE_CURRENT_SOURCE_DIR}/)
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
   qt_add_executable(${PROJECT_NAME} MANUAL_FINALIZATION ${PROJECT_SOURCES})
 else()
   add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 endif()
+
+set_property(
+  TARGET ${PROJECT_NAME}
+  APPEND
+  PROPERTY AUTOUIC_SEARCH_PATHS forms)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql
                                               Qt${QT_VERSION_MAJOR}::Concurrent kwidgets)

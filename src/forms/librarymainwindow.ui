@@ -14,8 +14,8 @@
    <string>QLibrary</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../../resource.qrc">
-    <normaloff>:/resources/images/LibraryLogo.png</normaloff>:/resources/images/LibraryLogo.png</iconset>
+   <iconset resource="../../resources/resource.qrc">
+    <normaloff>:/images/LibraryLogo.png</normaloff>:/images/LibraryLogo.png</iconset>
   </property>
   <property name="tabShape">
    <enum>QTabWidget::Rounded</enum>
@@ -220,7 +220,7 @@
              </size>
             </property>
             <property name="styleSheet">
-             <string notr="true">image: url(:/resources/images/LibraryLogo.png);</string>
+             <string notr="true">image: url(:/images/LibraryLogo.png);</string>
             </property>
             <property name="text">
              <string/>
@@ -287,7 +287,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resource.qrc"/>
+  <include location="../../resources/resource.qrc"/>
  </resources>
  <connections/>
 </ui>
