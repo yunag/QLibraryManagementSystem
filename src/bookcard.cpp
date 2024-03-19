@@ -81,10 +81,3 @@ void BookCard::copyButtonClicked() {
   QClipboard *clipboard = QApplication::clipboard();
   clipboard->setText(ui->title->text());
 }
-
-static int drawCalls = 0;
-
-void BookCard::paintEvent(QPaintEvent *event) {
-  qDebug() << ++drawCalls;
-  QWidget::paintEvent(event);
-}

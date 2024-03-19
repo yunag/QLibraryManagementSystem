@@ -47,21 +47,23 @@ void LibraryMainWindow::onLogged() {
   connect(this, &LibraryMainWindow::closed, m_authorDetails,
           &QDialog::deleteLater);
 
+  auto showBookDetails = [this](quint32 bookId) {
+    m_bookDetails->showDetails(bookId);
+    m_bookDetails->activateWindow();
+    m_bookDetails->raise();
+  };
+
   connect(m_booksSection, &BookSection::bookDetailsRequested, this,
-          [this](quint32 bookId) { m_bookDetails->showDetails(bookId); });
+          showBookDetails);
+
+  connect(m_authorDetails, &AuthorDetailsDialog::bookDetailsRequested, this,
+          showBookDetails);
 
   connect(m_bookDetails, &BookDetailsDialog::authorDetailsRequested, this,
           [this](quint32 authorId) {
             m_authorDetails->showDetails(authorId);
             m_authorDetails->activateWindow();
             m_authorDetails->raise();
-          });
-
-  connect(m_authorDetails, &AuthorDetailsDialog::bookDetailsRequested, this,
-          [this](quint32 bookId) {
-            m_bookDetails->showDetails(bookId);
-            m_bookDetails->activateWindow();
-            m_bookDetails->raise();
           });
 
   ui->display->addWidget(m_booksSection);

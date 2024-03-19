@@ -10,12 +10,13 @@
 
 #include <QSqlError>
 
-#include "bookdetailsdialog.h"
+#include "database/bookdetailsdao.h"
 #include "imageloader.h"
 #include "smoothscrollbar.h"
 
-#include "database/bookdetailsdao.h"
-#include "database/librarydatabase.h"
+#include "libraryapplication.h"
+
+#include "bookdetailsdialog.h"
 #include "ui_bookdetailsdialog.h"
 
 BookDetailsDialog::BookDetailsDialog(QWidget *parent)
@@ -106,6 +107,8 @@ QStandardItem *BookDetailsDialog::addItem(QStandardItemModel *model,
 
 void BookDetailsDialog::updateUi(const BookDetails &bookDetails) {
   Book book = bookDetails.book;
+
+  setWindowTitle(book.title);
 
   ui->bookTitleLabel->setText(book.title);
   ui->descriptionText->setText(book.description);

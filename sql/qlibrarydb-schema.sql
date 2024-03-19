@@ -125,35 +125,3 @@ CREATE TABLE IF NOT EXISTS fine (
   CONSTRAINT fk_fine_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk_fine_loan FOREIGN KEY (loan_id) REFERENCES loan (loan_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
-
-
---
--- View structure for view `book_info_vw`
---
-CREATE VIEW book_info_vw (
-  book_id,
-  book_title,
-  categories,
-  authors,
-  cover_path,
-  rating
-) AS
-SELECT
-  b.book_id,
-  b.title,
-  GROUP_CONCAT(DISTINCT c.name SEPARATOR ', ') AS categories,
-  GROUP_CONCAT(
-    DISTINCT CONCAT(a.first_name, ' ', a.last_name) SEPARATOR ', '
-  ) AS authors,
-  b.cover_path,
-  avg(br.rating)
-FROM
-  book AS b
-  LEFT JOIN book_author ba ON ba.book_id = b.book_id
-  LEFT JOIN author a ON ba.author_id = a.author_id
-  LEFT JOIN book_category bc ON bc.book_id = b.book_id
-  LEFT JOIN category c ON bc.category_id = c.category_id
-  LEFT JOIN book_rating br ON br.book_id = b.book_id
-  LEFT JOIN user u ON br.user_id = u.user_id
-GROUP BY
-  b.book_id;

@@ -12,13 +12,14 @@ class BookCard;
 struct BookCardData {
   BookCardData() = default;
 
-  BookCardData(QPixmap cover, QString title, quint32 bookId,
+  BookCardData(QPixmap cover, QString coverPath, QString title, quint32 bookId,
                QStringList authors, QStringList categories, double rating)
-      : cover(std::move(cover)), title(std::move(title)), bookId(bookId),
-        authors(std::move(authors)), categories(std::move(categories)),
-        rating(rating) {}
+      : cover(std::move(cover)), coverPath(std::move(coverPath)),
+        title(std::move(title)), bookId(bookId), authors(std::move(authors)),
+        categories(std::move(categories)), rating(rating) {}
 
   QPixmap cover;
+  QString coverPath;
   QString title;
   quint32 bookId;
 
@@ -55,9 +56,6 @@ public:
 
 signals:
   void edited(Book book);
-
-protected:
-  void paintEvent(QPaintEvent *event) override;
 
 private slots:
   void copyButtonClicked();

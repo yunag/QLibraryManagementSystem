@@ -17,25 +17,50 @@ ImagePickerLabel::ImagePickerLabel(QWidget *parent, Qt::AspectRatioMode mode)
 
   m_mode = mode;
 
-  QString stylesheet = "image: url(%1)";
+  QString stylesheet = "QPushButton{ image: url(%1); }";
   m_pickerButton->setStyleSheet(stylesheet.arg(":/icons/ImagePickerIcon"));
 
   connect(m_pickerButton, &QPushButton::clicked, this,
           &ImagePickerLabel::handlePickerButtonClick);
 }
 
-void ImagePickerLabel::resizeEvent(QResizeEvent *e) {
-  int w = width();
-  int h = height();
+void ImagePickerLabel::updateButtonGeometry() {
+  int w = width(), pixmapWidth = w;
+  int h = height(), pixmapHeight = h;
 
   if (!pixmap().isNull()) {
     QLabel::setPixmap(scaledPixmap());
+
+    pixmapWidth = pixmap().width();
+    pixmapHeight = pixmap().height();
   }
 
-  int size = qMin(w, h) / 5;
+  int size = qMin(pixmapWidth, pixmapHeight) * 0.25f;
   int margin = 10;
 
-  m_pickerButton->setGeometry(w - size - margin, h - size - margin, size, size);
+  int xOff = w;
+  int yOff = h;
+  if (m_mode == Qt::KeepAspectRatio) {
+    if (alignment() & Qt::AlignLeft) {
+      xOff = pixmapWidth;
+    }
+    if (alignment() & Qt::AlignTop) {
+      yOff = pixmapHeight;
+    }
+    if (alignment() & Qt::AlignHCenter) {
+      xOff = (pixmapWidth + w) / 2;
+    }
+    if (alignment() & Qt::AlignVCenter) {
+      yOff = (pixmapHeight + h) / 2;
+    }
+  }
+
+  m_pickerButton->setGeometry(xOff - size - margin, yOff - size - margin, size,
+                              size);
+}
+
+void ImagePickerLabel::resizeEvent(QResizeEvent *e) {
+  updateButtonGeometry();
 
   QLabel::resizeEvent(e);
 }
@@ -44,6 +69,7 @@ void ImagePickerLabel::setPixmap(const QPixmap &pixmap) {
   m_pixmap = pixmap;
 
   QLabel::setPixmap(scaledPixmap());
+  updateButtonGeometry();
 }
 
 QPixmap ImagePickerLabel::scaledPixmap() const {
@@ -81,6 +107,8 @@ void ImagePickerLabel::setAspectRatio(Qt::AspectRatioMode mode) {
   if (!pixmap().isNull()) {
     QLabel::setPixmap(scaledPixmap());
   }
+
+  updateButtonGeometry();
 }
 
 Qt::AspectRatioMode ImagePickerLabel::aspectRatio() {
@@ -99,4 +127,10 @@ QSize ImagePickerLabel::sizeHint() const {
 int ImagePickerLabel::heightForWidth(int width) const {
   return m_pixmap.isNull() ? height()
                            : m_pixmap.height() * width / m_pixmap.width();
+}
+
+void ImagePickerLabel::setAlignment(Qt::Alignment alignment) {
+  QLabel::setAlignment(alignment);
+
+  updateButtonGeometry();
 }

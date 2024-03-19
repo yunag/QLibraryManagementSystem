@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/resource.qrc">
+    <normaloff>:/images/LibraryLogo.png</normaloff>:/images/LibraryLogo.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="SmoothScrollArea" name="scrollArea">
@@ -35,7 +39,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-6</y>
+        <y>0</y>
         <width>821</width>
         <height>714</height>
        </rect>
@@ -302,6 +306,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resources/resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

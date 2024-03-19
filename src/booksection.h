@@ -18,9 +18,6 @@ class BookSection : public QWidget {
   Q_OBJECT
 
 public:
-  static constexpr int kItemsPerPage = 300;
-
-public:
   explicit BookSection(QWidget *parent = nullptr);
   ~BookSection();
 
@@ -34,6 +31,8 @@ protected:
 
 private:
   void loadPage(qint32 pageNumber);
+  void reloadPage();
+
   void distributeGridSize();
   void updateLastSync();
   QFuture<void> updateNumberOfBooks();
@@ -41,20 +40,12 @@ private:
 
   void setBooksCount(qint32 booksCount);
 
-  void updatePageButtons(qint32 pageNumber);
-  bool isEndPage(qint32 pageNumber);
-  bool isStartPage(qint32 pageNumber);
-  bool isValidPage(qint32 pageNumber);
-
 private slots:
   void synchronizeNowButtonClicked();
   void searchTextChanged(const QString &text);
-  void nextPageButtonClicked();
-  void prevPageButtonClicked();
   void addButtonClicked();
   void bookInsertedHandle();
   void saveChanges();
-  void searchFilterAccepted();
   void deleteButtonClicked();
 
 private:
@@ -64,7 +55,6 @@ private:
   SearchFilterDialog *m_searchFilterDialog;
   BookSectionDAO *m_dao;
 
-  qint32 m_currentPage;
   qint32 m_booksCount;
 };
 

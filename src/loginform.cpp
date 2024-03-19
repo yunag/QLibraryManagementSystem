@@ -1,16 +1,16 @@
-#include <QMessageBox>
 #include <QSqlError>
 
-#include <QFile>
 #include <QKeyEvent>
 #include <QSettings>
 #include <QValidator>
 
 #include "database/librarydatabase.h"
-#include "loginform.h"
-#include "ui_loginform.h"
 #include "user.h"
 #include "widgetutils.h"
+
+#include "libraryapplication.h"
+#include "loginform.h"
+#include "ui_loginform.h"
 
 LoginForm::LoginForm(QWidget *parent) : QWidget(parent), ui(new Ui::LoginForm) {
   ui->setupUi(this);

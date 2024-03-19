@@ -30,7 +30,7 @@ private:
 
   SqlBindingHash m_bindings;
 
-  QString m_filters[_LastFilter + 1];
+  QStringList m_filters;
 
   Qt::SortOrder m_order;
   Column m_columnOrder;

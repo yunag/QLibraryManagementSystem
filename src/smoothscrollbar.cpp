@@ -49,20 +49,19 @@ void SmoothScrollBar::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void SmoothScrollBar::wheelEvent(QWheelEvent *event) {
-  int decrement = -event->angleDelta().x() - event->angleDelta().y();
-  int endValue = qBound(minimum(), m_animation->endValue().toInt(), maximum());
+  int minVal = minimum(), maxVal = maximum();
+  int curVal = value();
 
-  bool isUpBlock = endValue == maximum() && endValue + decrement >= maximum();
-  bool isDownBlock = endValue == minimum() && endValue + decrement <= minimum();
+  int decrement = -event->angleDelta().x() - event->angleDelta().y();
+  int endVal = qBound(minVal, m_animation->endValue().toInt(), maxVal);
+
+  bool isUpBlock = curVal == maxVal && curVal + decrement >= maxVal;
+  bool isDownBlock = curVal == minVal && curVal + decrement <= minVal;
 
   if (isUpBlock || isDownBlock) {
-    if (minimum() < value() && value() < maximum()) {
-      event->accept();
-    } else {
-      event->ignore();
-    }
+    event->ignore();
   } else {
-    scrollValue(endValue + decrement);
+    scrollValue(endVal + decrement);
     event->accept();
   }
 }

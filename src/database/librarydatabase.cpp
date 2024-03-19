@@ -4,8 +4,6 @@
 #include <QSqlQuery>
 #include <QSqlRecord>
 
-#include <QMessageBox>
-
 #include "database/librarydatabase.h"
 
 LibraryDatabase::LibraryDatabase() {
@@ -34,22 +32,14 @@ QSqlDatabase LibraryDatabase::databaseFromThread() {
   return QSqlDatabase::database(threadConnectionName);
 }
 
-template <typename PromiseType>
-static void setPromiseSQLException(QPromise<PromiseType> &promise,
-                                   const QSqlError &error) {
-  promise.setException(std::make_exception_ptr(error));
-}
-
 void LibraryDatabase::openImpl(const QString &dbname, const QString &dbUsername,
                                const QString &dbPassword, const QString &host,
                                int port) {
-  qDebug() << "Database Open:" << QThread::currentThread();
-
   QString conName = threadToConnectionName();
 
   QSqlDatabase db = QSqlDatabase::contains(conName)
                       ? QSqlDatabase::database(conName, false)
-                      : QSqlDatabase::addDatabase("QMYSQL", conName);
+                      : QSqlDatabase::addDatabase("QMARIADB", conName);
 
   db.setHostName(host);
   db.setPort(port);
@@ -61,8 +51,6 @@ void LibraryDatabase::openImpl(const QString &dbname, const QString &dbUsername,
 }
 
 void LibraryDatabase::reopenImpl() {
-  qDebug() << "Database reopen:" << QThread::currentThread();
-
   QSqlDatabase db = databaseFromThread();
   if (!db.open()) {
     throw db.lastError();
@@ -71,8 +59,6 @@ void LibraryDatabase::reopenImpl() {
 
 LibraryTable LibraryDatabase::execImpl(const QString &cmd,
                                        const SqlBindingHash &bindings) {
-  qDebug() << "Database exec:" << QThread::currentThread();
-
   QSqlQuery query = preparedExecQuery(cmd, bindings);
 
   LibraryTable result;
@@ -89,22 +75,10 @@ LibraryTable LibraryDatabase::execImpl(const QString &cmd,
     result.push_back(std::move(row));
   }
 
-  if (!query.lastInsertId().isNull()) {
-    m_lastInsertId = query.lastInsertId();
-  }
-
   return result;
 }
 
-void databaseErrorMessageBox(QWidget *parent, const QSqlError &e) {
-  QMessageBox::warning(parent, QObject::tr("Database Fatal Error"),
-                       QObject::tr("Database failed with message: ") +
-                         e.text());
-}
-
 void LibraryDatabase::transactionImpl() {
-  qDebug() << "Database transaction:" << QThread::currentThread();
-
   QSqlDatabase db = databaseFromThread();
   if (!db.transaction()) {
     throw db.lastError();
@@ -112,8 +86,6 @@ void LibraryDatabase::transactionImpl() {
 }
 
 void LibraryDatabase::commitImpl() {
-  qDebug() << "Database commit:" << QThread::currentThread();
-
   QSqlDatabase db = databaseFromThread();
   if (!db.commit()) {
     throw db.lastError();
@@ -121,8 +93,6 @@ void LibraryDatabase::commitImpl() {
 }
 
 void LibraryDatabase::rollbackImpl() {
-  qDebug() << "Database rollback:" << QThread::currentThread();
-
   QSqlDatabase db = databaseFromThread();
   if (!db.rollback()) {
     throw db.lastError();
@@ -171,7 +141,7 @@ QSqlQuery LibraryDatabase::preparedExecQuery(const QString &cmd,
   }
 
   if (!query.exec()) {
-    qWarning() << query.lastError();
+    qWarning() << query.lastError() << cmd;
     throw query.lastError();
   }
 

@@ -4,14 +4,40 @@
 
 const QString BookSectionDAO::kQuery = R"(
 SELECT
-  bi.book_id,
-  bi.book_title,
-  bi.categories,
-  bi.authors,
-  bi.cover_path,
-  bi.rating
+  b.book_id,
+  b.title,
+  (
+    SELECT
+      group_concat(c.name SEPARATOR ', ')
+    FROM
+      category c
+      INNER JOIN book_category bc ON bc.category_id = c.category_id
+    WHERE
+      bc.book_id = b.book_id
+  ) AS categories,
+  (
+    SELECT
+      group_concat(
+        concat(a.first_name, ' ', a.last_name) SEPARATOR ', '
+      )
+    FROM
+      author a
+      INNER JOIN book_author ba ON ba.author_id = a.author_id
+    WHERE
+      ba.book_id = b.book_id
+  ) AS authors,
+  b.cover_path,
+  (
+    SELECT
+      avg(br.rating)
+    FROM
+      user u
+      INNER JOIN book_rating br ON br.user_id = u.user_id
+    WHERE
+      br.book_id = b.book_id
+  ) AS rating
 FROM
-  book_info_vw AS bi
+  book b
 WHERE 
   %1
 ORDER BY
@@ -22,9 +48,11 @@ OFFSET
   %3
 )";
 
-BookSectionDAO::BookSectionDAO(QObject *parent) : QObject(parent) {
+BookSectionDAO::BookSectionDAO(QObject *parent)
+    : QObject(parent), m_filters(_LastFilter + 1) {
   m_order = Qt::AscendingOrder;
   m_columnOrder = Id;
+  m_filters.push_back("1");
 }
 
 void BookSectionDAO::setFilter(Filter filter, const QString &value) {
@@ -32,25 +60,17 @@ void BookSectionDAO::setFilter(Filter filter, const QString &value) {
 }
 
 QString BookSectionDAO::applyFilters() {
-  QString filters = "1";
-
-  for (const QString &filter : m_filters) {
-    if (!filter.isEmpty()) {
-      filters += " AND " + filter;
-    }
-  }
-
-  return filters;
+  return m_filters.filter(QRegularExpression("^.+$")).join(" AND ");
 }
 
 static QString columnToDbColumn(BookSectionDAO::Column column) {
   switch (column) {
     case BookSectionDAO::Id:
-      return "bi.book_id";
+      return "book_id";
     case BookSectionDAO::Title:
-      return "bi.book_title";
+      return "title";
     case BookSectionDAO::Rating:
-      return "bi.rating";
+      return "rating";
     default:
       qDebug() << "Invalid column";
       return "";
@@ -80,16 +100,18 @@ QFuture<QList<BookCardData>> BookSectionDAO::loadBookCards(int itemsCount,
         QStringList categories = row[2].toString().split(", ");
         QStringList authors = row[3].toString().split(", ");
 
-        QPixmap cover(row[4].toString());
+        QString coverPath = row[4].toString();
+        QPixmap cover(coverPath);
         qreal rating = row[5].toDouble();
 
-        return BookCardData(cover, title, book_id, authors, categories, rating);
+        return BookCardData(cover, coverPath, title, book_id, authors,
+                            categories, rating);
       });
     });
 }
 
 void BookSectionDAO::setSearchFilter(const QString &search) {
-  QString condition = "lower(bi.book_title) LIKE :search";
+  QString condition = "lower(title) LIKE :search";
   QString reg = search.toLower().split("").join("%").replace("%%%", "%\\%%");
 
   m_bindings[":search"] = reg;
@@ -98,7 +120,7 @@ void BookSectionDAO::setSearchFilter(const QString &search) {
 }
 
 QFuture<quint32> BookSectionDAO::bookCardsCount() {
-  QString cmd = "SELECT count(*) FROM book_info_vw AS bi WHERE %1";
+  QString cmd = "SELECT count(*) FROM book AS b WHERE %1";
   QString filters = applyFilters();
 
   return LibraryDatabase::exec(cmd.arg(filters), m_bindings)

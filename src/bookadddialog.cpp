@@ -9,19 +9,15 @@
 #include "database/bookcategory.h"
 #include "database/category.h"
 #include "database/librarydatabase.h"
+
+#include "libraryapplication.h"
 #include "ui_bookadddialog.h"
 
 BookAddDialog::BookAddDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::BookAddDialog) {
   ui->setupUi(this);
 
-  QPixmap pixmap(":/images/DefaultBookCover");
-  ui->coverLabel->setPixmap(pixmap);
   ui->coverLabel->setAspectRatio(Qt::KeepAspectRatio);
-  ui->coverLabel->setAlignment(Qt::AlignCenter);
-
-  ui->copiesOwned->setValidator(
-    new QIntValidator(0, std::numeric_limits<int>::max(), this));
 
   connect(ui->buttonBox, &QDialogButtonBox::accepted, this,
           &BookAddDialog::accept);
@@ -50,13 +46,12 @@ void BookAddDialog::accept() {
   QList<quint32> author_ids = getIds(ui->authors->resultList());
   QList<quint32> category_ids = getIds(ui->categories->resultList());
 
-  QString title = ui->titleLineEdit->text();
-  QDate publicationDate = ui->publicationDate->date();
-  QString coverPath = ui->coverLabel->imagePath();
-  QString description = ui->descriptionText->toPlainText();
-  quint32 copiesOwned = ui->copiesOwned->text().toInt();
-
-  Book book(title, description, publicationDate, coverPath, copiesOwned);
+  Book book;
+  book.title = ui->titleLineEdit->text();
+  book.description = ui->descriptionText->toPlainText();
+  book.publication_date = ui->publicationDate->date();
+  book.cover_path = ui->coverLabel->imagePath();
+  book.copies_owned = ui->copiesOwned->text().toInt();
 
   LibraryDatabase::insert(book)
     .then(QtFuture::Launch::Async,

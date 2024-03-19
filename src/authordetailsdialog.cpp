@@ -7,8 +7,9 @@
 #include "smoothscrollbar.h"
 #include "ui_authordetailsdialog.h"
 
+#include "libraryapplication.h"
+
 #include "database/authordetailsdao.h"
-#include "database/librarydatabase.h"
 
 AuthorDetailsDialog::AuthorDetailsDialog(QWidget *parent)
     : QDialog(parent), ui(new Ui::AuthorDetailsDialog) {
@@ -73,8 +74,11 @@ void AuthorDetailsDialog::showDetails(quint32 authorId) {
 
 void AuthorDetailsDialog::updateUi(const AuthorDetails &details) {
   const Author &author = details.author;
+  QString authorFullName = author.first_name + " " + author.last_name;
 
-  ui->authorNameLabel->setText(author.first_name + " " + author.last_name);
+  setWindowTitle(authorFullName);
+
+  ui->authorNameLabel->setText(authorFullName);
   ui->bioText->setText("Lorem Ipsum");
   ui->authorImage->setPixmap(ImageLoader::load(""));
 

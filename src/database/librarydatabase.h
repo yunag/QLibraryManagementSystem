@@ -98,6 +98,8 @@ private:
   ~LibraryDatabase();
 
 private:
+  QSqlDatabase databaseFromThread();
+
   QSqlQuery prepareQuery(const QString &cmd);
   QSqlQuery execQuery(const QString &cmd);
   QSqlQuery preparedExecQuery(const QString &cmd,
@@ -105,15 +107,6 @@ private:
   QSqlQuery preparedExecBatchQuery(const QString &cmd,
                                    const SqlBindingHash &bindings = {});
 
-  template <typename T>
-  static inline constexpr void isIheretingSchema() {
-    static_assert(
-      std::is_base_of<Schema, T>::value,
-      "Class not inheriting Schema. Did you forget to inherit Schema?");
-  }
-
-private:
-  QSqlDatabase databaseFromThread();
   void reopenImpl();
   void openImpl(const QString &dbname, const QString &username,
                 const QString &password, const QString &host, int port);
@@ -123,6 +116,13 @@ private:
   void transactionImpl();
   void commitImpl();
   void rollbackImpl();
+
+  template <typename T>
+  static inline constexpr void isIheretingSchema() {
+    static_assert(
+      std::is_base_of<Schema, T>::value,
+      "Class not inheriting Schema. Did you forget to inherit Schema?");
+  }
 
 private:
   template <typename T>
@@ -141,24 +141,24 @@ private:
    * @brief Database thread
    */
   QThread m_thread;
-  QString m_lastSuccessfulConnection;
-  QVariant m_lastInsertId;
 };
+
+#define FOR_EACH_PROPERTY(prop, metaobj)                                       \
+  for (int i = metaobj.propertyOffset();                                       \
+       i < metaobj.propertyCount() && (prop = metaobj.property(i)).name();     \
+       ++i)
 
 template <typename T>
 QList<T> LibraryDatabase::getEntriesImpl() {
-  const QMetaObject metaObj = T::staticMetaObject;
-
-  Q_ASSERT(metaObj.propertyCount() > 0);
-
-  QString schemaName = T::schemaName;
   QStringList fields;
+  QMetaProperty prop;
 
-  for (int i = metaObj.propertyOffset(); i < metaObj.propertyCount(); ++i) {
-    fields << metaObj.property(i).name();
+  FOR_EACH_PROPERTY(prop, T::staticMetaObject) {
+    fields << prop.name();
   }
 
-  QString cmd = QString("SELECT %1 FROM %2").arg(fields.join(", "), schemaName);
+  QString cmd =
+    QString("SELECT %1 FROM %2").arg(fields.join(", "), T::schemaName);
 
   QSqlQuery query = execQuery(cmd);
 
@@ -166,9 +166,8 @@ QList<T> LibraryDatabase::getEntriesImpl() {
   while (query.next()) {
     T entity;
 
-    for (int i = metaObj.propertyOffset(); i < metaObj.propertyCount(); ++i) {
-      QMetaProperty property = metaObj.property(i);
-      property.writeOnGadget(&entity, query.value(i));
+    FOR_EACH_PROPERTY(prop, T::staticMetaObject) {
+      prop.writeOnGadget(&entity, query.value(i));
     }
     resutl.push_back(std::move(entity));
   }
@@ -180,116 +179,89 @@ template <typename T>
 void LibraryDatabase::deleteByIdImpl(const QVariant &id) {
   QString cmd = "DELETE FROM %1 WHERE %2 = :%2";
 
-  QString tableName = T::schemaName;
-  QString primaryKey = T::primaryKey;
+  cmd = cmd.arg(T::schemaName, T::primaryKey);
 
-  cmd = cmd.arg(tableName, primaryKey);
-
-  SqlBindingHash bindings = {{":" + primaryKey, id}};
+  SqlBindingHash bindings = {{":" + QString(T::primaryKey), id}};
   preparedExecQuery(cmd, bindings);
 }
 
 template <typename T>
 void LibraryDatabase::updateByIdImpl(const QVariant &id, const T &newEntry) {
-  const QMetaObject metaObj = T::staticMetaObject;
-
-  Q_ASSERT(metaObj.propertyCount() > 0);
-
   SqlBindingHash bindings;
   QStringList values;
-  QString schemaName = T::schemaName;
-  QString primaryKey = T::primaryKey;
+  QMetaProperty prop;
 
-  for (int i = metaObj.propertyOffset(); i < metaObj.propertyCount(); ++i) {
-    QMetaProperty property = metaObj.property(i);
-    if (property.name() == primaryKey) {
+  FOR_EACH_PROPERTY(prop, T::staticMetaObject) {
+    if (prop.name() == QString(T::primaryKey)) {
       continue;
     }
 
     QString assign = "%1 = :%1";
-    values << assign.arg(property.name());
-    bindings.insert(QString(":") + property.name(),
-                    property.readOnGadget(&newEntry));
+    values << assign.arg(prop.name());
+
+    bindings.insert(QString(":") + prop.name(), prop.readOnGadget(&newEntry));
   }
 
   QString cmd = QString("UPDATE %1 SET %2 WHERE %3 = :%3")
-                  .arg(schemaName, values.join(", "), primaryKey);
+                  .arg(T::schemaName, values.join(", "), T::primaryKey);
 
-  bindings.insert(":" + primaryKey, id);
+  bindings.insert(QString(":") + T::primaryKey, id);
 
   preparedExecQuery(cmd, bindings);
 }
 
 template <typename T>
 QVariant LibraryDatabase::insertImpl(const T &entry, bool insertKey) {
-  const QMetaObject metaObj = T::staticMetaObject;
-
-  Q_ASSERT(metaObj.propertyCount() > 0);
-
   SqlBindingHash bindings;
-  QString schemaName = entry.schemaName;
-  QString primaryKey = entry.primaryKey;
-
   QStringList fields;
+  QMetaProperty prop;
 
-  for (int i = metaObj.propertyOffset(); i < metaObj.propertyCount(); ++i) {
-    QMetaProperty property = metaObj.property(i);
-
-    if (!insertKey && property.name() == primaryKey) {
+  FOR_EACH_PROPERTY(prop, T::staticMetaObject) {
+    if (!insertKey && prop.name() == QString(T::primaryKey)) {
       continue;
     }
-    fields << property.name();
-    bindings.insert(QString(":") + property.name(),
-                    property.readOnGadget(&entry));
+    fields << prop.name();
+    bindings.insert(QString(":") + prop.name(), prop.readOnGadget(&entry));
   }
 
   QString cmd =
     QString("INSERT INTO %1 (%2) VALUES (%3)")
-      .arg(schemaName, fields.join(", "))
+      .arg(T::schemaName, fields.join(", "))
       .arg(fields.replaceInStrings(QRegularExpression("^"), ":").join(", "));
 
   QSqlQuery query = preparedExecQuery(cmd, bindings);
+
   return query.lastInsertId();
 }
 
 template <typename T>
 void LibraryDatabase::insertBatchImpl(const QList<T> &entries, bool insertKey) {
-  const QMetaObject metaObj = T::staticMetaObject;
-
   Q_ASSERT(!entries.isEmpty());
-  Q_ASSERT(metaObj.propertyCount() > 0);
-
-  QString schemaName = T::schemaName;
-  QString primaryKey = T::primaryKey;
 
   QStringList fields;
   SqlBindingHash bindings;
+  QMetaProperty prop;
 
-  for (int i = metaObj.propertyOffset(); i < metaObj.propertyCount(); ++i) {
-    QMetaProperty property = metaObj.property(i);
-
-    if (!insertKey && property.name() == primaryKey) {
+  FOR_EACH_PROPERTY(prop, T::staticMetaObject) {
+    if (!insertKey && prop.name() == QString(T::schemaName)) {
       continue;
     }
 
-    fields << property.name();
+    fields << prop.name();
 
     QVariantList values;
     for (auto &entry : entries) {
-      values << property.readOnGadget(&entry);
+      values << prop.readOnGadget(&entry);
     }
-    bindings.insert(QString(":") + property.name(), values);
+    bindings.insert(QString(":") + prop.name(), values);
   }
 
   QString cmd =
     QString("INSERT INTO %1 (%2) VALUES (%3)")
-      .arg(schemaName, fields.join(", "))
+      .arg(T::schemaName, fields.join(", "))
       .arg(fields.replaceInStrings(QRegularExpression("^"), ":").join(", "));
 
   QSqlQuery query = preparedExecBatchQuery(cmd, bindings);
 }
-
-/* TODO: Move function declaration */
-void databaseErrorMessageBox(QWidget *parent, const QSqlError &e);
 
 #endif  // LIBRARYDATABASE_H

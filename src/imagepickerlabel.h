@@ -20,10 +20,14 @@ public:
   void setAspectRatio(Qt::AspectRatioMode mode);
   Qt::AspectRatioMode aspectRatio();
 
+  void setAlignment(Qt::Alignment alignment);
+
 public slots:
   void setPixmap(const QPixmap &pixmap);
 
 protected:
+  void updateButtonGeometry();
+
   QSize sizeHint() const override;
   int heightForWidth(int width) const override;
 

@@ -4,26 +4,23 @@
 #include <QDate>
 #include <QFuture>
 
-class User {
+#include "database/schema.h"
+
+class User : public Schema {
+  Q_GADGET
 
 public:
-  User(quint32 user_id, QString name, QString username, QString password,
-       QString salt, QDate joined_date, bool is_admin = 0, bool active = 1)
-      : user_id(user_id), name(std::move(name)), username(std::move(username)),
-        password(std::move(password)), salt(std::move(salt)),
-        joined_date(joined_date), is_admin(is_admin), active(active) {}
+  SCHEMA_KEY(quint32, user_id);
 
-  quint32 user_id;
+  SCHEMA_FIELD(QString, name);
+  SCHEMA_FIELD(QString, username);
+  SCHEMA_FIELD(QString, password);
+  SCHEMA_FIELD(QString, salt);
 
-  QString name;
-  QString username;
-  QString password;
-  QString salt;
+  SCHEMA_FIELD(QDate, joined_date);
 
-  QDate joined_date;
-
-  bool is_admin;
-  bool active;
+  SCHEMA_FIELD(bool, is_admin);
+  SCHEMA_FIELD(bool, active);
 
   static QByteArray generateSalt();
   static QFuture<bool> validate(const QString &username,

@@ -1,4 +1,6 @@
+#include <QMessageBox>
 #include <QSettings>
+#include <QSqlError>
 #include <QThread>
 
 #include "libraryapplication.h"
@@ -43,4 +45,10 @@ void LibraryApplication::setupSettings() {
 
     settings.endGroup();
   }
+}
+
+void databaseErrorMessageBox(QWidget *parent, const QSqlError &e) {
+  QMessageBox::warning(parent, QObject::tr("Database Fatal Error"),
+                       QObject::tr("Database failed with message: ") +
+                         e.text());
 }

@@ -3,6 +3,8 @@
 
 #include <QApplication>
 
+class QSqlError;
+
 class LibraryApplication : public QApplication {
 public:
   LibraryApplication(int &argc, char **argv);
@@ -10,5 +12,7 @@ public:
 private:
   void setupSettings();
 };
+
+void databaseErrorMessageBox(QWidget *parent, const QSqlError &e);
 
 #endif  // LIBRARYAPPLICATION_H

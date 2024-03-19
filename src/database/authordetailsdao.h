@@ -1,6 +1,7 @@
 #ifndef AUTHORDETAILSDAO_H
 #define AUTHORDETAILSDAO_H
 
+#include <QFuture>
 #include <QObject>
 
 #include "author.h"

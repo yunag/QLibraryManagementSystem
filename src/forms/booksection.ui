@@ -266,6 +266,9 @@ QListView {
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMinimumSize</enum>
+     </property>
      <item>
       <widget class="QPushButton" name="addButton">
        <property name="font">
@@ -316,26 +319,18 @@ QListView {
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="prevPageButton">
-       <property name="font">
-        <font>
-         <family>Montserrat</family>
-        </font>
+      <widget class="Pagination" name="pagination">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
-       <property name="text">
-        <string>Prev Page</string>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="nextPageButton">
-       <property name="font">
-        <font>
-         <family>Montserrat</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>Next Page</string>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
        </property>
       </widget>
      </item>
@@ -343,6 +338,14 @@ QListView {
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Pagination</class>
+   <extends>QFrame</extends>
+   <header>pagination.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../resources/resource.qrc"/>
  </resources>

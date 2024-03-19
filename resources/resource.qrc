@@ -21,5 +21,9 @@
         <file>icons/author.svg</file>
         <file>icons/user.svg</file>
         <file>icons/reload.svg</file>
+        <file>icons/firstpage.svg</file>
+        <file>icons/lastpage.svg</file>
+        <file>icons/nextpage.svg</file>
+        <file>icons/prevpage.svg</file>
     </qresource>
 </RCC>

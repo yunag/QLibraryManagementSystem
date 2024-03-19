@@ -1,6 +1,8 @@
 #ifndef BOOKCATEGORY_H
 #define BOOKCATEGORY_H
 
+#include <QFuture>
+
 #include "schema.h"
 
 class BookCategory : public Schema {

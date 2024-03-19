@@ -2,8 +2,6 @@
 #define BOOK_H
 
 #include <QDate>
-#include <QFuture>
-#include <QObject>
 
 #include "schema.h"
 
@@ -22,12 +20,6 @@ public:
   SCHEMA_KEY(quint32, book_id);
 
   Book() {}
-
-  Book(QString title, QString description, QDate publication_date,
-       QString cover_path, quint32 copies_owned, quint32 book_id = 0)
-      : title(std::move(title)), description(std::move(description)),
-        publication_date(publication_date), cover_path(std::move(cover_path)),
-        copies_owned(copies_owned), book_id(book_id) {}
 
   ~Book(){};
 };

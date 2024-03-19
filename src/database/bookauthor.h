@@ -1,6 +1,8 @@
 #ifndef BOOKAUTHOR_H
 #define BOOKAUTHOR_H
 
+#include <QFuture>
+
 #include "schema.h"
 
 class BookAuthor : public Schema {

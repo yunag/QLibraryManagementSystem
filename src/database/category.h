@@ -1,9 +1,6 @@
 #ifndef CATEGORY_H
 #define CATEGORY_H
 
-#include <QFuture>
-#include <QtGlobal>
-
 #include "schema.h"
 
 class Category : public Schema {

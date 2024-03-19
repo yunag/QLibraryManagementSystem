@@ -1,10 +1,6 @@
 #ifndef AUTHOR_H
 #define AUTHOR_H
 
-#include <QFuture>
-#include <QMetaObject>
-#include <QtGlobal>
-
 #include "schema.h"
 
 class Author : public Schema {

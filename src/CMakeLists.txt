@@ -9,7 +9,8 @@ set(PROJECT_FORMS
     forms/twowaylist.ui
     forms/bookdetailsdialog.ui
     forms/authordetailsdialog.ui
-    forms/authorsection.ui)
+    forms/authorsection.ui
+    forms/pagination.ui)
 
 set(PROJECT_DB_SOURCES
     database/bookdetailsdao.h
@@ -83,9 +84,10 @@ set(PROJECT_SOURCES
     imageloader.cpp
     authorsection.h
     authorsection.cpp
-    bookcarddelegate.h
-    bookcarddelegate.cpp
-    bookcardmodel.h bookcardmodel.cpp
+    pagination.h
+    pagination.cpp
+    elidedlabel.h
+    elidedlabel.cpp
     ${PROJECT_FORMS}
     ${PROJECT_DB_SOURCES})
 
