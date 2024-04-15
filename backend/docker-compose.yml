@@ -1,0 +1,29 @@
+services:
+  mariadb:
+    image: mariadb
+    restart: always
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d/:rw
+      - ~/database:/var/lib/mysql
+    ports: 
+      - 3306:3306
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+  library-server:
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    expose:
+      - ${PORT}
+    depends_on:
+      - mariadb
+    environment:
+      MYSQL_HOST: mariadb
+
+
+networks:
+  internalnet:
+    driver: bridge
