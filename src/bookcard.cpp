@@ -1,4 +1,5 @@
 #include <QClipboard>
+#include <QMovie>
 
 #include "bookcard.h"
 #include "forms/ui_bookcard.h"
@@ -9,7 +10,11 @@ BookCard::BookCard(QWidget *parent) : QWidget(parent), ui(new Ui::BookCard) {
   QPixmap starPixmap(":/images/starRating");
   ui->ratingWidget->setAlignment(Qt::AlignLeft);
   ui->ratingWidget->setCustomPixmap(starPixmap);
+  ui->bookCoverLabel->setAlignment(Qt::AlignCenter);
+  ui->bookCoverLabel->setAspectRatio(Qt::IgnoreAspectRatio);
 
+  connect(ui->ratingWidget, &KRatingWidget::ratingChanged, this,
+          &BookCard::ratingChanged);
   connect(ui->copyButton, &QPushButton::clicked, this,
           &BookCard::copyButtonClicked);
 }
@@ -19,11 +24,7 @@ BookCard::~BookCard() {
 }
 
 void BookCard::setCover(const QPixmap &pixmap) {
-  int w = ui->bookCoverLabel->width();
-  int h = ui->bookCoverLabel->height();
-
-  ui->bookCoverLabel->setPixmap(
-    pixmap.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+  ui->bookCoverLabel->setPixmap(pixmap);
 }
 
 QSize BookCard::coverSize() const {
@@ -38,8 +39,8 @@ QString BookCard::title() const {
   return ui->title->text();
 }
 
-void BookCard::setBookId(quint32 id) {
-  ui->bookId->setText(QString::number(id));
+void BookCard::setBookId(quint32 bookId) {
+  ui->bookId->setText(QString::number(bookId));
 }
 
 quint32 BookCard::bookId() const {
@@ -70,7 +71,9 @@ QString BookCard::category() const {
 }
 
 void BookCard::setRating(int rating) {
+  ui->ratingWidget->blockSignals(true);
   ui->ratingWidget->setRating(rating);
+  ui->ratingWidget->blockSignals(false);
 }
 
 int BookCard::rating() const {
@@ -80,4 +83,8 @@ int BookCard::rating() const {
 void BookCard::copyButtonClicked() {
   QClipboard *clipboard = QApplication::clipboard();
   clipboard->setText(ui->title->text());
+}
+
+AspectRatioLabel *BookCard::coverLabel() {
+  return ui->bookCoverLabel;
 }

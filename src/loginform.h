@@ -1,10 +1,9 @@
 #ifndef LOGINFORM_H
 #define LOGINFORM_H
 
-#include <QSettings>
 #include <QWidget>
 
-class LibraryDatabase;
+#include "network/userauthentication.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -19,10 +18,7 @@ class LoginForm : public QWidget {
 
 public:
   LoginForm(QWidget *parent = nullptr);
-  ~LoginForm();
-
-protected:
-  void keyPressEvent(QKeyEvent *event) override;
+  ~LoginForm() override;
 
 signals:
   void logged();
@@ -32,5 +28,7 @@ private slots:
 
 private:
   Ui::LoginForm *ui;
+
+  UserAuthentication m_authentication;
 };
 #endif  // LOGINFORM_H

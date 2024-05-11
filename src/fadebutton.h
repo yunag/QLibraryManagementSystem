@@ -13,14 +13,14 @@ class FadeButton : public QPushButton {
 
 public:
   FadeButton(bool isVisibleInitially = false, int msecsDuration = 500,
-             QEasingCurve curve = QEasingCurve::Linear,
+             const QEasingCurve &curve = QEasingCurve::Linear,
              QWidget *parent = nullptr);
 
   void fadeIn();
   void fadeOut();
 
-  bool isFadeIn();
-  bool isFadeOut();
+  bool isFadeIn() const;
+  bool isFadeOut() const;
 
 private:
   void fade(QAbstractAnimation::Direction direction);

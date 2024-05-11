@@ -11,7 +11,7 @@ public:
   void acceptDropsFrom(QObject *object);
 
 protected:
-  void dragMoveEvent(QDragMoveEvent *e) override;
+  void dragMoveEvent(QDragMoveEvent *event) override;
 
 private:
   QSet<QObject *> m_acceptDrops;

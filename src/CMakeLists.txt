@@ -12,44 +12,54 @@ set(PROJECT_FORMS
     forms/authorsection.ui
     forms/pagination.ui)
 
-set(PROJECT_DB_SOURCES
-    database/bookdetailsdao.h
-    database/bookdetailsdao.cpp
-    database/librarydatabase.h
-    database/librarydatabase.cpp
-    database/schema.h
-    database/book.h
-    database/book.cpp
-    database/bookauthor.h
-    database/bookauthor.cpp
-    database/author.h
-    database/author.cpp
-    database/category.h
-    database/category.cpp
-    database/bookcategory.h
-    database/bookcategory.cpp
-    database/booksectiondao.h
-    database/booksectiondao.cpp
-    database/authordetailsdao.h
-    database/authordetailsdao.cpp)
+set(PROJECT_DAO_SOURCES dao/booksectiondao.h dao/booksectiondao.cpp dao/authordetailsdao.h dao/authordetailsdao.cpp)
+
+set(PROJECT_SCHEMA_SOURCES
+    schema/author.h
+    schema/book.h
+    schema/bookauthor.h
+    schema/bookcategory.h
+    schema/category.h
+    schema/schema.h
+    schema/schema.cpp)
+
+set(PROJECT_COMMON_SOURCES common/json.h common/json.cpp common/widgetutils.h common/widgetutils.cpp common/error.h
+                           common/error.cpp)
+
+set(PROJECT_CONTROLLERS_SOURCES
+    controllers/bookcontroller.h
+    controllers/bookcontroller.cpp
+    controllers/bookratingcontroller.h
+    controllers/bookratingcontroller.cpp
+    controllers/authorbookcontroller.h
+    controllers/authorbookcontroller.cpp
+    controllers/bookcategorycontroller.h
+    controllers/bookcategorycontroller.cpp
+    controllers/categorycontroller.h
+    controllers/categorycontroller.cpp
+    controllers/authorcontroller.h
+    controllers/authorcontroller.cpp)
+
+set(PROJECT_NETWORK_SOURCES network/network.h network/network.cpp network/userauthentication.h
+                            network/userauthentication.cpp network/imageloader.h network/imageloader.cpp)
 
 set(PROJECT_SOURCES
     main.cpp
     ../resources/resource.qrc
     bookdetailsdialog.h
     bookdetailsdialog.cpp
+    loadingmodel.h
+    loadingmodel.cpp
     libraryapplication.h
     libraryapplication.cpp
     librarymainwindow.h
     librarymainwindow.cpp
+    aspectratiolabel.h
+    aspectratiolabel.cpp
     bookadddialog.h
     bookadddialog.cpp
-    widgetutils.h
-    widgetutils.cpp
     bookcard.cpp
     bookcard.h
-    user.h
-    user.cpp
     booksection.h
     booksection.cpp
     qlabeldragdrop.h
@@ -80,8 +90,6 @@ set(PROJECT_SOURCES
     smoothscrollbar.cpp
     authordetailsdialog.h
     authordetailsdialog.cpp
-    imageloader.h
-    imageloader.cpp
     authorsection.h
     authorsection.cpp
     pagination.h
@@ -89,26 +97,46 @@ set(PROJECT_SOURCES
     elidedlabel.h
     elidedlabel.cpp
     ${PROJECT_FORMS}
-    ${PROJECT_DB_SOURCES})
+    ${PROJECT_DAO_SOURCES}
+    ${PROJECT_SCHEMA_SOURCES}
+    ${PROJECT_NETWORK_SOURCES}
+    ${PROJECT_COMMON_SOURCES}
+    ${PROJECT_CONTROLLERS_SOURCES})
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-  qt_add_executable(${PROJECT_NAME} MANUAL_FINALIZATION ${PROJECT_SOURCES})
-else()
-  add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
-endif()
+qt_add_executable(${PROJECT_NAME} MANUAL_FINALIZATION ${PROJECT_SOURCES})
 
 set_property(
   TARGET ${PROJECT_NAME}
   APPEND
   PROPERTY AUTOUIC_SEARCH_PATHS forms)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql
-                                              Qt${QT_VERSION_MAJOR}::Concurrent kwidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Network Qt6::Concurrent kwidgets)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -fno-omit-frame-pointer -fno-common -Wall -Wextra -pedantic)
+target_compile_options(
+  ${PROJECT_NAME}
+  PRIVATE -fno-omit-frame-pointer
+          -fno-common
+          -Wall
+          -Wextra
+          -Wpedantic
+          -Wcast-qual
+          -Wconversion
+          -Wdouble-promotion
+          -Wduplicated-branches
+          -Wduplicated-cond
+          -Wfloat-equal
+          -Wformat=2
+          -Wformat-signedness
+          -Wlogical-op
+          -Wmissing-declarations
+          # -Wpadded
+          -Wshadow
+          -Wswitch-default
+          -Wswitch-enum
+          -Wundef
+          -Wunused-macros
+          -Wwrite-strings)
 
-if(QT_VERSION_MAJOR EQUAL 6)
-  qt_finalize_executable(${PROJECT_NAME})
-endif()
+qt_finalize_executable(${PROJECT_NAME})

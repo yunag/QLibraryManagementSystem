@@ -3,11 +3,13 @@
 #include <QSqlError>
 #include <QThread>
 
+#include <QMovie>
+
 #include "libraryapplication.h"
+#include "librarymainwindow.h"
 
 LibraryApplication::LibraryApplication(int &argc, char **argv)
     : QApplication(argc, argv) {
-
   /* Format debug messages */
   qSetMessagePattern(
     "[%{time yyyy/MM/dd h:mm:ss.zzz} "
@@ -33,22 +35,30 @@ void LibraryApplication::setupSettings() {
   setOrganizationDomain("LibraryManagementDomain");
   setApplicationName("LibraryManagementSystem");
 
-  settings.setDefaultFormat(QSettings::IniFormat);
-  settings.setPath(QSettings::IniFormat, QSettings::UserScope, configPath);
-
-  if (!settings.contains("DatabaseCredentials")) {
-    settings.beginGroup("DatabaseCredentials");
-
-    settings.setValue("dbname", "qlibrarydb");
-    settings.setValue("username", "root");
-    settings.setValue("password", "");
-
-    settings.endGroup();
-  }
+  QSettings::setDefaultFormat(QSettings::IniFormat);
+  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configPath);
 }
 
-void databaseErrorMessageBox(QWidget *parent, const QSqlError &e) {
-  QMessageBox::warning(parent, QObject::tr("Database Fatal Error"),
-                       QObject::tr("Database failed with message: ") +
-                         e.text());
+/* TODO: Move it to resource manager class */
+QSharedPointer<QMovie> LibraryApplication::loadingMovie() {
+  QSharedPointer<QMovie> movie = m_loadingMovie.lock();
+  if (movie) {
+    return movie;
+  }
+
+  movie = QSharedPointer<QMovie>(new QMovie(":/images/LoadingStarSmall.gif"),
+                                 [](QMovie *movie) {
+                                   movie->stop();
+                                   movie->deleteLater();
+                                 });
+
+  m_loadingMovie = movie;
+  return movie;
+}
+
+int LibraryApplication::run() {
+  LibraryMainWindow window;
+  window.showLoginForm();
+
+  return exec();
 }

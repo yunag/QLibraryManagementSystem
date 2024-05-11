@@ -9,14 +9,11 @@
 Pagination::Pagination(QWidget *parent) : Pagination(0, 0, parent) {}
 
 Pagination::Pagination(int itemsCount, int itemsPerPageCount, QWidget *parent)
-    : QFrame(parent), ui(new Ui::Pagination) {
+    : QWidget(parent), ui(new Ui::Pagination),
+      m_pageValidator(new QIntValidator(0, 0, this)), m_itemsCount(itemsCount),
+      m_currentPage(0), m_itemsPerPageCount(itemsPerPageCount) {
   ui->setupUi(this);
-  m_currentPage = 0;
 
-  m_itemsCount = itemsCount;
-  m_itemsPerPageCount = itemsPerPageCount;
-
-  m_pageValidator = new QIntValidator(0, 0, this);
   ui->pageInput->setValidator(m_pageValidator);
 
   updateTotalPages();
@@ -89,15 +86,15 @@ int Pagination::currentPage() const {
   return m_currentPage;
 }
 
-bool Pagination::isPageValid(int page) {
+bool Pagination::isPageValid(int page) const {
   return page >= 0 && page < m_totalPages;
 }
 
-bool Pagination::isNextPageAvailable() {
+bool Pagination::isNextPageAvailable() const {
   return isPageValid(m_currentPage + 1);
 }
 
-bool Pagination::isPrevPageAvailable() {
+bool Pagination::isPrevPageAvailable() const {
   return isPageValid(m_currentPage - 1);
 }
 
@@ -109,8 +106,12 @@ void Pagination::lastPage() {
   setCurrentPage(m_totalPages - 1);
 }
 
-int Pagination::calculateTotalPages() {
-  return qCeil(float(m_itemsCount) / m_itemsPerPageCount);
+int Pagination::calculateTotalPages() const {
+  if (!m_itemsCount) {
+    return 1;
+  }
+
+  return qCeil(float(m_itemsCount) / float(m_itemsPerPageCount));
 }
 
 void Pagination::updatePageButtons() {
@@ -125,16 +126,26 @@ void Pagination::updateTotalPages() {
   QString totalPages = QString::number(m_totalPages - 1);
 
   ui->pageInput->setMaximumWidth(
-    metrics.boundingRect(totalPages + "0").width());
+    metrics.boundingRect(totalPages + "XXX").width());
+
+  updatePageButtons();
 
   ui->totalPagesText->setText("of " + totalPages);
   m_pageValidator->setTop(m_totalPages - 1);
 }
 
-bool Pagination::isFirstPage() {
+bool Pagination::isFirstPage() const {
   return m_currentPage == 0;
 }
 
-bool Pagination::isLastPage() {
+bool Pagination::isLastPage() const {
   return m_currentPage == m_totalPages - 1;
+}
+
+void Pagination::resizeEvent(QResizeEvent * /*event*/) {
+  /* Align buttons and input */
+  int buttonHeight = ui->nextPageButton->height();
+
+  /* BUG: https://bugreports.qt.io/browse/QTBUG-62797 */
+  ui->pageInput->setMinimumHeight(buttonHeight - 4);
 }

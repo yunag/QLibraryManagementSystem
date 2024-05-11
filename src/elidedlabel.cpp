@@ -1,8 +1,7 @@
 #include "elidedlabel.h"
 
-ElidedLabel::ElidedLabel(QWidget *parent) : QLabel(parent) {
-  m_elideMode = Qt::ElideRight;
-}
+ElidedLabel::ElidedLabel(QWidget *parent)
+    : QLabel(parent), m_elideMode(Qt::ElideRight) {}
 
 void ElidedLabel::setText(const QString &text) {
   m_text = text;

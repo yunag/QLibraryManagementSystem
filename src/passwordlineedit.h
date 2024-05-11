@@ -7,7 +7,7 @@ class PasswordLineEdit : public QLineEdit {
   Q_OBJECT
 
 public:
-  PasswordLineEdit(QWidget *parent = nullptr);
+  explicit PasswordLineEdit(QWidget *parent = nullptr);
 
   void setEchoMode(EchoMode mode);
 private slots:

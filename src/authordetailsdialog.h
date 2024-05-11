@@ -17,7 +17,7 @@ class AuthorDetailsDialog : public QDialog {
 
 public:
   explicit AuthorDetailsDialog(QWidget *parent = nullptr);
-  ~AuthorDetailsDialog();
+  ~AuthorDetailsDialog() override;
 
   void openDetails(quint32 authorId);
   void showDetails(quint32 authorId);

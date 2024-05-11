@@ -15,15 +15,15 @@ void QLabelDragDrop::dragEnterEvent(QDragEnterEvent *event) {
   event->acceptProposedAction();
 }
 
-void QLabelDragDrop::dragLeaveEvent(QDragLeaveEvent *event) {
+void QLabelDragDrop::dragLeaveEvent(QDragLeaveEvent * /*event*/) {
   qDebug() << "dragLeaveEvent";
   releaseMouse();
 }
 
-void QLabelDragDrop::dragMoveEvent(QDragMoveEvent *event) {
+void QLabelDragDrop::dragMoveEvent(QDragMoveEvent * /*event*/) {
   qDebug() << "dragMoveEvent";
 }
 
-void QLabelDragDrop::dropEvent(QDropEvent *event) {
+void QLabelDragDrop::dropEvent(QDropEvent * /*event*/) {
   qDebug() << "dropEvent";
 }

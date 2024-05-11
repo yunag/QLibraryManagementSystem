@@ -6,13 +6,11 @@
 #include "ui_twowaylist.h"
 
 TwoWayList::TwoWayList(QWidget *parent)
-    : QWidget(parent), ui(new Ui::TwoWayList) {
+    : QWidget(parent), ui(new Ui::TwoWayList),
+      m_proxy(new QSortFilterProxyModel(this)),
+      m_modelLeft(new QStandardItemModel(this)),
+      m_modelRight(new QStandardItemModel(this)) {
   ui->setupUi(this);
-
-  m_modelLeft = new QStandardItemModel(this);
-  m_proxy = new QSortFilterProxyModel(this);
-
-  m_modelRight = new QStandardItemModel(this);
 
   m_proxy->setSourceModel(m_modelLeft);
   m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -29,16 +27,16 @@ TwoWayList::TwoWayList(QWidget *parent)
           &TwoWayList::returnPressed);
 
   connect(ui->leftListView, &QListView::doubleClicked, this,
-          &TwoWayList::swapFromLeftToRight);
+          &TwoWayList::swapLeftToRight);
   connect(ui->rightListView, &QListView::doubleClicked, this,
-          &TwoWayList::swapFromRightToLeft);
+          &TwoWayList::swapRightToLeft);
 }
 
 TwoWayList::~TwoWayList() {
   delete ui;
 }
 
-void TwoWayList::addItems(QList<QStandardItem *> items) {
+void TwoWayList::addItems(const QList<QStandardItem *> &items) {
   for (QStandardItem *item : items) {
     item->setFlags(item->flags() & ~Qt::ItemIsDropEnabled);
     m_modelLeft->appendRow(item);
@@ -47,31 +45,40 @@ void TwoWayList::addItems(QList<QStandardItem *> items) {
 
 void TwoWayList::returnPressed() {
   if (m_proxy->rowCount()) {
-    swapFromLeftToRight(m_proxy->index(0, 0));
+    swapLeftToRight(m_proxy->index(0, 0));
   }
 }
 
-void TwoWayList::swapFromLeftToRight(const QModelIndex &index) {
-  QModelIndex sourceIndex = m_proxy->mapToSource(index);
+void TwoWayList::swapLeftToRight(const QModelIndex &index) {
+  QModelIndex sourceIndex =
+    index.model() == m_proxy ? m_proxy->mapToSource(index) : index;
 
   QList<QStandardItem *> item = m_modelLeft->takeRow(sourceIndex.row());
 
   m_modelRight->appendRow(item);
 }
 
-void TwoWayList::swapFromRightToLeft(const QModelIndex &index) {
+void TwoWayList::swapRightToLeft(const QModelIndex &index) {
   QList<QStandardItem *> item = m_modelRight->takeRow(index.row());
 
   m_modelLeft->appendRow(item);
 }
 
-QList<QStandardItem *> TwoWayList::resultList() {
+static QList<QStandardItem *> grabItems(QStandardItemModel *model) {
   QList<QStandardItem *> result;
 
-  for (int i = 0; i < m_modelRight->rowCount(); ++i) {
-    result << m_modelRight->item(i);
+  for (int i = 0; i < model->rowCount(); ++i) {
+    result << model->item(i);
   }
   return result;
+}
+
+QList<QStandardItem *> TwoWayList::leftList() {
+  return grabItems(m_modelLeft);
+}
+
+QList<QStandardItem *> TwoWayList::rightList() {
+  return grabItems(m_modelRight);
 }
 
 bool TwoWayList::hasResults() {

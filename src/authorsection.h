@@ -12,7 +12,7 @@ class AuthorSection : public QWidget {
 
 public:
   explicit AuthorSection(QWidget *parent = nullptr);
-  ~AuthorSection();
+  ~AuthorSection() override;
 
 private:
   Ui::AuthorSection *ui;

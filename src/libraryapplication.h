@@ -3,16 +3,30 @@
 
 #include <QApplication>
 
+#include "network/network.h"
+
+#define App (dynamic_cast<LibraryApplication *>(qApp))
+
 class QSqlError;
 
 class LibraryApplication : public QApplication {
 public:
   LibraryApplication(int &argc, char **argv);
 
-private:
-  void setupSettings();
-};
+  static int run();
 
-void databaseErrorMessageBox(QWidget *parent, const QSqlError &e);
+public:
+  RestApiManager *network() { return &m_networkManager; }
+
+  QSharedPointer<QMovie> loadingMovie();
+
+private:
+  static void setupSettings();
+
+private:
+  RestApiManager m_networkManager;
+
+  QWeakPointer<QMovie> m_loadingMovie;
+};
 
 #endif  // LIBRARYAPPLICATION_H

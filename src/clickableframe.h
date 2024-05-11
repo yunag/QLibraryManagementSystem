@@ -8,7 +8,7 @@ class ClickableFrame : public QFrame {
   using QFrame::QFrame;
 
 protected:
-  virtual void mousePressEvent(QMouseEvent *e) override;
+  void mousePressEvent(QMouseEvent *event) override;
 
 signals:
   void clicked();

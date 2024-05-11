@@ -3,20 +3,18 @@
 
 #include <QDialog>
 
-#include "database/booksectiondao.h"
+#include "dao/booksectiondao.h"
 
 namespace Ui {
 class SearchFilterDialog;
 }
 
-class BookSectionDAO;
-
 class SearchFilterDialog : public QDialog {
   Q_OBJECT
 
 public:
-  explicit SearchFilterDialog(BookSectionDAO *dao, QWidget *parent = nullptr);
-  ~SearchFilterDialog();
+  explicit SearchFilterDialog(BookSectionDao *dao, QWidget *parent = nullptr);
+  ~SearchFilterDialog() override;
 
 public:
   void open() override;
@@ -31,10 +29,10 @@ private:
 
 private:
   Ui::SearchFilterDialog *ui;
-  BookSectionDAO *m_dao;
+  BookSectionDao *m_dao;
 
   Qt::SortOrder m_order;
-  BookSectionDAO::Column m_column;
+  BookSectionDao::Property m_column;
 };
 
 #endif  // SEARCHFILTERDIALOG_H

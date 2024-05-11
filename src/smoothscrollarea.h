@@ -14,7 +14,7 @@ public:
   SmoothScrollArea(QWidget *parent = nullptr);
 
   void setScrollAnimation(Qt::Orientation orientation, int durationms,
-                          QEasingCurve curve);
+                          const QEasingCurve &curve);
 
 private:
   SmoothScrollBar *m_hScrollBar;

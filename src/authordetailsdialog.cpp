@@ -1,31 +1,30 @@
-#include <QSqlError>
 #include <QStandardItem>
 #include <QStandardItemModel>
 
 #include "authordetailsdialog.h"
-#include "imageloader.h"
 #include "smoothscrollbar.h"
 #include "ui_authordetailsdialog.h"
 
-#include "libraryapplication.h"
+#include "common/error.h"
 
-#include "database/authordetailsdao.h"
+#include "network/networkerror.h"
+
+#include "dao/authordetailsdao.h"
 
 AuthorDetailsDialog::AuthorDetailsDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::AuthorDetailsDialog) {
+    : QDialog(parent), ui(new Ui::AuthorDetailsDialog),
+      m_dao(new AuthorDetailsDAO(this)) {
   ui->setupUi(this);
 
-  m_dao = new AuthorDetailsDAO(this);
-
-  QStandardItemModel *model = new QStandardItemModel(ui->booksList);
+  auto *model = new QStandardItemModel(ui->booksList);
   ui->booksList->setModel(model);
 
   ui->authorImage->setStyleSheet("");
   ui->authorImage->setAspectRatio(Qt::KeepAspectRatio);
 
-  ui->booksList->setIconSize(kItemSize * 0.8f);
+  ui->booksList->setIconSize(kItemSize * 0.8);
 
-  SmoothScrollBar *smoothScrollBar = new SmoothScrollBar(ui->booksList);
+  auto *smoothScrollBar = new SmoothScrollBar(ui->booksList);
   ui->booksList->setAcceptDrops(false);
   ui->booksList->verticalScrollBar()->setDisabled(true);
   ui->booksList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -37,9 +36,7 @@ AuthorDetailsDialog::AuthorDetailsDialog(QWidget *parent)
     kItemSize.height() + ui->booksList->horizontalScrollBar()->height());
 
   connect(ui->booksList, &QListView::doubleClicked, this,
-          [this](const QModelIndex &index) {
-            QStandardItemModel *model =
-              qobject_cast<QStandardItemModel *>(ui->booksList->model());
+          [this, model](const QModelIndex &index) {
             QStandardItem *item = model->item(index.row());
 
             emit bookDetailsRequested(item->data().toUInt());
@@ -51,14 +48,15 @@ AuthorDetailsDialog::~AuthorDetailsDialog() {
 }
 
 void AuthorDetailsDialog::openDetails(quint32 authorId) {
+
   m_dao->fetchDetails(authorId)
     .then(this,
           [this](const AuthorDetails &details) {
             updateUi(details);
             open();
           })
-    .onFailed(
-      [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
+    .onFailed(this,
+              [this](const NetworkError &err) { handleError(this, err); });
 }
 
 void AuthorDetailsDialog::showDetails(quint32 authorId) {
@@ -68,33 +66,10 @@ void AuthorDetailsDialog::showDetails(quint32 authorId) {
             updateUi(details);
             show();
           })
-    .onFailed(
-      [this](const QSqlError &err) { databaseErrorMessageBox(this, err); });
+    .onFailed(this,
+              [this](const NetworkError &err) { handleError(this, err); });
 }
 
-void AuthorDetailsDialog::updateUi(const AuthorDetails &details) {
-  const Author &author = details.author;
-  QString authorFullName = author.first_name + " " + author.last_name;
-
-  setWindowTitle(authorFullName);
-
-  ui->authorNameLabel->setText(authorFullName);
-  ui->bioText->setText("Lorem Ipsum");
-  ui->authorImage->setPixmap(ImageLoader::load(""));
-
-  const QList<AuthorDetails::BookInfo> &books = details.books;
-  QStandardItemModel *booksModel =
-    qobject_cast<QStandardItemModel *>(ui->booksList->model());
-  booksModel->clear();
-
-  for (const auto &book : books) {
-    QStandardItem *item =
-      new QStandardItem(ImageLoader::load(book.coverPath), book.title);
-
-    item->setFlags(item->flags() & ~Qt::ItemIsEditable);
-    item->setTextAlignment(Qt::AlignBaseline | Qt::AlignHCenter);
-    item->setSizeHint(kItemSize);
-    item->setData(book.id);
-    booksModel->appendRow(item);
-  }
+void AuthorDetailsDialog::updateUi(const AuthorDetails &) {
+  /* TODO: implement */
 }

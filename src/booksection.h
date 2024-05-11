@@ -4,10 +4,15 @@
 #include <QFuture>
 #include <QWidget>
 
+#include "network/network.h"
+#include "schema/schema.h"
+
 class QStandardItemModel;
 
+class BookSectionDao;
+class BookCard;
+class BookCardData;
 class BookAddDialog;
-class BookSectionDAO;
 class SearchFilterDialog;
 
 namespace Ui {
@@ -19,7 +24,7 @@ class BookSection : public QWidget {
 
 public:
   explicit BookSection(QWidget *parent = nullptr);
-  ~BookSection();
+  ~BookSection() override;
 
   void loadBooks();
 
@@ -27,35 +32,42 @@ signals:
   void bookDetailsRequested(quint32 bookId);
 
 protected:
-  virtual void resizeEvent(QResizeEvent *event) override;
-
-private:
-  void loadPage(qint32 pageNumber);
-  void reloadPage();
-
-  void distributeGridSize();
-  void updateLastSync();
-  QFuture<void> updateNumberOfBooks();
-  void hideItems(quint32 itemStart = 0);
-
-  void setBooksCount(qint32 booksCount);
+  void resizeEvent(QResizeEvent *event) override;
 
 private slots:
   void synchronizeNowButtonClicked();
   void searchTextChanged(const QString &text);
   void addButtonClicked();
+  void updateButtonClicked();
   void bookInsertedHandle();
   void saveChanges();
   void deleteButtonClicked();
 
+  void onBookData(const QList<BookData> &bookCards);
+
+private:
+  void loadPage(int pageNumber);
+
+  void reloadCurrentPage();
+  QFuture<void> updateNumberOfBooks();
+
+  void distributeGridSize();
+  void updateLastSync();
+  void hideItems(int itemStart = 0);
+
+  void setBooksCount(int booksCount);
+  void processBookUrl(BookCard *bookCard, const QUrl &url);
+
 private:
   Ui::BookSection *ui;
 
+  BookSectionDao *m_dao;
   BookAddDialog *m_bookAddDialog;
   SearchFilterDialog *m_searchFilterDialog;
-  BookSectionDAO *m_dao;
 
-  qint32 m_booksCount;
+  QList<ReplyPointer> m_imageReplies;
+
+  int m_booksCount;
 };
 
 #endif  // BOOKSECTION_H

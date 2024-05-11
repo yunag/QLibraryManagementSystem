@@ -1,21 +1,19 @@
-#include <QSqlError>
-
 #include <QKeyEvent>
-#include <QSettings>
 #include <QValidator>
 
-#include "database/librarydatabase.h"
-#include "user.h"
-#include "widgetutils.h"
-
-#include "libraryapplication.h"
+#include "common/error.h"
 #include "loginform.h"
 #include "ui_loginform.h"
 
-LoginForm::LoginForm(QWidget *parent) : QWidget(parent), ui(new Ui::LoginForm) {
+#include "network/networkerror.h"
+
+#include "libraryapplication.h"
+
+LoginForm::LoginForm(QWidget *parent)
+    : QWidget(parent), ui(new Ui::LoginForm), m_authentication(App->network()) {
   ui->setupUi(this);
 
-  ui->portLineEdit->setValidator(new QIntValidator(0, 65535, this));
+  ui->port->setValidator(new QIntValidator(0, 65535, this));
 
   connect(ui->loginButton, &QPushButton::clicked, this,
           &LoginForm::loginButtonClicked);
@@ -25,44 +23,32 @@ LoginForm::~LoginForm() {
   delete ui;
 }
 
-void LoginForm::loginButtonClicked() {
-  QString portString = usePlaceholderIfEmpty(ui->portLineEdit);
-  QString host = usePlaceholderIfEmpty(ui->hostLineEdit);
+static QString usePlaceholderIfEmpty(QLineEdit *lineEdit) {
+  QString text = lineEdit->text();
 
-  QString username = ui->usernameLineEdit->text();
-  QString password = ui->passwordLineEdit->text();
+  if (text.isEmpty()) {
+    text = lineEdit->placeholderText();
+    lineEdit->setText(text);
+  }
+  return text;
+}
+
+void LoginForm::loginButtonClicked() {
+  QString portString = usePlaceholderIfEmpty(ui->port);
+  QString host = usePlaceholderIfEmpty(ui->host);
+
+  QString username = ui->username->text();
+  QString password = ui->password->text();
 
   int port = portString.toInt();
 
-  QSettings settings;
-  settings.beginGroup("DatabaseCredentials");
+  QUrl hostUrl;
+  hostUrl.setHost(host);
+  hostUrl.setPort(port);
+  hostUrl.setScheme("http");
 
-  QString dbUserName = settings.value("username").toString();
-  QString dbPassword = settings.value("password").toString();
-  QString dbName = settings.value("dbname").toString();
-
-  settings.endGroup();
-
-  /* TODO: Remove it later */
-  username = username.isEmpty() ? "admin" : username;
-  password = password.isEmpty() ? "admin" : password;
-
-  ui->loginButton->setEnabled(false);
-  LibraryDatabase::open(dbName, dbUserName, dbPassword, host, port)
-    .then(QtFuture::Launch::Async,
-          [this, username, password]() {
-            if (User::validate(username, password).result()) {
-              emit logged();
-            }
-          })
-    .onFailed(
-      this,
-      [this](const QSqlError &err) { databaseErrorMessageBox(this, err); })
-    .then(this, [this]() { ui->loginButton->setEnabled(true); });
-}
-
-void LoginForm::keyPressEvent(QKeyEvent *event) {
-  if (event->key() == Qt::Key_Return && ui->loginButton->isEnabled()) {
-    ui->loginButton->animateClick();
-  }
+  m_authentication.login(hostUrl, username, password)
+    .then([this]() { emit logged(); })
+    .onFailed(this,
+              [this](const NetworkError &err) { handleError(this, err); });
 }

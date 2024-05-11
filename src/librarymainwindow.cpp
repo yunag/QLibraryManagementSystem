@@ -14,8 +14,6 @@ LibraryMainWindow::LibraryMainWindow(QWidget *parent)
 
   connect(ui->booksButton, &QPushButton::clicked, this,
           &LibraryMainWindow::booksButtonClicked);
-  connect(ui->sideMenu, &LibrarySideMenu::booksMenuClicked, this,
-          &LibraryMainWindow::booksButtonClicked);
 }
 
 LibraryMainWindow::~LibraryMainWindow() {
@@ -35,17 +33,21 @@ void LibraryMainWindow::onLogged() {
   m_loginForm->close();
 
   QRect screenRect = QGuiApplication::primaryScreen()->geometry();
-  resize(screenRect.width() * 0.75f, screenRect.height() * 0.75f);
+  resize(screenRect.width() * 3 / 4, screenRect.height() * 3 / 4);
   show();
 
   m_booksSection = new BookSection(this);
   m_bookDetails = new BookDetailsDialog;
   m_authorDetails = new AuthorDetailsDialog;
 
-  connect(this, &LibraryMainWindow::closed, m_bookDetails,
-          &QDialog::deleteLater);
-  connect(this, &LibraryMainWindow::closed, m_authorDetails,
-          &QDialog::deleteLater);
+  connect(this, &LibraryMainWindow::closed, m_bookDetails, [this] {
+    m_bookDetails->deleteLater();
+    m_bookDetails->close();
+  });
+  connect(this, &LibraryMainWindow::closed, m_authorDetails, [this] {
+    m_authorDetails->deleteLater();
+    m_authorDetails->close();
+  });
 
   auto showBookDetails = [this](quint32 bookId) {
     m_bookDetails->showDetails(bookId);

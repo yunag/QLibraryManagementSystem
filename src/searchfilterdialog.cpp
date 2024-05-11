@@ -1,23 +1,17 @@
 #include "searchfilterdialog.h"
 #include "ui_searchfilterdialog.h"
 
-SearchFilterDialog::SearchFilterDialog(BookSectionDAO *dao, QWidget *parent)
-    : QDialog(parent), ui(new Ui::SearchFilterDialog) {
+SearchFilterDialog::SearchFilterDialog(BookSectionDao *dao, QWidget *parent)
+    : QDialog(parent), ui(new Ui::SearchFilterDialog), m_dao(dao) {
   ui->setupUi(this);
 
-  m_dao = dao;
+  QMap<QString, BookSectionDao::Property> items;
+  items["id"] = BookSectionDao::IdProperty;
+  items["title"] = BookSectionDao::TitleProperty;
+  items["rating"] = BookSectionDao::RatingProperty;
 
-  struct {
-    QString sortBy;
-    BookSectionDAO::Column column;
-  } sortByItems[] = {
-    {"id", BookSectionDAO::Id},
-    {"title", BookSectionDAO::Title},
-    {"rating", BookSectionDAO::Rating},
-  };
-
-  for (auto item : sortByItems) {
-    ui->sortByComboBox->addItem(item.sortBy, item.column);
+  for (const auto &[name, property] : items.asKeyValueRange()) {
+    ui->sortByComboBox->addItem(name, property);
   }
 
   connect(ui->sortByComboBox, &QComboBox::currentIndexChanged, this,
@@ -35,7 +29,7 @@ SearchFilterDialog::~SearchFilterDialog() {
 
 void SearchFilterDialog::indexChanged(int index) {
   m_column =
-    ui->sortByComboBox->itemData(index).value<BookSectionDAO::Column>();
+    ui->sortByComboBox->itemData(index).value<BookSectionDao::Property>();
 }
 
 void SearchFilterDialog::accept() {
@@ -45,7 +39,15 @@ void SearchFilterDialog::accept() {
 }
 
 void SearchFilterDialog::open() {
-  ui->sortByComboBox->setCurrentIndex(m_dao->orderColumn());
+  for (int i = 0; i < ui->sortByComboBox->count(); ++i) {
+    auto comboProp =
+      ui->sortByComboBox->itemData(i).value<BookSectionDao::Property>();
+    if (comboProp == m_dao->orderProperty()) {
+      ui->sortByComboBox->setCurrentIndex(i);
+      break;
+    }
+  }
+
   if (m_dao->order() == Qt::AscendingOrder) {
     ui->ascRadioButton->toggle();
   } else {

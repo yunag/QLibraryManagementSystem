@@ -10,10 +10,10 @@ public:
   explicit QLabelDragDrop(QWidget *parent = nullptr);
 
 protected:
-  virtual void dropEvent(QDropEvent *event) override;
-  virtual void dragEnterEvent(QDragEnterEvent *event) override;
-  virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
-  virtual void dragMoveEvent(QDragMoveEvent *event) override;
+  void dropEvent(QDropEvent *event) override;
+  void dragEnterEvent(QDragEnterEvent *event) override;
+  void dragLeaveEvent(QDragLeaveEvent *event) override;
+  void dragMoveEvent(QDragMoveEvent *event) override;
 };
 
 #endif  // QLABELDRAGDROP_H

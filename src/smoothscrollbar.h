@@ -12,11 +12,12 @@ class SmoothScrollBar : public QScrollBar {
 
 public:
   explicit SmoothScrollBar(QWidget *parent = nullptr);
-  SmoothScrollBar(QEasingCurve curve, int duration, QWidget *parent = nullptr);
+  SmoothScrollBar(const QEasingCurve &curve, int duration,
+                  QWidget *parent = nullptr);
 
   void scrollValue(int value);
   void setAnimationDuration(int msecs);
-  void setAnimationCurve(QEasingCurve curve);
+  void setAnimationCurve(const QEasingCurve &curve);
 
 signals:
   void scrollFinished();

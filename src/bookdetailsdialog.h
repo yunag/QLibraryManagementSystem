@@ -3,11 +3,12 @@
 
 #include <QDialog>
 
-class BookDetailsDAO;
+#include "schema/schema.h"
+
 class QListView;
 class QStandardItemModel;
 class QStandardItem;
-class BookDetails;
+class LoadingModel;
 
 namespace Ui {
 class BookDetailsDialog;
@@ -20,23 +21,26 @@ class BookDetailsDialog : public QDialog {
 
 public:
   explicit BookDetailsDialog(QWidget *parent = nullptr);
-  ~BookDetailsDialog();
+  ~BookDetailsDialog() override;
 
-  void openDetails(quint32 bookId);
   void showDetails(quint32 bookId);
 
 signals:
   void authorDetailsRequested(quint32 authorId);
 
+protected:
+  void closeEvent(QCloseEvent *event) override;
+
 private:
-  void updateUi(const BookDetails &bookDetails);
-  void setupList(QListView *listView);
-  QStandardItem *addItem(QStandardItemModel *model, const QIcon &icon,
-                         const QString &text);
+  void updateUi(const BookData &bookDetails);
+  static void setupList(QListView *listView);
+  static QStandardItem *addItem(LoadingModel *model, const QUrl &url,
+                                const QString &text);
 
 private:
   Ui::BookDetailsDialog *ui;
-  BookDetailsDAO *m_dao;
+  LoadingModel *m_authorsModel;
+  LoadingModel *m_categoriesModel;
 };
 
 #endif  // BOOKDETAILSDIALOG_H

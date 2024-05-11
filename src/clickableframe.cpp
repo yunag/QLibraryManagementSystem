@@ -2,10 +2,10 @@
 
 #include "clickableframe.h"
 
-void ClickableFrame::mousePressEvent(QMouseEvent *e) {
-  if (e->button() == Qt::MouseButton::LeftButton) {
+void ClickableFrame::mousePressEvent(QMouseEvent *event) {
+  if (event->button() == Qt::MouseButton::LeftButton) {
     emit clicked();
   }
 
-  e->accept();
+  event->accept();
 }

@@ -12,6 +12,7 @@ UseTab: Never
 IncludeBlocks: Preserve
 
 BinPackArguments: true
+BinPackParameters: true
 
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: Yes

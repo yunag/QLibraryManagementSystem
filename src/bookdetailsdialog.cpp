@@ -1,36 +1,26 @@
-#include <QDate>
-#include <QJsonArray>
-#include <QJsonDocument>
-#include <QJsonObject>
-
 #include <QFontMetrics>
-#include <QScrollBar>
 #include <QStandardItemModel>
-#include <QStyledItemDelegate>
 
-#include <QSqlError>
+#include "controllers/bookcontroller.h"
+#include "loadingmodel.h"
 
-#include "database/bookdetailsdao.h"
-#include "imageloader.h"
-#include "smoothscrollbar.h"
-
-#include "libraryapplication.h"
+#include "common/error.h"
+#include "common/widgetutils.h"
 
 #include "bookdetailsdialog.h"
+#include "libraryapplication.h"
 #include "ui_bookdetailsdialog.h"
 
-BookDetailsDialog::BookDetailsDialog(QWidget *parent)
-    : QDialog(parent), ui(new Ui::BookDetailsDialog) {
+#include "smoothscrollbar.h"
 
+BookDetailsDialog::BookDetailsDialog(QWidget *parent)
+    : QDialog(parent), ui(new Ui::BookDetailsDialog),
+      m_authorsModel(new LoadingModel(this)),
+      m_categoriesModel(new LoadingModel(this)) {
   ui->setupUi(this);
 
-  m_dao = new BookDetailsDAO(this);
-  QStandardItemModel *authorsModel = new QStandardItemModel(ui->authorsList);
-  ui->authorsList->setModel(authorsModel);
-
-  QStandardItemModel *categoriesModel =
-    new QStandardItemModel(ui->categoriesList);
-  ui->categoriesList->setModel(categoriesModel);
+  ui->authorsList->setModel(m_authorsModel);
+  ui->categoriesList->setModel(m_categoriesModel);
 
   ui->bookCover->setStyleSheet("");
   ui->bookCover->setAspectRatio(Qt::KeepAspectRatio);
@@ -40,7 +30,7 @@ BookDetailsDialog::BookDetailsDialog(QWidget *parent)
 
   connect(ui->authorsList, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
-            QStandardItemModel *model =
+            auto *model =
               qobject_cast<QStandardItemModel *>(ui->authorsList->model());
             QStandardItem *item = model->item(index.row());
 
@@ -52,35 +42,22 @@ BookDetailsDialog::~BookDetailsDialog() {
   delete ui;
 }
 
-void BookDetailsDialog::openDetails(quint32 bookId) {
-  m_dao->fetchDetails(bookId)
-    .then(this,
-          [this](const BookDetails &bookDetails) {
-            updateUi(bookDetails);
-            open();
-          })
-    .onFailed(this, [this](const QSqlError &err) {
-      databaseErrorMessageBox(this, err);
-    });
-}
-
 void BookDetailsDialog::showDetails(quint32 bookId) {
-  m_dao->fetchDetails(bookId)
+  BookController::getBookById(bookId)
     .then(this,
-          [this](const BookDetails &bookDetails) {
+          [this](const BookData &bookDetails) {
             updateUi(bookDetails);
             show();
           })
-    .onFailed(this, [this](const QSqlError &err) {
-      databaseErrorMessageBox(this, err);
-    });
+    .onFailed(this,
+              [this](const NetworkError &err) { handleError(this, err); });
 }
 
 void BookDetailsDialog::setupList(QListView *listView) {
 
-  listView->setIconSize(kItemSize * 0.8f);
+  listView->setIconSize(kItemSize * 0.8);
 
-  SmoothScrollBar *smoothScrollBar = new SmoothScrollBar(listView);
+  auto *smoothScrollBar = new SmoothScrollBar(listView);
   listView->setAcceptDrops(false);
   listView->verticalScrollBar()->setDisabled(true);
   listView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -92,52 +69,57 @@ void BookDetailsDialog::setupList(QListView *listView) {
                              listView->horizontalScrollBar()->height());
 }
 
-QStandardItem *BookDetailsDialog::addItem(QStandardItemModel *model,
-                                          const QIcon &icon,
+QStandardItem *BookDetailsDialog::addItem(LoadingModel *model, const QUrl &url,
                                           const QString &text) {
-  QStandardItem *item = new QStandardItem(icon, text);
+  auto *item = new QStandardItem(text);
+  auto movie = App->loadingMovie();
 
   item->setFlags(item->flags() & ~Qt::ItemIsEditable);
   item->setTextAlignment(Qt::AlignBaseline | Qt::AlignHCenter);
   item->setSizeHint(kItemSize);
-  model->appendRow(item);
+  model->appendRow(item, url, movie);
 
   return item;
 }
 
-void BookDetailsDialog::updateUi(const BookDetails &bookDetails) {
-  Book book = bookDetails.book;
+static QUrl g_testUrl =
+  QUrl("https://external-preview.redd.it/"
+       "0ribEcoh7Jr0AMq9GuUg7ZNFvDARr_ltk2O25GFd_Go.jpg?auto=webp&s="
+       "8ff7fd9d3a667f646a8dd9673293084309fd8d85");
 
+void BookDetailsDialog::updateUi(const BookData &book) {
   setWindowTitle(book.title);
 
   ui->bookTitleLabel->setText(book.title);
   ui->descriptionText->setText(book.description);
-  ui->bookDateLabel->setText(book.publication_date.toString());
-  ui->numCopiesOwnedLabel->setText(QString::number(book.copies_owned));
-  ui->bookIdLabel->setText(QString::number(book.book_id));
+  ui->bookDateLabel->setText(book.publicationDate.toString(Qt::ISODate));
+  ui->numCopiesOwnedLabel->setText(QString::number(book.copiesOwned));
+  ui->bookIdLabel->setText(QString::number(book.id));
 
-  ui->bookCover->setPixmap(ImageLoader::load(book.cover_path));
+  WidgetUtils::asyncLoadImage(ui->bookCover, book.coverUrl);
 
-  QStandardItemModel *authorsModel =
-    qobject_cast<QStandardItemModel *>(ui->authorsList->model());
-  authorsModel->clear();
+  m_authorsModel->clear();
 
-  for (const Author &author : bookDetails.authors) {
-    QString authorFullName = author.first_name + " " + author.last_name;
-    QStandardItem *item =
-      addItem(authorsModel, ImageLoader::load(""), authorFullName);
+  for (const Author &author : book.authors) {
+    QString authorFullName = author.firstName + " " + author.lastName;
 
-    item->setData(author.author_id);
+    QStandardItem *item = addItem(m_authorsModel, g_testUrl, authorFullName);
+
+    item->setData(author.id);
   }
 
-  QStandardItemModel *categoriesModel =
-    qobject_cast<QStandardItemModel *>(ui->categoriesList->model());
-  categoriesModel->clear();
+  m_categoriesModel->clear();
 
-  for (const Category &category : bookDetails.categories) {
-    QStandardItem *item =
-      addItem(categoriesModel, ImageLoader::load(""), category.name);
+  for (const Category &category : book.categories) {
+    QStandardItem *item = addItem(m_categoriesModel, g_testUrl, category.name);
 
-    item->setData(category.category_id);
+    item->setData(category.id);
   }
+}
+
+void BookDetailsDialog::closeEvent(QCloseEvent *) {
+  m_authorsModel->clear();
+  m_categoriesModel->clear();
+
+  QDialog::close();
 }

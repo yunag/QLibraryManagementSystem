@@ -1,7 +1,7 @@
 #ifndef PAGINATION_H
 #define PAGINATION_H
 
-#include <QFrame>
+#include <QWidget>
 
 class QIntValidator;
 
@@ -9,7 +9,7 @@ namespace Ui {
 class Pagination;
 }
 
-class Pagination : public QFrame {
+class Pagination : public QWidget {
   Q_OBJECT
 
 public:
@@ -27,13 +27,13 @@ public:
   int currentPage() const;
   void setCurrentPage(int newPage);
 
-  bool isNextPageAvailable();
-  bool isPrevPageAvailable();
+  bool isNextPageAvailable() const;
+  bool isPrevPageAvailable() const;
 
-  bool isLastPage();
-  bool isFirstPage();
+  bool isLastPage() const;
+  bool isFirstPage() const;
 
-  bool isPageValid(int page);
+  bool isPageValid(int page) const;
 
   void nextPage();
   void prevPage();
@@ -44,10 +44,13 @@ public:
 signals:
   void pageChanged(int page);
 
+protected:
+  void resizeEvent(QResizeEvent *event) override;
+
 private:
   void updateTotalPages();
 
-  int calculateTotalPages();
+  int calculateTotalPages() const;
   void updatePageButtons();
 
 private:

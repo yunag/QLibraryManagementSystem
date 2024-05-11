@@ -1,40 +1,25 @@
 #ifndef BOOKCARD_H
 #define BOOKCARD_H
 
+#include <QUrl>
 #include <QWidget>
 
-#include "database/book.h"
+#include "aspectratiolabel.h"
+
+#include "schema/book.h"
 
 namespace Ui {
 class BookCard;
 }
-
-struct BookCardData {
-  BookCardData() = default;
-
-  BookCardData(QPixmap cover, QString coverPath, QString title, quint32 bookId,
-               QStringList authors, QStringList categories, double rating)
-      : cover(std::move(cover)), coverPath(std::move(coverPath)),
-        title(std::move(title)), bookId(bookId), authors(std::move(authors)),
-        categories(std::move(categories)), rating(rating) {}
-
-  QPixmap cover;
-  QString coverPath;
-  QString title;
-  quint32 bookId;
-
-  QStringList authors;
-  QStringList categories;
-
-  double rating;
-};
 
 class BookCard : public QWidget {
   Q_OBJECT
 
 public:
   explicit BookCard(QWidget *parent = nullptr);
-  ~BookCard();
+  ~BookCard() override;
+
+  AspectRatioLabel *coverLabel();
 
   void setCover(const QPixmap &pixmap);
   QSize coverSize() const;
@@ -42,7 +27,7 @@ public:
   void setTitle(const QString &title);
   QString title() const;
 
-  void setBookId(quint32 id);
+  void setBookId(quint32 bookId);
   quint32 bookId() const;
 
   void setAuthors(const QStringList &authors);
@@ -56,6 +41,7 @@ public:
 
 signals:
   void edited(Book book);
+  void ratingChanged(int rating);
 
 private slots:
   void copyButtonClicked();

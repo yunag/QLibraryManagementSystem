@@ -6,7 +6,7 @@
 SmoothScrollBar::SmoothScrollBar(QWidget *parent)
     : SmoothScrollBar(QEasingCurve::OutCubic, 500, parent) {}
 
-SmoothScrollBar::SmoothScrollBar(QEasingCurve curve, int duration,
+SmoothScrollBar::SmoothScrollBar(const QEasingCurve &curve, int duration,
                                  QWidget *parent)
     : QScrollBar(parent) {
   m_animation = new QPropertyAnimation(this, "value", this);
@@ -16,6 +16,11 @@ SmoothScrollBar::SmoothScrollBar(QEasingCurve curve, int duration,
 
   connect(m_animation, &QPropertyAnimation::finished, this,
           &SmoothScrollBar::scrollFinished);
+  connect(this, &QScrollBar::rangeChanged, this, [this](int min, int max) {
+    m_animation->stop();
+
+    m_animation->setEndValue(value());
+  });
 }
 
 void SmoothScrollBar::scrollValue(int newValue) {
@@ -49,10 +54,12 @@ void SmoothScrollBar::mouseMoveEvent(QMouseEvent *event) {
 }
 
 void SmoothScrollBar::wheelEvent(QWheelEvent *event) {
-  int minVal = minimum(), maxVal = maximum();
+  int minVal = minimum();
+  int maxVal = maximum();
   int curVal = value();
 
   int decrement = -event->angleDelta().x() - event->angleDelta().y();
+
   int endVal = qBound(minVal, m_animation->endValue().toInt(), maxVal);
 
   bool isUpBlock = curVal == maxVal && curVal + decrement >= maxVal;
@@ -70,6 +77,6 @@ void SmoothScrollBar::setAnimationDuration(int msecs) {
   m_animation->setDuration(msecs);
 }
 
-void SmoothScrollBar::setAnimationCurve(QEasingCurve curve) {
+void SmoothScrollBar::setAnimationCurve(const QEasingCurve &curve) {
   m_animation->setEasingCurve(curve);
 }

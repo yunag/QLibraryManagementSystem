@@ -33,7 +33,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="bookCoverLabel">
+    <widget class="AspectRatioLabel" name="bookCoverLabel">
      <property name="minimumSize">
       <size>
        <width>175</width>
@@ -307,7 +307,7 @@
           </size>
          </property>
          <property name="frameShape">
-          <enum>QFrame::StyledPanel</enum>
+          <enum>QFrame::NoFrame</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
@@ -402,6 +402,11 @@
    <class>ElidedLabel</class>
    <extends>QLabel</extends>
    <header>elidedlabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AspectRatioLabel</class>
+   <extends>QLabel</extends>
+   <header>aspectratiolabel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -5,11 +5,11 @@
 
 DragDropListView::DragDropListView(QWidget *parent) : QListView(parent) {}
 
-void DragDropListView::dragMoveEvent(QDragMoveEvent *e) {
-  if (m_acceptDrops.contains(e->source())) {
-    e->accept();
+void DragDropListView::dragMoveEvent(QDragMoveEvent *event) {
+  if (m_acceptDrops.contains(event->source())) {
+    event->accept();
   } else {
-    e->ignore();
+    event->ignore();
   }
 }
 

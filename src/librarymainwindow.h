@@ -2,11 +2,9 @@
 #define LIBRARYMAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSqlDatabase>
 
 class BookSection;
 class LoginForm;
-class LibrarySideMenu;
 class BookDetailsDialog;
 class AuthorDetailsDialog;
 
@@ -19,7 +17,7 @@ class LibraryMainWindow : public QMainWindow {
 
 public:
   explicit LibraryMainWindow(QWidget *parent = nullptr);
-  ~LibraryMainWindow();
+  ~LibraryMainWindow() override;
 
   void showLoginForm();
 

@@ -5,16 +5,17 @@
 #include "smoothscrollarea.h"
 #include "smoothscrollbar.h"
 
-SmoothScrollArea::SmoothScrollArea(QWidget *parent) : QScrollArea(parent) {
-  m_hScrollBar = new SmoothScrollBar(this);
-  m_vScrollBar = new SmoothScrollBar(this);
+SmoothScrollArea::SmoothScrollArea(QWidget *parent)
+    : QScrollArea(parent), m_hScrollBar(new SmoothScrollBar(this)),
+      m_vScrollBar(new SmoothScrollBar(this)) {
 
   setHorizontalScrollBar(m_hScrollBar);
   setVerticalScrollBar(m_vScrollBar);
 }
 
 void SmoothScrollArea::setScrollAnimation(Qt::Orientation orientation,
-                                          int durationms, QEasingCurve curve) {
+                                          int durationms,
+                                          const QEasingCurve &curve) {
   SmoothScrollBar *bar =
     orientation == Qt::Horizontal ? m_hScrollBar : m_vScrollBar;
 

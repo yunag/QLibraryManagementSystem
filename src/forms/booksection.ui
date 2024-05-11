@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1059</width>
-    <height>731</height>
+    <width>1076</width>
+    <height>703</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -241,6 +241,12 @@
    </item>
    <item>
     <widget class="QListView" name="bookListView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="styleSheet">
       <string notr="true">QListView::item:selected {
 	border-top: 2px solid black;
@@ -249,8 +255,13 @@
 	outline: none;
 }
 
+QListView::item {
+	background-color: &quot;#fff&quot;;
+}
+
 QListView {
 	outline: 0;
+	background-color: &quot;#eeeeee&quot;
 }</string>
      </property>
      <property name="dragDropMode">
@@ -271,6 +282,15 @@ QListView {
      </property>
      <item>
       <widget class="QPushButton" name="addButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <family>Montserrat</family>
@@ -282,7 +302,34 @@ QListView {
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="updateButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Montserrat</family>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>Update</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="deleteButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <family>Montserrat</family>
@@ -295,6 +342,12 @@ QListView {
      </item>
      <item>
       <widget class="QPushButton" name="saveChangesButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <family>Montserrat</family>
@@ -319,18 +372,18 @@ QListView {
       </spacer>
      </item>
      <item>
-      <widget class="Pagination" name="pagination">
+      <widget class="Pagination" name="pagination" native="true">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
        </property>
       </widget>
      </item>
@@ -341,7 +394,7 @@ QListView {
  <customwidgets>
   <customwidget>
    <class>Pagination</class>
-   <extends>QFrame</extends>
+   <extends>QWidget</extends>
    <header>pagination.h</header>
    <container>1</container>
   </customwidget>

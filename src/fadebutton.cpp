@@ -3,10 +3,11 @@
 
 #include "fadebutton.h"
 
-FadeButton::FadeButton(bool isFadeIn, int msecsDuration, QEasingCurve curve,
-                       QWidget *parent)
-    : QPushButton(parent) {
-  m_effect = new QGraphicsOpacityEffect(this);
+FadeButton::FadeButton(bool isVisibleInitially, int msecsDuration,
+                       const QEasingCurve &curve, QWidget *parent)
+    : QPushButton(parent), m_effect(new QGraphicsOpacityEffect(this)),
+      m_isFadeIn(isVisibleInitially) {
+
   m_effect->setOpacity(m_isFadeIn);
 
   m_animation = new QPropertyAnimation(m_effect, "opacity");
@@ -15,7 +16,6 @@ FadeButton::FadeButton(bool isFadeIn, int msecsDuration, QEasingCurve curve,
   m_animation->setStartValue(0.0);
   m_animation->setEndValue(1.0);
 
-  m_isFadeIn = isFadeIn;
   setVisible(m_isFadeIn);
 
   connect(m_animation, &QPropertyAnimation::finished, this,
@@ -46,11 +46,11 @@ void FadeButton::fadeOut() {
   fade(QAbstractAnimation::Backward);
 }
 
-bool FadeButton::isFadeIn() {
+bool FadeButton::isFadeIn() const {
   return m_isFadeIn;
 }
 
-bool FadeButton::isFadeOut() {
+bool FadeButton::isFadeOut() const {
   return !m_isFadeIn;
 }
 

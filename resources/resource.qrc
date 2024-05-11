@@ -25,5 +25,8 @@
         <file>icons/lastpage.svg</file>
         <file>icons/nextpage.svg</file>
         <file>icons/prevpage.svg</file>
+        <file>images/Loading.gif</file>
+        <file>images/LoadingStar.gif</file>
+        <file>images/LoadingStarSmall.gif</file>
     </qresource>
 </RCC>
