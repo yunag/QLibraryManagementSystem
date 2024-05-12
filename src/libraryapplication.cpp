@@ -40,7 +40,7 @@ void LibraryApplication::setupSettings() {
 }
 
 /* TODO: Move it to resource manager class */
-QSharedPointer<QMovie> LibraryApplication::loadingMovie() {
+QSharedPointer<QMovie> LibraryApplication::busyIndicator() {
   QSharedPointer<QMovie> movie = m_loadingMovie.lock();
   if (movie) {
     return movie;

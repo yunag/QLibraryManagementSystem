@@ -4,7 +4,7 @@
 #include "smoothscrollbar.h"
 
 SmoothScrollBar::SmoothScrollBar(QWidget *parent)
-    : SmoothScrollBar(QEasingCurve::OutCubic, 500, parent) {}
+    : SmoothScrollBar(QEasingCurve::OutQuad, 200, parent) {}
 
 SmoothScrollBar::SmoothScrollBar(const QEasingCurve &curve, int duration,
                                  QWidget *parent)
@@ -58,17 +58,17 @@ void SmoothScrollBar::wheelEvent(QWheelEvent *event) {
   int maxVal = maximum();
   int curVal = value();
 
-  int decrement = -event->angleDelta().x() - event->angleDelta().y();
+  int delta = -event->angleDelta().x() - event->angleDelta().y();
 
   int endVal = qBound(minVal, m_animation->endValue().toInt(), maxVal);
 
-  bool isUpBlock = curVal == maxVal && curVal + decrement >= maxVal;
-  bool isDownBlock = curVal == minVal && curVal + decrement <= minVal;
+  bool isUpBlock = curVal == maxVal && curVal + delta >= maxVal;
+  bool isDownBlock = curVal == minVal && curVal + delta <= minVal;
 
   if (isUpBlock || isDownBlock) {
     event->ignore();
   } else {
-    scrollValue(endVal + decrement);
+    scrollValue(endVal + delta / 2);
     event->accept();
   }
 }

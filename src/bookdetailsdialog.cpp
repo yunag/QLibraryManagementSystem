@@ -72,7 +72,7 @@ void BookDetailsDialog::setupList(QListView *listView) {
 QStandardItem *BookDetailsDialog::addItem(LoadingModel *model, const QUrl &url,
                                           const QString &text) {
   auto *item = new QStandardItem(text);
-  auto movie = App->loadingMovie();
+  auto movie = App->busyIndicator();
 
   item->setFlags(item->flags() & ~Qt::ItemIsEditable);
   item->setTextAlignment(Qt::AlignBaseline | Qt::AlignHCenter);

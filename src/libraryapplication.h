@@ -18,7 +18,7 @@ public:
 public:
   RestApiManager *network() { return &m_networkManager; }
 
-  QSharedPointer<QMovie> loadingMovie();
+  QSharedPointer<QMovie> busyIndicator();
 
 private:
   static void setupSettings();

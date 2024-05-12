@@ -132,6 +132,11 @@ void BookSection::onBookData(const QList<BookData> &bookCards) {
       categories.push_back(category.name);
     }
 
+    /* TODO: remove */
+    static QUrl g_testUrl =
+      QUrl("https://external-preview.redd.it/"
+           "0ribEcoh7Jr0AMq9GuUg7ZNFvDARr_ltk2O25GFd_Go.jpg?auto=webp&s="
+           "8ff7fd9d3a667f646a8dd9673293084309fd8d85");
     auto reply =
       WidgetUtils::asyncLoadImage(bookCard->coverLabel(), bookData.coverUrl);
     if (reply) {

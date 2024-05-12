@@ -10,7 +10,6 @@
         <file>images/MartinIdenCover.jpg</file>
         <file>images/Metro2033Cover.jpg</file>
         <file>images/GoreOtUmaCover.jpg</file>
-        <file>images/starRating.png</file>
         <file>images/DefaultBookCover.jpg</file>
         <file>icons/eyeClose.svg</file>
         <file>icons/eyeOpen.svg</file>
@@ -28,5 +27,6 @@
         <file>images/Loading.gif</file>
         <file>images/LoadingStar.gif</file>
         <file>images/LoadingStarSmall.gif</file>
+        <file>images/starRating.svg</file>
     </qresource>
 </RCC>

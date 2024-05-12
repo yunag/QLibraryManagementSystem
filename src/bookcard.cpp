@@ -7,9 +7,9 @@
 BookCard::BookCard(QWidget *parent) : QWidget(parent), ui(new Ui::BookCard) {
   ui->setupUi(this);
 
-  QPixmap starPixmap(":/images/starRating");
+  QIcon starIcon(":/images/starRating");
   ui->ratingWidget->setAlignment(Qt::AlignLeft);
-  ui->ratingWidget->setCustomPixmap(starPixmap);
+  ui->ratingWidget->setIcon(starIcon);
   ui->bookCoverLabel->setAlignment(Qt::AlignCenter);
   ui->bookCoverLabel->setAspectRatio(Qt::IgnoreAspectRatio);
 

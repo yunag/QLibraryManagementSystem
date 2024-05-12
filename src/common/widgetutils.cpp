@@ -15,7 +15,7 @@ ReplyPointer WidgetUtils::asyncLoadImage(AspectRatioLabel *label,
     return nullptr;
   }
 
-  QSharedPointer<QMovie> movie = App->loadingMovie();
+  QSharedPointer<QMovie> movie = App->busyIndicator();
   label->setMovie(movie.get());
   movie->start();
 
