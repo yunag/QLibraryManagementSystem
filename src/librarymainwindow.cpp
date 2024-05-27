@@ -63,10 +63,10 @@ void LibraryMainWindow::onLogged() {
 
   connect(m_bookDetails, &BookDetailsDialog::authorDetailsRequested, this,
           [this](quint32 authorId) {
-            m_authorDetails->showDetails(authorId);
-            m_authorDetails->activateWindow();
-            m_authorDetails->raise();
-          });
+    m_authorDetails->showDetails(authorId);
+    m_authorDetails->activateWindow();
+    m_authorDetails->raise();
+  });
 
   ui->display->addWidget(m_booksSection);
 }

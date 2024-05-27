@@ -262,13 +262,32 @@ QListView::item {
 QListView {
 	outline: 0;
 	background-color: &quot;#eeeeee&quot;
+}
+
+QPushButton {
+	background-color: &quot;#000&quot;
 }</string>
      </property>
      <property name="dragDropMode">
-      <enum>QAbstractItemView::DragDrop</enum>
+      <enum>QAbstractItemView::DropOnly</enum>
+     </property>
+     <property name="verticalScrollMode">
+      <enum>QAbstractItemView::ScrollPerPixel</enum>
+     </property>
+     <property name="movement">
+      <enum>QListView::Static</enum>
+     </property>
+     <property name="isWrapping" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="resizeMode">
+      <enum>QListView::Adjust</enum>
      </property>
      <property name="viewMode">
       <enum>QListView::IconMode</enum>
+     </property>
+     <property name="uniformItemSizes">
+      <bool>false</bool>
      </property>
      <property name="selectionRectVisible">
       <bool>true</bool>
@@ -372,7 +391,7 @@ QListView {
       </spacer>
      </item>
      <item>
-      <widget class="Pagination" name="pagination" native="true">
+      <widget class="PaginationWidget" name="pagination" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -393,9 +412,9 @@ QListView {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Pagination</class>
+   <class>PaginationWidget</class>
    <extends>QWidget</extends>
-   <header>pagination.h</header>
+   <header>paginationwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

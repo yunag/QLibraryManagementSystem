@@ -4,16 +4,15 @@
 #include <QFuture>
 #include <QWidget>
 
-#include "network/network.h"
 #include "schema/schema.h"
 
 class QStandardItemModel;
 
-class BookSectionDao;
 class BookCard;
 class BookCardData;
 class BookAddDialog;
 class SearchFilterDialog;
+class BookRestModel;
 
 namespace Ui {
 class BookSection;
@@ -35,6 +34,8 @@ protected:
   void resizeEvent(QResizeEvent *event) override;
 
 private slots:
+  void loadPage();
+
   void synchronizeNowButtonClicked();
   void searchTextChanged(const QString &text);
   void addButtonClicked();
@@ -43,17 +44,9 @@ private slots:
   void saveChanges();
   void deleteButtonClicked();
 
-  void onBookData(const QList<BookData> &bookCards);
-
 private:
-  void loadPage(int pageNumber);
-
-  void reloadCurrentPage();
-  QFuture<void> updateNumberOfBooks();
-
   void distributeGridSize();
   void updateLastSync();
-  void hideItems(int itemStart = 0);
 
   void setBooksCount(int booksCount);
   void processBookUrl(BookCard *bookCard, const QUrl &url);
@@ -61,13 +54,9 @@ private:
 private:
   Ui::BookSection *ui;
 
-  BookSectionDao *m_dao;
+  BookRestModel *m_model;
   BookAddDialog *m_bookAddDialog;
   SearchFilterDialog *m_searchFilterDialog;
-
-  QList<ReplyPointer> m_imageReplies;
-
-  int m_booksCount;
 };
 
 #endif  // BOOKSECTION_H

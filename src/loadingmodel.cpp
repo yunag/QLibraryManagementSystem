@@ -33,10 +33,10 @@ void LoadingModel::appendRow(QStandardItem *item, const QUrl &url,
 
   movie->start();
 
-  connect(
-    movie.get(), &QMovie::frameChanged, this, [this, persistentIndex](int) {
-      emit dataChanged(persistentIndex, persistentIndex, {Qt::DecorationRole});
-    });
+  connect(movie.get(), &QMovie::frameChanged, this,
+          [this, persistentIndex](int) {
+    emit dataChanged(persistentIndex, persistentIndex, {Qt::DecorationRole});
+  });
 
   auto [future, reply] = imageLoader.load(url);
 
@@ -45,14 +45,14 @@ void LoadingModel::appendRow(QStandardItem *item, const QUrl &url,
   m_data.insert(persistentIndex, data);
 
   future.then(this, [item](const QPixmap &image) { item->setIcon(image); })
-    .onFailed(this,
-              [item] { item->setIcon(QPixmap(":/images/DefaultBookCover")); })
-    .then(this, [this, persistentIndex, movie]() {
-      auto it = m_data.find(persistentIndex);
-      if (it != m_data.end()) {
-        m_data.erase(it);
-      }
-    });
+    .onFailed(this, [item] {
+    item->setIcon(QPixmap(":/images/DefaultBookCover"));
+  }).then(this, [this, persistentIndex, movie]() {
+    auto it = m_data.find(persistentIndex);
+    if (it != m_data.end()) {
+      m_data.erase(it);
+    }
+  });
 }
 
 void LoadingModel::clear() {

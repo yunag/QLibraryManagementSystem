@@ -30,12 +30,11 @@ BookDetailsDialog::BookDetailsDialog(QWidget *parent)
 
   connect(ui->authorsList, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
-            auto *model =
-              qobject_cast<QStandardItemModel *>(ui->authorsList->model());
-            QStandardItem *item = model->item(index.row());
+    auto *model = qobject_cast<QStandardItemModel *>(ui->authorsList->model());
+    QStandardItem *item = model->item(index.row());
 
-            emit authorDetailsRequested(item->data().toUInt());
-          });
+    emit authorDetailsRequested(item->data().toUInt());
+  });
 }
 
 BookDetailsDialog::~BookDetailsDialog() {
@@ -44,13 +43,12 @@ BookDetailsDialog::~BookDetailsDialog() {
 
 void BookDetailsDialog::showDetails(quint32 bookId) {
   BookController::getBookById(bookId)
-    .then(this,
-          [this](const BookData &bookDetails) {
-            updateUi(bookDetails);
-            show();
-          })
-    .onFailed(this,
-              [this](const NetworkError &err) { handleError(this, err); });
+    .then(this, [this](const BookData &bookDetails) {
+    updateUi(bookDetails);
+    show();
+  }).onFailed(this, [this](const NetworkError &err) {
+    handleError(this, err);
+  });
 }
 
 void BookDetailsDialog::setupList(QListView *listView) {

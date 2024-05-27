@@ -48,7 +48,9 @@ void LoginForm::loginButtonClicked() {
   hostUrl.setScheme("http");
 
   m_authentication.login(hostUrl, username, password)
-    .then([this]() { emit logged(); })
-    .onFailed(this,
-              [this](const NetworkError &err) { handleError(this, err); });
+    .then([this]() {
+    emit logged();
+  }).onFailed(this, [this](const NetworkError &err) {
+    handleError(this, err);
+  });
 }

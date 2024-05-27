@@ -1,151 +1,91 @@
-#include <QPaintEvent>
-#include <QPainter>
-#include <QStyle>
-#include <QStyleOptionButton>
-
 #include "pagination.h"
-#include "ui_pagination.h"
 
-Pagination::Pagination(QWidget *parent) : Pagination(0, 0, parent) {}
+Pagination::Pagination(QObject *parent)
+    : QObject(parent), m_perPage(20), m_currentPage(0), m_pageCount(0),
+      m_totalCount(0), m_currentPageHeader("X-Pagination-Current-Page"),
+      m_totalCountHeader("X-Pagination-Total-Count"),
+      m_pageCountHeader("X-Pagination-Page-Count") {}
 
-Pagination::Pagination(int itemsCount, int itemsPerPageCount, QWidget *parent)
-    : QWidget(parent), ui(new Ui::Pagination),
-      m_pageValidator(new QIntValidator(0, 0, this)), m_itemsCount(itemsCount),
-      m_currentPage(0), m_itemsPerPageCount(itemsPerPageCount) {
-  ui->setupUi(this);
-
-  ui->pageInput->setValidator(m_pageValidator);
-
-  updateTotalPages();
-  setPage(m_currentPage);
-
-  connect(ui->nextPageButton, &QPushButton::clicked, this,
-          &Pagination::nextPage);
-  connect(ui->prevPageButton, &QPushButton::clicked, this,
-          &Pagination::prevPage);
-
-  connect(ui->pageInput, &QLineEdit::textEdited, this,
-          [this](const QString &text) {
-            if (ui->pageInput->hasAcceptableInput()) {
-              setCurrentPage(text.toInt());
-            }
-          });
-}
-
-void Pagination::nextPage() {
-  if (!isNextPageAvailable()) {
-    return;
-  }
-
-  setCurrentPage(m_currentPage + 1);
-}
-
-void Pagination::prevPage() {
-  if (!isPrevPageAvailable()) {
-    return;
-  }
-
-  setCurrentPage(m_currentPage - 1);
-}
-
-int Pagination::itemsCount() const {
-  return m_itemsCount;
-}
-
-void Pagination::setItemsCount(int newItemsCount) {
-  m_itemsCount = newItemsCount;
-  updateTotalPages();
-}
-
-void Pagination::setPage(int newPage) {
-  m_currentPage = newPage;
-  ui->pageInput->setText(QString::number(m_currentPage));
-
-  updatePageButtons();
-}
-
-void Pagination::setCurrentPage(int newPage) {
-  if (m_currentPage == newPage) {
-    return;
-  }
-  setPage(newPage);
-
-  emit pageChanged(m_currentPage);
-}
-
-int Pagination::itemsPerPageCount() const {
-  return m_itemsPerPageCount;
-}
-
-void Pagination::setItemsPerPageCount(int newItemsPerPageCount) {
-  m_itemsPerPageCount = newItemsPerPageCount;
-  updateTotalPages();
+int Pagination::perPage() const {
+  return m_perPage;
 }
 
 int Pagination::currentPage() const {
   return m_currentPage;
 }
 
-bool Pagination::isPageValid(int page) const {
-  return page >= 0 && page < m_totalPages;
+QString Pagination::currentPageHeader() const {
+  return m_currentPageHeader;
 }
 
-bool Pagination::isNextPageAvailable() const {
-  return isPageValid(m_currentPage + 1);
+int Pagination::totalCount() const {
+  return m_totalCount;
 }
 
-bool Pagination::isPrevPageAvailable() const {
-  return isPageValid(m_currentPage - 1);
+QString Pagination::totalCountHeader() const {
+  return m_totalCountHeader;
 }
 
-void Pagination::firstPage() {
-  setCurrentPage(0);
+int Pagination::pageCount() const {
+  return m_pageCount;
 }
 
-void Pagination::lastPage() {
-  setCurrentPage(m_totalPages - 1);
+QString Pagination::pageCountHeader() const {
+  return m_pageCountHeader;
 }
 
-int Pagination::calculateTotalPages() const {
-  if (!m_itemsCount) {
-    return 1;
-  }
+void Pagination::setPerPage(int perPage) {
+  if (m_perPage == perPage)
+    return;
 
-  return qCeil(float(m_itemsCount) / float(m_itemsPerPageCount));
+  m_perPage = perPage;
+  emit perPageChanged(perPage);
 }
 
-void Pagination::updatePageButtons() {
-  ui->prevPageButton->setDisabled(isFirstPage());
-  ui->nextPageButton->setDisabled(isLastPage());
+void Pagination::setCurrentPage(int currentPage) {
+  if (m_currentPage == currentPage)
+    return;
+
+  m_currentPage = currentPage;
+  emit currentPageChanged(currentPage);
 }
 
-void Pagination::updateTotalPages() {
-  m_totalPages = calculateTotalPages();
+void Pagination::setCurrentPageHeader(const QString &currentPageHeader) {
+  if (m_currentPageHeader == currentPageHeader)
+    return;
 
-  QFontMetrics metrics(ui->pageInput->font());
-  QString totalPages = QString::number(m_totalPages - 1);
-
-  ui->pageInput->setMaximumWidth(
-    metrics.boundingRect(totalPages + "XXX").width());
-
-  updatePageButtons();
-
-  ui->totalPagesText->setText("of " + totalPages);
-  m_pageValidator->setTop(m_totalPages - 1);
+  m_currentPageHeader = currentPageHeader;
+  emit currentPageHeaderChanged(currentPageHeader);
 }
 
-bool Pagination::isFirstPage() const {
-  return m_currentPage == 0;
+void Pagination::setTotalCount(int totalCount) {
+  if (m_totalCount == totalCount)
+    return;
+
+  m_totalCount = totalCount;
+  emit totalCountChanged(totalCount);
 }
 
-bool Pagination::isLastPage() const {
-  return m_currentPage == m_totalPages - 1;
+void Pagination::setTotalCountHeader(const QString &totalCountHeader) {
+  if (m_totalCountHeader == totalCountHeader)
+    return;
+
+  m_totalCountHeader = totalCountHeader;
+  emit totalCountHeaderChanged(totalCountHeader);
 }
 
-void Pagination::resizeEvent(QResizeEvent * /*event*/) {
-  /* Align buttons and input */
-  int buttonHeight = ui->nextPageButton->height();
+void Pagination::setPageCount(int pageCount) {
+  if (m_pageCount == pageCount)
+    return;
 
-  /* BUG: https://bugreports.qt.io/browse/QTBUG-62797 */
-  ui->pageInput->setMinimumHeight(buttonHeight - 4);
+  m_pageCount = pageCount;
+  emit pageCountChanged(pageCount);
+}
+
+void Pagination::setPageCountHeader(const QString &pageCountHeader) {
+  if (m_pageCountHeader == pageCountHeader)
+    return;
+
+  m_pageCountHeader = pageCountHeader;
+  emit pageCountHeaderChanged(pageCountHeader);
 }

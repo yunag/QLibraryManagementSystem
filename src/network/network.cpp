@@ -49,12 +49,12 @@ NetworkError RestApiManager::httpResponseSuccess(QNetworkReply *reply) {
 
   qInfo().noquote() << debugMessage;
 
+  QString errorMessage = reply->errorString();
   if (isReplyError) {
-    qWarning().noquote() << "\t[NetworkError]: " + reply->errorString();
+    qWarning().noquote() << "\t[NetworkError]: " + errorMessage;
   }
 
-  QString errorMessage = reply->errorString();
-  if (!isGoodResponse(httpCode)) {
+  if (httpCode != 0 && !isGoodResponse(httpCode)) {
     QString response;
     QByteArray data = reply->readAll();
 

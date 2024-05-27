@@ -1,66 +1,64 @@
 #ifndef PAGINATION_H
 #define PAGINATION_H
 
-#include <QWidget>
+#include <QObject>
 
-class QIntValidator;
-
-namespace Ui {
-class Pagination;
-}
-
-class Pagination : public QWidget {
+class Pagination : public QObject {
   Q_OBJECT
 
 public:
-  explicit Pagination(QWidget *parent = nullptr);
-  Pagination(int itemsCount, int itemsPerPageCount, QWidget *parent = nullptr);
+  Q_INVOKABLE explicit Pagination(QObject *parent = nullptr);
 
-  void setItemsCount(int newItemsCount);
-  int itemsCount() const;
+  Q_PROPERTY(int perPage READ perPage WRITE setPerPage NOTIFY perPageChanged)
+  Q_PROPERTY(int currentPage READ currentPage WRITE setCurrentPage NOTIFY
+               currentPageChanged)
+  Q_PROPERTY(QString currentPageHeader READ currentPageHeader WRITE
+               setCurrentPageHeader NOTIFY currentPageHeaderChanged)
+  Q_PROPERTY(
+    int pageCount READ pageCount WRITE setPageCount NOTIFY pageCountChanged)
+  Q_PROPERTY(QString pageCountHeader READ pageCountHeader WRITE
+               setPageCountHeader NOTIFY pageCountHeaderChanged)
 
-  void setItemsPerPageCount(int newItemsPerPageCount);
-  int itemsPerPageCount() const;
+  Q_PROPERTY(QString totalCountHeader READ totalCountHeader WRITE
+               setTotalCountHeader NOTIFY totalCountHeaderChanged)
+  Q_PROPERTY(
+    int totalCount READ totalCount WRITE setTotalCount NOTIFY totalCountChanged)
 
-  void setPage(int newPage);
-
+  int perPage() const;
   int currentPage() const;
-  void setCurrentPage(int newPage);
+  QString currentPageHeader() const;
+  int pageCount() const;
+  QString pageCountHeader() const;
 
-  bool isNextPageAvailable() const;
-  bool isPrevPageAvailable() const;
-
-  bool isLastPage() const;
-  bool isFirstPage() const;
-
-  bool isPageValid(int page) const;
-
-  void nextPage();
-  void prevPage();
-
-  void firstPage();
-  void lastPage();
+  int totalCount() const;
+  QString totalCountHeader() const;
 
 signals:
-  void pageChanged(int page);
+  void perPageChanged(int perPage);
+  void currentPageChanged(int currentPage);
+  void currentPageHeaderChanged(const QString &currentPageHeader);
+  void totalCountChanged(int totalCount);
+  void totalCountHeaderChanged(const QString &totalCountHeader);
+  void pageCountChanged(int pageCount);
+  void pageCountHeaderChanged(const QString &pageCountHeader);
 
-protected:
-  void resizeEvent(QResizeEvent *event) override;
+public slots:
+  void setPerPage(int perPage);
+  void setCurrentPage(int currentPage);
+  void setCurrentPageHeader(const QString &currentPageHeader);
+  void setTotalCount(int totalCount);
+  void setTotalCountHeader(const QString &totalCountHeader);
+  void setPageCount(int pageCount);
+  void setPageCountHeader(const QString &pageCountHeader);
 
 private:
-  void updateTotalPages();
-
-  int calculateTotalPages() const;
-  void updatePageButtons();
-
-private:
-  Ui::Pagination *ui;
-  QIntValidator *m_pageValidator;
-
-  int m_itemsCount;
+  int m_perPage;
   int m_currentPage;
-  int m_itemsPerPageCount;
-  int m_totalPages;
+  int m_pageCount;
+  int m_totalCount;
+  QString m_currentPageHeader;
+  QString m_totalCountHeader;
+  QString m_pageCountHeader;
 };
 
-#endif  // PAGINATION_H
+#endif /* !PAGINATION_H */

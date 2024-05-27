@@ -48,9 +48,9 @@ QSharedPointer<QMovie> LibraryApplication::busyIndicator() {
 
   movie = QSharedPointer<QMovie>(new QMovie(":/images/LoadingStarSmall.gif"),
                                  [](QMovie *movie) {
-                                   movie->stop();
-                                   movie->deleteLater();
-                                 });
+    movie->stop();
+    movie->deleteLater();
+  });
 
   m_loadingMovie = movie;
   return movie;

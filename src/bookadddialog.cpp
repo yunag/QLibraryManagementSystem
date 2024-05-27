@@ -107,13 +107,12 @@ void BookAddDialog::open() {
   QtConcurrent::run([syncronizer] {})
     .then(QtFuture::Launch::Async,
           [syncronizer] { syncronizer->waitForFinished(); })
-    .then(this,
-          [this]() {
-            init();
-            m_strategy->onOpen();
-          })
-    .onFailed(this,
-              [this](const NetworkError &err) { handleError(this, err); });
+    .then(this, [this]() {
+    init();
+    m_strategy->onOpen();
+  }).onFailed(this, [this](const NetworkError &err) {
+    handleError(this, err);
+  });
 
   QDialog::open();
 };
@@ -121,33 +120,33 @@ void BookAddDialog::open() {
 QFuture<void> BookAddDialog::fetchAuthors() {
   return AuthorController::getAuthors().then(
     this, [this](const QList<Author> &authors) {
-      QList<QStandardItem *> authorsItem;
-      for (const auto &author : authors) {
-        auto *authorItem =
-          new QStandardItem(author.firstName + " " + author.lastName);
+    QList<QStandardItem *> authorsItem;
+    for (const auto &author : authors) {
+      auto *authorItem =
+        new QStandardItem(author.firstName + " " + author.lastName);
 
-        authorItem->setData(author.id);
-        authorsItem.push_back(authorItem);
-      }
+      authorItem->setData(author.id);
+      authorsItem.push_back(authorItem);
+    }
 
-      ui->authors->addItems(authorsItem);
-    });
+    ui->authors->addItems(authorsItem);
+  });
 }
 
 QFuture<void> BookAddDialog::fetchCategories() {
   return CategoryController::getCategories().then(
     [this](const QList<Category> &categories) {
-      QList<QStandardItem *> categoriesItems;
+    QList<QStandardItem *> categoriesItems;
 
-      for (const auto &category : categories) {
-        auto *categoryItem = new QStandardItem(category.name);
+    for (const auto &category : categories) {
+      auto *categoryItem = new QStandardItem(category.name);
 
-        categoryItem->setData(category.id);
-        categoriesItems.push_back(categoryItem);
-      }
+      categoryItem->setData(category.id);
+      categoriesItems.push_back(categoryItem);
+    }
 
-      ui->categories->addItems(categoriesItems);
-    });
+    ui->categories->addItems(categoriesItems);
+  });
 }
 
 void BookUpdateStrategy::onOpen() {
@@ -190,19 +189,18 @@ void BookUpdateStrategy::onAccept(const Book &bookWithoutId) {
   BookController::updateBook(bookWithId)
     .then(m_dialog,
           [syncronizer, this, ui](auto) {
-            syncronizer->addFuture(AuthorBookController::updateRelations(
-              m_bookData.id, grabIds(ui->authors->rightList())));
+    syncronizer->addFuture(AuthorBookController::updateRelations(
+      m_bookData.id, grabIds(ui->authors->rightList())));
 
-            syncronizer->addFuture(BookCategoryController::updateRelations(
-              m_bookData.id, grabIds(ui->categories->rightList())));
-          })
-    .then(QtFuture::Launch::Async,
-          [syncronizer, this]() {
-            syncronizer->waitForFinished();
-            emit m_dialog->edited(m_bookData.id);
-          })
-    .onFailed(m_dialog,
-              [this](const NetworkError &err) { handleError(m_dialog, err); });
+    syncronizer->addFuture(BookCategoryController::updateRelations(
+      m_bookData.id, grabIds(ui->categories->rightList())));
+  })
+    .then(QtFuture::Launch::Async, [syncronizer, this]() {
+    syncronizer->waitForFinished();
+    emit m_dialog->edited(m_bookData.id);
+  }).onFailed(m_dialog, [this](const NetworkError &err) {
+    handleError(m_dialog, err);
+  });
 }
 
 void BookCreateStrategy::onAccept(const Book &book) {
@@ -213,21 +211,20 @@ void BookCreateStrategy::onAccept(const Book &book) {
   BookController::createBook(book)
     .then(m_dialog,
           [syncronizer, ui](quint32 bookId) {
-            syncronizer->addFuture(AuthorBookController::updateRelations(
-              bookId, grabIds(ui->authors->rightList())));
+    syncronizer->addFuture(AuthorBookController::updateRelations(
+      bookId, grabIds(ui->authors->rightList())));
 
-            syncronizer->addFuture(BookCategoryController::updateRelations(
-              bookId, grabIds(ui->categories->rightList())));
+    syncronizer->addFuture(BookCategoryController::updateRelations(
+      bookId, grabIds(ui->categories->rightList())));
 
-            return bookId;
-          })
-    .then(QtFuture::Launch::Async,
-          [syncronizer, this](quint32 bookId) {
-            syncronizer->waitForFinished();
-            emit m_dialog->edited(bookId);
-          })
-    .onFailed(m_dialog,
-              [this](const NetworkError &err) { handleError(m_dialog, err); });
+    return bookId;
+  })
+    .then(QtFuture::Launch::Async, [syncronizer, this](quint32 bookId) {
+    syncronizer->waitForFinished();
+    emit m_dialog->edited(bookId);
+  }).onFailed(m_dialog, [this](const NetworkError &err) {
+    handleError(m_dialog, err);
+  });
 }
 
 void BookAddDialog::editBook(quint32 bookId) {

@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "dao/booksectiondao.h"
+#include "bookrestmodel.h"
 
 namespace Ui {
 class SearchFilterDialog;
@@ -13,26 +13,16 @@ class SearchFilterDialog : public QDialog {
   Q_OBJECT
 
 public:
-  explicit SearchFilterDialog(BookSectionDao *dao, QWidget *parent = nullptr);
+  explicit SearchFilterDialog(BookRestModel *model, QWidget *parent = nullptr);
   ~SearchFilterDialog() override;
 
 public:
   void open() override;
   void accept() override;
 
-private slots:
-  void indexChanged(int index);
-
-private:
-  void setOrder(Qt::SortOrder order);
-  Qt::SortOrder order() const;
-
 private:
   Ui::SearchFilterDialog *ui;
-  BookSectionDao *m_dao;
-
-  Qt::SortOrder m_order;
-  BookSectionDao::Property m_column;
+  BookRestModel *m_model;
 };
 
 #endif  // SEARCHFILTERDIALOG_H

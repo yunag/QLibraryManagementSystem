@@ -37,10 +37,10 @@ AuthorDetailsDialog::AuthorDetailsDialog(QWidget *parent)
 
   connect(ui->booksList, &QListView::doubleClicked, this,
           [this, model](const QModelIndex &index) {
-            QStandardItem *item = model->item(index.row());
+    QStandardItem *item = model->item(index.row());
 
-            emit bookDetailsRequested(item->data().toUInt());
-          });
+    emit bookDetailsRequested(item->data().toUInt());
+  });
 }
 
 AuthorDetailsDialog::~AuthorDetailsDialog() {
@@ -50,24 +50,22 @@ AuthorDetailsDialog::~AuthorDetailsDialog() {
 void AuthorDetailsDialog::openDetails(quint32 authorId) {
 
   m_dao->fetchDetails(authorId)
-    .then(this,
-          [this](const AuthorDetails &details) {
-            updateUi(details);
-            open();
-          })
-    .onFailed(this,
-              [this](const NetworkError &err) { handleError(this, err); });
+    .then(this, [this](const AuthorDetails &details) {
+    updateUi(details);
+    open();
+  }).onFailed(this, [this](const NetworkError &err) {
+    handleError(this, err);
+  });
 }
 
 void AuthorDetailsDialog::showDetails(quint32 authorId) {
   m_dao->fetchDetails(authorId)
-    .then(this,
-          [this](const AuthorDetails &details) {
-            updateUi(details);
-            show();
-          })
-    .onFailed(this,
-              [this](const NetworkError &err) { handleError(this, err); });
+    .then(this, [this](const AuthorDetails &details) {
+    updateUi(details);
+    show();
+  }).onFailed(this, [this](const NetworkError &err) {
+    handleError(this, err);
+  });
 }
 
 void AuthorDetailsDialog::updateUi(const AuthorDetails &) {

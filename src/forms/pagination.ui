@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Pagination</class>
- <widget class="QWidget" name="Pagination">
+ <class>PaginationWidget</class>
+ <widget class="QWidget" name="PaginationWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

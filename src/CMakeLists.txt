@@ -12,7 +12,7 @@ set(PROJECT_FORMS
     forms/authorsection.ui
     forms/pagination.ui)
 
-set(PROJECT_DAO_SOURCES dao/booksectiondao.h dao/booksectiondao.cpp dao/authordetailsdao.h dao/authordetailsdao.cpp)
+set(PROJECT_DAO_SOURCES dao/authordetailsdao.h dao/authordetailsdao.cpp)
 
 set(PROJECT_SCHEMA_SOURCES
     schema/author.h
@@ -23,8 +23,14 @@ set(PROJECT_SCHEMA_SOURCES
     schema/schema.h
     schema/schema.cpp)
 
-set(PROJECT_COMMON_SOURCES common/json.h common/json.cpp common/widgetutils.h common/widgetutils.cpp common/error.h
-                           common/error.cpp)
+set(PROJECT_COMMON_SOURCES
+    common/json.h
+    common/json.cpp
+    common/widgetutils.h
+    common/widgetutils.cpp
+    common/error.h
+    common/error.cpp
+    common/algorithm.h)
 
 set(PROJECT_CONTROLLERS_SOURCES
     controllers/bookcontroller.h
@@ -50,6 +56,8 @@ set(PROJECT_SOURCES
     bookdetailsdialog.cpp
     loadingmodel.h
     loadingmodel.cpp
+    bookrestmodel.h
+    bookrestmodel.cpp
     libraryapplication.h
     libraryapplication.cpp
     librarymainwindow.h
@@ -58,8 +66,10 @@ set(PROJECT_SOURCES
     aspectratiolabel.cpp
     bookadddialog.h
     bookadddialog.cpp
-    bookcard.cpp
     bookcard.h
+    bookcard.cpp
+    bookcarddelegate.h
+    bookcarddelegate.cpp
     booksection.h
     booksection.cpp
     qlabeldragdrop.h
@@ -94,6 +104,8 @@ set(PROJECT_SOURCES
     authorsection.cpp
     pagination.h
     pagination.cpp
+    paginationwidget.h
+    paginationwidget.cpp
     elidedlabel.h
     elidedlabel.cpp
     ${PROJECT_FORMS}
