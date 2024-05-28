@@ -40,7 +40,6 @@ private slots:
   void searchTextChanged(const QString &text);
   void addButtonClicked();
   void updateButtonClicked();
-  void bookInsertedHandle();
   void saveChanges();
   void deleteButtonClicked();
 

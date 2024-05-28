@@ -316,3 +316,7 @@ bool BookRestModel::removeRows(int row, int count, const QModelIndex &parent) {
 
   return true;
 }
+
+const BookCard &BookRestModel::get(int row) const {
+  return m_bookCards.at(row);
+}

@@ -108,6 +108,8 @@ set(PROJECT_SOURCES
     paginationwidget.cpp
     elidedlabel.h
     elidedlabel.cpp
+    model/bookresttableproxymodel.h
+    model/bookresttableproxymodel.cpp
     ${PROJECT_FORMS}
     ${PROJECT_DAO_SOURCES}
     ${PROJECT_SCHEMA_SOURCES}
@@ -115,14 +117,14 @@ set(PROJECT_SOURCES
     ${PROJECT_COMMON_SOURCES}
     ${PROJECT_CONTROLLERS_SOURCES})
 
-qt_add_executable(${PROJECT_NAME} MANUAL_FINALIZATION ${PROJECT_SOURCES})
+qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 set_property(
   TARGET ${PROJECT_NAME}
   APPEND
   PROPERTY AUTOUIC_SEARCH_PATHS forms)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Network Qt6::Concurrent kwidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Network Qt6::Concurrent Qt6::Test kwidgets)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -150,5 +152,3 @@ target_compile_options(
           -Wundef
           -Wunused-macros
           -Wwrite-strings)
-
-qt_finalize_executable(${PROJECT_NAME})

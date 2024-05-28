@@ -1,5 +1,6 @@
 #include <QtConcurrent>
 
+#include <QButtonGroup>
 #include <QDateTime>
 #include <QMovie>
 
@@ -8,6 +9,9 @@
 
 #include "common/error.h"
 #include "controllers/bookcontroller.h"
+#include "controllers/bookratingcontroller.h"
+
+#include "model/bookresttableproxymodel.h"
 
 #include "bookadddialog.h"
 #include "bookcarddelegate.h"
@@ -37,6 +41,30 @@ BookSection::BookSection(QWidget *parent)
   ui->bookListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->bookListView->setMouseTracking(true);
 
+  ui->bookCover->setAspectRatio(Qt::KeepAspectRatio);
+
+  auto *proxyTableModel = new BookRestTableProxyModel(this);
+  proxyTableModel->setSourceModel(m_model);
+  ui->bookTableView->setModel(proxyTableModel);
+
+  /* Autoexclusive buttons must be in the same QButtonGroup */
+  auto *buttonGroup = new QButtonGroup(this);
+  buttonGroup->addButton(ui->gridViewButton);
+  buttonGroup->addButton(ui->tableViewButton);
+
+  connect(buttonGroup, &QButtonGroup::buttonToggled, this,
+          [this](QAbstractButton *button, bool checked) {
+    if (!checked) {
+      return;
+    }
+
+    if (button == ui->gridViewButton) {
+      ui->stackedWidget->setCurrentWidget(ui->gridViewPage);
+    } else {
+      ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
+    }
+  });
+
   /* BUG: https://bugreports.qt.io/browse/QTBUG-99476 
    * Setting scrollbar will break signals between view and scroll
    *
@@ -65,6 +93,19 @@ BookSection::BookSection(QWidget *parent)
     m_model->reload();
   });
 
+  connect(m_model, &BookRestModel::dataChanged, this,
+          [this](const QModelIndex &topLeft, const QModelIndex & /*topRight*/,
+                 const QList<int> &roles) {
+    const QModelIndex &index = topLeft;
+
+    for (int role : roles) {
+      if (role == BookRestModel::RatingRole) {
+        const BookCard &bookCard = m_model->get(index.row());
+        BookRatingController::rateBook(bookCard.bookId(), bookCard.rating());
+      }
+    }
+  });
+
   connect(pagination, &Pagination::currentPageChanged, m_model,
           [this](int /*page*/) { loadPage(); });
   connect(pagination, &Pagination::totalCountChanged, this,
@@ -81,7 +122,7 @@ BookSection::BookSection(QWidget *parent)
   connect(ui->saveChangesButton, &QPushButton::clicked, this,
           &BookSection::saveChanges);
   connect(m_bookAddDialog, &BookAddDialog::edited, this,
-          &BookSection::bookInsertedHandle);
+          &BookSection::loadPage);
   connect(ui->addButton, &QPushButton::clicked, this,
           &BookSection::addButtonClicked);
   connect(ui->updateButton, &QPushButton::clicked, this,
@@ -178,10 +219,6 @@ void BookSection::distributeGridSize() {
   }
 }
 
-void BookSection::bookInsertedHandle() {
-  /* TODO: implement */
-}
-
 void BookSection::setBooksCount(qint32 booksCount) {
   ui->numberOfBooksLabel->setText(QString::number(booksCount));
 }
@@ -195,7 +232,7 @@ void BookSection::deleteButtonClicked() {
     ui->bookListView->selectionModel()->selectedIndexes();
 
   for (const QModelIndex &index : selectedIndexes) {
-    quint32 bookId = m_model->data(index, BookRestModel::IdRole).toUInt();
+    quint32 bookId = m_model->get(index.row()).bookId();
 
     BookController::deleteBookById(bookId)
       .then(this, [this, index](auto) {
@@ -207,16 +244,15 @@ void BookSection::deleteButtonClicked() {
 }
 
 void BookSection::updateButtonClicked() {
-  //QModelIndexList selectedIndexes =
-  //  ui->bookListView->selectionModel()->selectedIndexes();
-  //if (selectedIndexes.isEmpty()) {
-  //  return;
-  //}
+  QModelIndexList selectedIndexes =
+    ui->bookListView->selectionModel()->selectedIndexes();
+  if (selectedIndexes.isEmpty()) {
+    return;
+  }
 
-  //auto *bookCard =
-  //  qobject_cast<BookCard *>(ui->bookListView->indexWidget(selectedIndexes[0]));
+  const BookCard &bookCard = m_model->get(selectedIndexes.first().row());
 
-  //m_bookAddDialog->editBook(bookCard->bookId());
+  m_bookAddDialog->editBook(bookCard.bookId());
 }
 
 void BookSection::loadPage() {

@@ -16,7 +16,8 @@ public:
   explicit BookRestModel(QObject *parent = nullptr);
 
   enum BookCardRoles {
-    TitleRole = Qt::UserRole,
+    TitleRole = Qt::UserRole + 1,
+    ItemRole,
     IdRole,
     CoverRole,
     AuthorsRole,
@@ -34,12 +35,16 @@ public:
   Q_PROPERTY(
     QString orderBy READ orderBy WRITE setOrderBy NOTIFY orderByChanged FINAL)
 
+  //int columnCount(const QModelIndex &parent) const override { return 3; }
+
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   bool removeRows(int row, int count,
                   const QModelIndex &parent = QModelIndex()) override;
 
   bool canFetchMore(const QModelIndex &parent) const override;
   void fetchMore(const QModelIndex &parent) override;
+
+  const BookCard &get(int row) const;
 
   void reset();
   void reload();
