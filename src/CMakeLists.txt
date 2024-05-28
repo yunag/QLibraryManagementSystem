@@ -14,50 +14,11 @@ set(PROJECT_FORMS
 
 set(PROJECT_DAO_SOURCES dao/authordetailsdao.h dao/authordetailsdao.cpp)
 
-set(PROJECT_SCHEMA_SOURCES
-    schema/author.h
-    schema/book.h
-    schema/bookauthor.h
-    schema/bookcategory.h
-    schema/category.h
-    schema/schema.h
-    schema/schema.cpp)
-
-set(PROJECT_COMMON_SOURCES
-    common/json.h
-    common/json.cpp
-    common/widgetutils.h
-    common/widgetutils.cpp
-    common/error.h
-    common/error.cpp
-    common/algorithm.h)
-
-set(PROJECT_CONTROLLERS_SOURCES
-    controllers/bookcontroller.h
-    controllers/bookcontroller.cpp
-    controllers/bookratingcontroller.h
-    controllers/bookratingcontroller.cpp
-    controllers/authorbookcontroller.h
-    controllers/authorbookcontroller.cpp
-    controllers/bookcategorycontroller.h
-    controllers/bookcategorycontroller.cpp
-    controllers/categorycontroller.h
-    controllers/categorycontroller.cpp
-    controllers/authorcontroller.h
-    controllers/authorcontroller.cpp)
-
-set(PROJECT_NETWORK_SOURCES network/network.h network/network.cpp network/userauthentication.h
-                            network/userauthentication.cpp network/imageloader.h network/imageloader.cpp)
-
 set(PROJECT_SOURCES
     main.cpp
     ../resources/resource.qrc
     bookdetailsdialog.h
     bookdetailsdialog.cpp
-    loadingmodel.h
-    loadingmodel.cpp
-    bookrestmodel.h
-    bookrestmodel.cpp
     libraryapplication.h
     libraryapplication.cpp
     librarymainwindow.h
@@ -108,23 +69,20 @@ set(PROJECT_SOURCES
     paginationwidget.cpp
     elidedlabel.h
     elidedlabel.cpp
-    model/bookresttableproxymodel.h
-    model/bookresttableproxymodel.cpp
     ${PROJECT_FORMS}
-    ${PROJECT_DAO_SOURCES}
-    ${PROJECT_SCHEMA_SOURCES}
-    ${PROJECT_NETWORK_SOURCES}
-    ${PROJECT_COMMON_SOURCES}
-    ${PROJECT_CONTROLLERS_SOURCES})
+    ${PROJECT_DAO_SOURCES})
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets Sql Concurrent Network Svg)
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
-set_property(
-  TARGET ${PROJECT_NAME}
-  APPEND
-  PROPERTY AUTOUIC_SEARCH_PATHS forms)
+add_subdirectory(model)
+add_subdirectory(network)
+add_subdirectory(schema)
+add_subdirectory(common)
+add_subdirectory(controllers)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Network Qt6::Concurrent Qt6::Test kwidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Network Qt6::Concurrent Qt6::Svg kwidgets)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -152,3 +110,21 @@ target_compile_options(
           -Wundef
           -Wunused-macros
           -Wwrite-strings)
+
+set_property(
+  TARGET ${PROJECT_NAME}
+  APPEND
+  PROPERTY AUTOUIC_SEARCH_PATHS forms)
+
+set_target_properties(
+  ${PROJECT_NAME}
+  PROPERTIES MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+             MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+             MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+             MACOSX_BUNDLE TRUE
+             WIN32_EXECUTABLE TRUE)
+
+install(
+  TARGETS ${PROJECT_NAME}
+  BUNDLE DESTINATION .
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

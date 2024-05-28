@@ -1,6 +1,8 @@
 #include "searchfilterdialog.h"
 #include "ui_searchfilterdialog.h"
 
+#include "model/bookrestmodel.h"
+
 SearchFilterDialog::SearchFilterDialog(BookRestModel *model, QWidget *parent)
     : QDialog(parent), ui(new Ui::SearchFilterDialog), m_model(model) {
   ui->setupUi(this);

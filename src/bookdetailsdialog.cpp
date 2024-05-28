@@ -2,7 +2,7 @@
 #include <QStandardItemModel>
 
 #include "controllers/bookcontroller.h"
-#include "loadingmodel.h"
+#include "model/loadingmodel.h"
 
 #include "common/error.h"
 #include "common/widgetutils.h"

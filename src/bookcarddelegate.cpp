@@ -7,7 +7,7 @@
 #include "bookcard.h"
 #include "bookcarddelegate.h"
 
-#include "bookrestmodel.h"
+#include "model/bookrestmodel.h"
 
 void BookCardDelegate::paint(QPainter *painter,
                              const QStyleOptionViewItem &option,

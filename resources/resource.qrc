@@ -28,5 +28,6 @@
         <file>images/LoadingStar.gif</file>
         <file>images/LoadingStarSmall.gif</file>
         <file>images/starRating.svg</file>
+        <file>images/LoadingSpinner.svg</file>
     </qresource>
 </RCC>

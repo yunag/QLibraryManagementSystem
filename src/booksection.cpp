@@ -11,14 +11,13 @@
 #include "controllers/bookcontroller.h"
 #include "controllers/bookratingcontroller.h"
 
+#include "model/bookrestmodel.h"
 #include "model/bookresttableproxymodel.h"
 
 #include "bookadddialog.h"
 #include "bookcarddelegate.h"
 #include "searchfilterdialog.h"
 #include "smoothscrollbar.h"
-
-#include "bookrestmodel.h"
 
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection),

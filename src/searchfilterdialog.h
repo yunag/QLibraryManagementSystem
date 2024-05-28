@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "bookrestmodel.h"
+class BookRestModel;
 
 namespace Ui {
 class SearchFilterDialog;
