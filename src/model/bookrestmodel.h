@@ -17,9 +17,9 @@ public:
 
   enum BookCardRoles {
     TitleRole = Qt::UserRole + 1,
-    ItemRole,
     IdRole,
     CoverRole,
+    CoverUrlRole,
     AuthorsRole,
     CategoriesRole,
     RatingRole,
@@ -35,14 +35,14 @@ public:
   Q_PROPERTY(
     QString orderBy READ orderBy WRITE setOrderBy NOTIFY orderByChanged FINAL)
 
-  //int columnCount(const QModelIndex &parent) const override { return 3; }
-
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   bool removeRows(int row, int count,
                   const QModelIndex &parent = QModelIndex()) override;
 
   bool canFetchMore(const QModelIndex &parent) const override;
   void fetchMore(const QModelIndex &parent) override;
+
+  void shouldFetchImages(bool shouldFetchImages);
 
   const BookCard &get(int row) const;
 
@@ -80,12 +80,18 @@ private slots:
 private:
   QList<BookCard> m_bookCards;
 
+  bool m_shouldFetchImages;
   int m_booksCount;
 
   struct ImageWork {
     ReplyPointer reply;
     QSharedPointer<QMovie> busyIndicator;
   };
+
+  struct {
+    QPersistentModelIndex index;
+    int rating;
+  } m_hoverRating;
 
   QHash<int, ImageWork> m_imageWork;
 

@@ -14,7 +14,8 @@ class BookCard {
 public:
   explicit BookCard();
 
-  void paint(QPainter *painter, const QStyleOptionViewItem &option) const;
+  void paint(QPainter *painter, const QStyleOptionViewItem &option,
+             int hoverRating) const;
   QSize sizeHint() const;
 
   void setCover(const QPixmap &pixmap);
@@ -37,9 +38,6 @@ public:
   void setRating(int rating);
   int rating() const;
 
-  void setHoverRating(int rating);
-  int hoverRating() const;
-
   void setCoverUrl(const QUrl &url);
   QUrl coverUrl() const;
 
@@ -58,7 +56,6 @@ private:
   quint32 m_bookId;
 
   int m_rating;
-  int m_hoverRating;
 
   QStringList m_authors;
   QStringList m_categories;

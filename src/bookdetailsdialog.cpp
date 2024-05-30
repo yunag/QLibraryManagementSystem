@@ -80,11 +80,6 @@ QStandardItem *BookDetailsDialog::addItem(LoadingModel *model, const QUrl &url,
   return item;
 }
 
-static QUrl g_testUrl =
-  QUrl("https://external-preview.redd.it/"
-       "0ribEcoh7Jr0AMq9GuUg7ZNFvDARr_ltk2O25GFd_Go.jpg?auto=webp&s="
-       "8ff7fd9d3a667f646a8dd9673293084309fd8d85");
-
 void BookDetailsDialog::updateUi(const BookData &book) {
   setWindowTitle(book.title);
 
@@ -101,7 +96,7 @@ void BookDetailsDialog::updateUi(const BookData &book) {
   for (const Author &author : book.authors) {
     QString authorFullName = author.firstName + " " + author.lastName;
 
-    QStandardItem *item = addItem(m_authorsModel, g_testUrl, authorFullName);
+    QStandardItem *item = addItem(m_authorsModel, QUrl(""), authorFullName);
 
     item->setData(author.id);
   }
@@ -109,7 +104,7 @@ void BookDetailsDialog::updateUi(const BookData &book) {
   m_categoriesModel->clear();
 
   for (const Category &category : book.categories) {
-    QStandardItem *item = addItem(m_categoriesModel, g_testUrl, category.name);
+    QStandardItem *item = addItem(m_categoriesModel, QUrl(""), category.name);
 
     item->setData(category.id);
   }

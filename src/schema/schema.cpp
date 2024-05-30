@@ -22,6 +22,10 @@ BookData BookData::fromJson(const QJsonObject &json) {
     coverUrl.setPath(path);
     bookData.coverUrl = coverUrl;
   }
+  /* TODO: Remove after testing */
+  bookData.coverUrl =
+    "https://static.wikia.nocookie.net/kiminonawa/images/6/62/"
+    "Kimi-no-Na-wa.-Visual.jpg/revision/latest?cb=20160927170951";
 
   QJsonArray categoriesJson = json["categories"].toArray();
 

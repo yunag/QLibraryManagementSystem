@@ -8,14 +8,19 @@
 #include "ui_booksection.h"
 
 #include "common/error.h"
+#include "common/widgetutils.h"
+
 #include "controllers/bookcontroller.h"
 #include "controllers/bookratingcontroller.h"
+#include "libraryapplication.h"
 
 #include "model/bookrestmodel.h"
 #include "model/bookresttableproxymodel.h"
 
+#include "delegate/bookcarddelegate.h"
+#include "delegate/tableratingdelegate.h"
+
 #include "bookadddialog.h"
-#include "bookcarddelegate.h"
 #include "searchfilterdialog.h"
 #include "smoothscrollbar.h"
 
@@ -45,11 +50,35 @@ BookSection::BookSection(QWidget *parent)
   auto *proxyTableModel = new BookRestTableProxyModel(this);
   proxyTableModel->setSourceModel(m_model);
   ui->bookTableView->setModel(proxyTableModel);
+  ui->bookTableView->setItemDelegateForColumn(BookRestTableProxyModel::Rating,
+                                              new TableRatingDelegate);
+  ui->bookTableView->setMouseTracking(true);
+  connect(ui->bookTableView, &QTableView::pressed, this,
+          [this](const QModelIndex &index) {
+    auto cover = index.data(BookRestModel::CoverRole).value<QPixmap>();
+
+    if (!cover.isNull()) {
+      ui->bookCover->setPixmap(cover);
+    } else {
+      QUrl coverUrl = index.data(BookRestModel::CoverUrlRole).toUrl();
+      WidgetUtils::asyncLoadImage(ui->bookCover, coverUrl);
+    }
+  });
+
+  QHeaderView *horizontalHeader = ui->bookTableView->horizontalHeader();
+  horizontalHeader->setSectionResizeMode(BookRestTableProxyModel::Title,
+                                         QHeaderView::Stretch);
+  horizontalHeader->setSectionResizeMode(BookRestTableProxyModel::Authors,
+                                         QHeaderView::Stretch);
+  horizontalHeader->setSectionResizeMode(BookRestTableProxyModel::Categories,
+                                         QHeaderView::Stretch);
 
   /* Autoexclusive buttons must be in the same QButtonGroup */
   auto *buttonGroup = new QButtonGroup(this);
   buttonGroup->addButton(ui->gridViewButton);
   buttonGroup->addButton(ui->tableViewButton);
+
+  m_model->shouldFetchImages(true);
 
   connect(buttonGroup, &QButtonGroup::buttonToggled, this,
           [this](QAbstractButton *button, bool checked) {
@@ -58,8 +87,10 @@ BookSection::BookSection(QWidget *parent)
     }
 
     if (button == ui->gridViewButton) {
+      m_model->shouldFetchImages(true);
       ui->stackedWidget->setCurrentWidget(ui->gridViewPage);
     } else {
+      m_model->shouldFetchImages(false);
       ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
     }
   });
@@ -179,14 +210,14 @@ void BookSection::searchTextChanged(const QString &text) {
 
 void BookSection::distributeGridSize() {
   QListView *bookList = ui->bookListView;
-  auto *model = qobject_cast<BookRestModel *>(bookList->model());
 
-  QModelIndex index = model->index(0);
+  QModelIndex index = m_model->index(0);
   if (!index.isValid()) {
     return;
   }
 
-  QSize itemSize = model->data(index, Qt::SizeHintRole).toSize();
+  auto bookCard = qvariant_cast<BookCard>(index.data());
+  QSize itemSize = bookCard.sizeHint();
 
   /* NOTE: scrollbar->width() will report wrong value  
    * which is necessary for calculating currently available viewport

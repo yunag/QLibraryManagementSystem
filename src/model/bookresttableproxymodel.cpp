@@ -9,14 +9,18 @@ QVariant BookRestTableProxyModel::headerData(int section,
   }
 
   switch (section) {
-    case 0:
-      return tr("Book Id");
-    case 1:
+    case Id:
+      return tr("Id");
+    case Title:
       return tr("Title");
-    case 2:
+    case Authors:
+      return tr("Authors");
+    case Categories:
+      return tr("Categories");
+    case Rating:
       return tr("Rating");
     default:
-      return "Invalid";
+      return "";
   }
 }
 
@@ -24,11 +28,19 @@ QVariant
 BookRestTableProxyModel::dataForColumn(int col,
                                        const QModelIndex &sourceIndex) {
   switch (col) {
-    case 0:
+    case Id:
       return sourceIndex.data(BookRestModel::IdRole);
-    case 1:
+    case Title:
       return sourceIndex.data(BookRestModel::TitleRole);
-    case 2:
+    case Authors:
+      return sourceIndex.data(BookRestModel::AuthorsRole)
+        .toStringList()
+        .join(", ");
+    case Categories:
+      return sourceIndex.data(BookRestModel::CategoriesRole)
+        .toStringList()
+        .join(", ");
+    case Rating:
       return sourceIndex.data(BookRestModel::RatingRole);
     default:
       return {};
@@ -47,8 +59,8 @@ int BookRestTableProxyModel::columnCount(const QModelIndex &parent) const {
   if (parent.isValid()) {
     return 0;
   }
-  /* id, title, rating */
-  return 3;
+
+  return LastSection + 1;
 }
 
 QVariant BookRestTableProxyModel::data(const QModelIndex &proxyIndex,

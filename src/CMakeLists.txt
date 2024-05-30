@@ -29,8 +29,6 @@ set(PROJECT_SOURCES
     bookadddialog.cpp
     bookcard.h
     bookcard.cpp
-    bookcarddelegate.h
-    bookcarddelegate.cpp
     booksection.h
     booksection.cpp
     qlabeldragdrop.h
@@ -78,6 +76,7 @@ qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
 add_subdirectory(model)
 add_subdirectory(network)
+add_subdirectory(delegate)
 add_subdirectory(schema)
 add_subdirectory(common)
 add_subdirectory(controllers)

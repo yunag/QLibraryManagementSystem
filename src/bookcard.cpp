@@ -8,9 +8,10 @@
 
 #include "bookcard.h"
 
-BookCard::BookCard() : m_ratingPainter(new KRatingPainter), m_hoverRating(-1) {
+BookCard::BookCard() : m_ratingPainter(new KRatingPainter) {
   m_ratingPainter->setIcon(QIcon(":/images/starRating.svg"));
   m_ratingPainter->setAlignment(Qt::AlignLeft);
+  m_buttonState = QStyle::State_Enabled;
 }
 
 struct CardLayout {
@@ -35,7 +36,7 @@ static inline CardLayout cardLayout(const QRect &rect) {
 
   l.cover = rect;
 
-  int w = rect.width() * 4 / 10;
+  int w = rect.height() / 1.4f; /* Book Aspect ratio */
 
   l.cover.setWidth(w);
 
@@ -72,7 +73,7 @@ static inline CardLayout cardLayout(const QRect &rect) {
 
   QRect formRect;
   formRect.setTopLeft(form.topLeft());
-  formRect.setWidth(70);
+  formRect.setWidth(75);
   formRect.setHeight(formRectHeight);
 
   l.bookIdL = formRect;
@@ -88,12 +89,10 @@ static inline CardLayout cardLayout(const QRect &rect) {
   return l;
 }
 
-void BookCard::paint(QPainter *painter,
-                     const QStyleOptionViewItem &option) const {
+void BookCard::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                     int hoverRating) const {
   QRect rect = option.rect;
   QPalette palette = option.palette;
-
-  QPoint cursorPos = option.widget->mapFromGlobal(QCursor::pos());
 
   painter->save();
 
@@ -117,15 +116,15 @@ void BookCard::paint(QPainter *painter,
   CardLayout l = cardLayout(rect);
 
   if (!m_cover.isNull()) {
-    QPixmap scaledPixmap =
-      m_cover.scaled(l.cover.width(), l.cover.height(), Qt::IgnoreAspectRatio,
-                     Qt::SmoothTransformation);
+    QPixmap scaledPixmap = m_cover.scaled(l.cover.size(), Qt::IgnoreAspectRatio,
+                                          Qt::SmoothTransformation);
 
     painter->drawPixmap(l.cover, scaledPixmap);
   } else if (auto indicator = m_indicator.lock()) { /* Show busy indicator */
-    QPixmap pixmap = indicator->currentPixmap();
-    Q_ASSERT(pixmap.width() < l.cover.width() &&
-             pixmap.height() < l.cover.height());
+    int pixmapSize = qMin(l.cover.height() / 2, l.cover.width() / 2);
+
+    QPixmap pixmap = indicator->currentPixmap().scaled(
+      pixmapSize, pixmapSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     QRect pixmapRect = pixmap.rect();
     pixmapRect.moveCenter(l.cover.center());
@@ -138,6 +137,7 @@ void BookCard::paint(QPainter *painter,
 
   QFontMetrics fm(font);
 
+  /* NOTE: Without this function performance will drop significantly */
   auto textPos = [&](const QRect &rect) {
     return QPoint(rect.x(), rect.y() + fm.ascent());
   };
@@ -181,23 +181,22 @@ void BookCard::paint(QPainter *painter,
                     elideText(m_categories.join(", ")));
 
   QStyleOptionButton buttonOpt;
-  buttonOpt.rect = l.button;
-  buttonOpt.text = "";
+  buttonOpt.rect = l.button.marginsRemoved(QMargins(2, 2, 2, 2));
   buttonOpt.state = m_buttonState;
-
-  QFont buttonIconFont("Segoe Fluent Icons", 12);
-  painter->setFont(buttonIconFont);
+  buttonOpt.iconSize = buttonOpt.rect.size();
+  buttonOpt.icon = QIcon(":/icons/link-horizontal.svg");
 
   QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOpt,
                                      painter);
 
-  m_ratingPainter->paint(painter, l.rating, m_rating, m_hoverRating);
+  m_ratingPainter->paint(painter, l.rating, m_rating, hoverRating);
 
   painter->restore();
 }
 
 QSize BookCard::sizeHint() const {
-  return {400, 240};
+  /* NOTE: hardcoded value */
+  return {420, 250};
 }
 
 int BookCard::ratingFromPosition(const QRect &rect, const QPoint &pos) {
@@ -255,14 +254,6 @@ int BookCard::rating() const {
 
 void BookCard::setBusyIndicator(QSharedPointer<QMovie> indicator) {
   m_indicator = indicator;
-}
-
-void BookCard::setHoverRating(int rating) {
-  m_hoverRating = rating;
-}
-
-int BookCard::hoverRating() const {
-  return m_hoverRating;
 }
 
 QRect BookCard::buttonRect(const QRect &rect) const {

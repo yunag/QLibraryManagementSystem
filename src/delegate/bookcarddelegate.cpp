@@ -15,7 +15,8 @@ void BookCardDelegate::paint(QPainter *painter,
   if (index.data().canConvert<BookCard>()) {
     auto bookCard = qvariant_cast<BookCard>(index.data());
 
-    bookCard.paint(painter, option);
+    int hoverRating = index.data(BookRestModel::HoverRatingRole).toInt();
+    bookCard.paint(painter, option, hoverRating);
   } else {
     QStyledItemDelegate::paint(painter, option, index);
   }
@@ -46,34 +47,32 @@ bool BookCardDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
     return false;
   }
 
+  QStyle::State state = QStyle::State_Enabled;
+
   if (bookCard.buttonRect(rect).contains(mouseEvent->pos())) {
-    QStyle::State state =
-      QStyle::State_Enabled | QStyle::State_Active | QStyle::State_MouseOver;
+    state |= QStyle::State_MouseOver | QStyle::State_Active;
 
     if (event->type() == QEvent::MouseButtonPress) {
       state |= QStyle::State_Sunken;
     } else if (event->type() == QEvent::MouseButtonRelease) {
       copyButtonClicked(index.data(BookRestModel::TitleRole).toString());
     }
+  }
 
-    model->setData(index, QVariant::fromValue(state),
-                   BookRestModel::ButtonStateRole);
-
+  if (model->setData(index, QVariant::fromValue(state),
+                     BookRestModel::ButtonStateRole)) {
     return true;
   }
 
   if (event->type() == QEvent::MouseMove) {
     int rating = bookCard.ratingFromPosition(rect, mouseEvent->pos());
-    model->setData(index, rating, BookRestModel::HoverRatingRole);
-
-    return true;
+    return model->setData(index, rating, BookRestModel::HoverRatingRole);
   }
 
   if (event->type() == QEvent::MouseButtonPress) {
     int rating = bookCard.ratingFromPosition(rect, mouseEvent->pos());
     if (rating != -1) {
-      model->setData(index, rating, BookRestModel::RatingRole);
-      return true;
+      return model->setData(index, rating, BookRestModel::RatingRole);
     }
   }
 

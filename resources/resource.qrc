@@ -24,10 +24,8 @@
         <file>icons/lastpage.svg</file>
         <file>icons/nextpage.svg</file>
         <file>icons/prevpage.svg</file>
-        <file>images/Loading.gif</file>
-        <file>images/LoadingStar.gif</file>
-        <file>images/LoadingStarSmall.gif</file>
         <file>images/starRating.svg</file>
-        <file>images/LoadingSpinner.svg</file>
+        <file>images/LoadingSpinner.gif</file>
+        <file>icons/link-horizontal.svg</file>
     </qresource>
 </RCC>

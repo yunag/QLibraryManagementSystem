@@ -11,6 +11,7 @@ PaginationWidget::PaginationWidget(QWidget *parent)
       m_pageValidator(new QIntValidator(this)) {
   ui->setupUi(this);
 
+  m_pageValidator->setBottom(1);
   ui->pageInput->setText("1");
   ui->pageInput->setValidator(m_pageValidator);
 }
@@ -50,13 +51,13 @@ void PaginationWidget::updateTotalPages() {
   QString totalPages = QString::number(m_pagination->pageCount());
 
   ui->pageInput->setMaximumWidth(
-    metrics.boundingRect(totalPages + "XXX").width());
+    metrics.boundingRect(QString(totalPages.size() + 2, '0')).width());
   ui->pageInput->setText(QString::number(m_pagination->currentPage() + 1));
 
   updatePageButtons();
 
   ui->totalPagesText->setText(tr("of %1").arg(totalPages));
-  m_pageValidator->setTop(m_pagination->pageCount() - 1);
+  m_pageValidator->setTop(m_pagination->pageCount());
 }
 
 void PaginationWidget::resizeEvent(QResizeEvent * /*event*/) {
@@ -64,7 +65,7 @@ void PaginationWidget::resizeEvent(QResizeEvent * /*event*/) {
   int buttonHeight = ui->nextPageButton->height();
 
   /* BUG: https://bugreports.qt.io/browse/QTBUG-62797 */
-  ui->pageInput->setMinimumHeight(buttonHeight - 4);
+  ui->pageInput->setMinimumHeight(buttonHeight);
 }
 
 void PaginationWidget::nextPage() {
@@ -101,6 +102,6 @@ Pagination *PaginationWidget::pagination() const {
 
 void PaginationWidget::inputEdited(const QString &text) {
   if (ui->pageInput->hasAcceptableInput()) {
-    m_pagination->setCurrentPage(text.toInt());
+    m_pagination->setCurrentPage(text.toInt() - 1);
   }
 }

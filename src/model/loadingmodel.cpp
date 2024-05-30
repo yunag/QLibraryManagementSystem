@@ -15,7 +15,7 @@ QVariant LoadingModel::data(const QModelIndex &index, int role) const {
   switch (role) {
     case Qt::DecorationRole:
       if (m_data.find(index) != m_data.end()) {
-        return m_data[index].movie->currentPixmap();
+        return QIcon(m_data[index].movie->currentPixmap());
       }
     default:
       return QStandardItemModel::data(index, role);

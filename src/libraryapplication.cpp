@@ -18,6 +18,11 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
 
   /* INFO: For debug purposes */
   QThread::currentThread()->setObjectName("Main Thread");
+  setStyle("fusion");
+
+  QFont appFont = font();
+  appFont.setFamily("Montserrat");
+  setFont(appFont);
 
   setupSettings();
 
@@ -46,14 +51,11 @@ QSharedPointer<QMovie> LibraryApplication::busyIndicator() {
     return movie;
   }
 
-  movie = QSharedPointer<QMovie>(new QMovie(":/images/LoadingStarSmall.gif"),
-                                 [](QMovie *movie) {
+  return m_loadingMovie = QSharedPointer<QMovie>(
+           new QMovie(":/images/LoadingSpinner.gif"), [](QMovie *movie) {
     movie->stop();
     movie->deleteLater();
   });
-
-  m_loadingMovie = movie;
-  return movie;
 }
 
 int LibraryApplication::run() {

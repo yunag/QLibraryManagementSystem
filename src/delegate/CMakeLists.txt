@@ -1,0 +1,2 @@
+target_sources(${PROJECT_NAME} PRIVATE bookcarddelegate.h bookcarddelegate.cpp tableratingdelegate.h
+                                       tableratingdelegate.cpp)

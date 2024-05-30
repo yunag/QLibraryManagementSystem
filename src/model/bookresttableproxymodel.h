@@ -7,6 +7,17 @@ class BookRestTableProxyModel : public QIdentityProxyModel {
 public:
   using QIdentityProxyModel::QIdentityProxyModel;
 
+  enum HorizontalSection {
+    Id = 0,
+    Title,
+    Authors,
+    Categories,
+    Rating,
+    LastSection = Rating
+  };
+
+  Q_ENUM(HorizontalSection);
+
   QVariant headerData(int section, Qt::Orientation orientation,
                       int role = Qt::DisplayRole) const override;
   static QVariant dataForColumn(int col, const QModelIndex &sourceIndex);

@@ -42,7 +42,9 @@ void BookRestModel::fetchMore(const QModelIndex &parent) {
 
   for (int row = m_booksCount; row < m_booksCount + numItemsFetch; ++row) {
     const BookCard &bookCard = m_bookCards[row];
-    processImageUrl(row, bookCard.coverUrl());
+    if (m_shouldFetchImages) {
+      processImageUrl(row, bookCard.coverUrl());
+    }
   }
   m_booksCount += numItemsFetch;
 
@@ -77,13 +79,17 @@ bool BookRestModel::setData(const QModelIndex &index, const QVariant &value,
       bookCard.setBookId(value.toUInt());
       break;
     case HoverRatingRole:
-      bookCard.setHoverRating(value.toInt());
+      emit dataChanged(m_hoverRating.index, m_hoverRating.index, {role});
+      m_hoverRating = {index, value.toInt()};
       break;
     case TitleRole:
       bookCard.setTitle(value.toString());
       break;
     case CoverRole:
       bookCard.setCover(value.value<QPixmap>());
+      break;
+    case CoverUrlRole:
+      bookCard.setCoverUrl(value.toUrl());
       break;
     case AuthorsRole:
       bookCard.setAuthors(value.toStringList());
@@ -116,20 +122,23 @@ QVariant BookRestModel::data(const QModelIndex &index, int role) const {
   const BookCard &bookCard = m_bookCards.at(row);
 
   switch (role) {
-    case Qt::SizeHintRole:
-      return bookCard.sizeHint();
     case Qt::DisplayRole:
       return QVariant::fromValue(m_bookCards.at(row));
     case IdRole:
       return bookCard.bookId();
     case HoverRatingRole:
-      return bookCard.hoverRating();
+      if (index == m_hoverRating.index) {
+        return m_hoverRating.rating;
+      }
+      return -1;
     case ButtonStateRole:
       return QVariant::fromValue(bookCard.buttonState());
     case TitleRole:
       return bookCard.title();
     case CoverRole:
       return bookCard.cover();
+    case CoverUrlRole:
+      return bookCard.coverUrl();
     case AuthorsRole:
       return bookCard.authors();
     case CategoriesRole:
@@ -158,6 +167,7 @@ void BookRestModel::onBookData(const BookData &bookData) {
   bookCard.setAuthors(authors);
   bookCard.setCategories(categories);
   bookCard.setRating(qRound(bookData.rating));
+  bookCard.setCoverUrl(bookData.coverUrl);
 
   m_bookCards.push_back(bookCard);
 }
@@ -227,14 +237,12 @@ void BookRestModel::processImageUrl(int row, const QUrl &url) {
 
   auto busyIndicator = App->busyIndicator();
 
-  QUrl k_testUrl("https://upload.wikimedia.org/wikipedia/en/thumb/0/0b/"
-                 "Your_Name_poster.png/220px-Your_Name_poster.png");
-  auto [future, reply] = imageLoader.load(k_testUrl);
-  m_imageWork.insert(row, {reply, busyIndicator});
+  auto [future, reply] = imageLoader.load(url);
+
+  m_imageWork[row] = {reply, busyIndicator};
+  m_bookCards[row].setBusyIndicator(busyIndicator);
 
   busyIndicator->start();
-
-  m_bookCards[row].setBusyIndicator(busyIndicator);
 
   connect(busyIndicator.get(), &QMovie::frameChanged, this, [this](int) {
     for (int row : m_imageWork.keys()) {
@@ -319,4 +327,20 @@ bool BookRestModel::removeRows(int row, int count, const QModelIndex &parent) {
 
 const BookCard &BookRestModel::get(int row) const {
   return m_bookCards.at(row);
+}
+
+void BookRestModel::shouldFetchImages(bool shouldFetchImages) {
+  m_shouldFetchImages = shouldFetchImages;
+
+  if (!m_shouldFetchImages) {
+    return;
+  }
+
+  for (int i = 0; i < m_bookCards.size(); ++i) {
+    const BookCard &card = m_bookCards[i];
+
+    if (card.cover().isNull()) {
+      processImageUrl(i, card.coverUrl());
+    }
+  }
 }
