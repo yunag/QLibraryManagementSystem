@@ -62,12 +62,6 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="font">
-            <font>
-             <family>Montserrat</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
@@ -84,12 +78,6 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="font">
-            <font>
-             <family>Montserrat</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
@@ -97,13 +85,6 @@
          </item>
          <item row="1" column="2">
           <widget class="QLabel" name="publicationDateLabel_2">
-           <property name="font">
-            <font>
-             <family>Montserrat</family>
-             <pointsize>10</pointsize>
-             <bold>true</bold>
-            </font>
-           </property>
            <property name="text">
             <string>Copies Owned:</string>
            </property>
@@ -111,13 +92,6 @@
          </item>
          <item row="0" column="0">
           <widget class="QLabel" name="titleLabel">
-           <property name="font">
-            <font>
-             <family>Montserrat</family>
-             <pointsize>10</pointsize>
-             <bold>true</bold>
-            </font>
-           </property>
            <property name="text">
             <string>Title:</string>
            </property>
@@ -131,12 +105,6 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="font">
-            <font>
-             <family>Montserrat</family>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
            <property name="maximum">
             <number>999999</number>
            </property>
@@ -144,13 +112,6 @@
          </item>
          <item row="0" column="2">
           <widget class="QLabel" name="publicationDateLabel">
-           <property name="font">
-            <font>
-             <family>Montserrat</family>
-             <pointsize>10</pointsize>
-             <bold>true</bold>
-            </font>
-           </property>
            <property name="text">
             <string>Publication Date:</string>
            </property>
@@ -182,13 +143,6 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-           <pointsize>10</pointsize>
-           <bold>true</bold>
-          </font>
-         </property>
          <property name="text">
           <string>Description:</string>
          </property>
@@ -213,12 +167,6 @@
            <width>16777215</width>
            <height>150</height>
           </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-           <pointsize>10</pointsize>
-          </font>
          </property>
         </widget>
        </item>
@@ -257,13 +205,6 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-           <pointsize>10</pointsize>
-           <bold>true</bold>
-          </font>
-         </property>
          <property name="text">
           <string>Category(ies):</string>
          </property>
@@ -296,13 +237,6 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-           <pointsize>10</pointsize>
-           <bold>true</bold>
-          </font>
          </property>
          <property name="text">
           <string>Autrhor(s):</string>

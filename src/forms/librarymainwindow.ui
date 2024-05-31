@@ -110,13 +110,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>0</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <family>Montserrat</family>
+             <pointsize>12</pointsize>
             </font>
            </property>
            <property name="text">
@@ -143,13 +143,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>0</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <family>Montserrat</family>
+             <pointsize>12</pointsize>
             </font>
            </property>
            <property name="text">
@@ -173,13 +173,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>0</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <family>Montserrat</family>
+             <pointsize>12</pointsize>
             </font>
            </property>
            <property name="text">
@@ -203,13 +203,13 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>0</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <family>Montserrat</family>
+             <pointsize>12</pointsize>
             </font>
            </property>
            <property name="text">
@@ -293,7 +293,6 @@
             </property>
             <property name="font">
              <font>
-              <family>Montserrat</family>
               <pointsize>20</pointsize>
               <bold>true</bold>
              </font>

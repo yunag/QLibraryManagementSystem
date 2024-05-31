@@ -155,17 +155,17 @@ FutureReply RestApiManager::futureReply(QNetworkReply *replyBase) {
 
   auto future =
     QtFuture::connect(reply.get(), &QNetworkReply::finished).then([reply]() {
-      if (reply->error() != NetworkErrorType::NoError) {
-        throw httpResponseSuccess(reply.get());
-      }
+    if (reply->error() != NetworkErrorType::NoError) {
+      throw httpResponseSuccess(reply.get());
+    }
 
-      QByteArray data;
-      if (reply->isReadable()) {
-        data = reply->readAll();
-      }
+    QByteArray data;
+    if (reply->isReadable()) {
+      data = reply->readAll();
+    }
 
-      return data;
-    });
+    return data;
+  });
 
   return {future, reply};
 }

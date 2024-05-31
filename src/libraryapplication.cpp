@@ -21,7 +21,7 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
   setStyle("fusion");
 
   QFont appFont = font();
-  appFont.setFamily("Montserrat");
+  appFont.setPointSize(10);
   setFont(appFont);
 
   setupSettings();

@@ -181,7 +181,7 @@ void BookCard::paint(QPainter *painter, const QStyleOptionViewItem &option,
                     elideText(m_categories.join(", ")));
 
   QStyleOptionButton buttonOpt;
-  buttonOpt.rect = l.button.marginsRemoved(QMargins(2, 2, 2, 2));
+  buttonOpt.rect = l.button.marginsRemoved(QMargins(1, 1, 1, 1));
   buttonOpt.state = m_buttonState;
   buttonOpt.iconSize = buttonOpt.rect.size();
   buttonOpt.icon = QIcon(":/icons/link-horizontal.svg");
@@ -199,7 +199,7 @@ QSize BookCard::sizeHint() const {
   return {420, 250};
 }
 
-int BookCard::ratingFromPosition(const QRect &rect, const QPoint &pos) {
+int BookCard::ratingFromPosition(const QRect &rect, const QPoint &pos) const {
   CardLayout layout = cardLayout(rect);
   return m_ratingPainter->ratingFromPosition(layout.rating, pos);
 }

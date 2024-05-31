@@ -14,14 +14,23 @@ BookRestModel::BookRestModel(QObject *parent)
     : QAbstractListModel(parent), m_booksCount(0) {}
 
 int BookRestModel::rowCount(const QModelIndex &parent) const {
-  if (parent.isValid())
+  if (!checkIndex(parent)) {
     return 0;
+  }
 
   return m_booksCount;
 }
 
+int BookRestModel::columnCount(const QModelIndex &parent) const {
+  if (!checkIndex(parent)) {
+    return 0;
+  }
+
+  return Last + 1;
+}
+
 bool BookRestModel::canFetchMore(const QModelIndex &parent) const {
-  if (parent.isValid()) {
+  if (!checkIndex(parent)) {
     return false;
   }
 
@@ -30,9 +39,10 @@ bool BookRestModel::canFetchMore(const QModelIndex &parent) const {
 }
 
 void BookRestModel::fetchMore(const QModelIndex &parent) {
-  if (parent.isValid()) {
+  if (!checkIndex(parent)) {
     return;
   }
+
   static const int k_fetchSize = 10;
 
   int numItemsLeft = int(m_bookCards.size() - m_booksCount);
@@ -51,25 +61,18 @@ void BookRestModel::fetchMore(const QModelIndex &parent) {
   endInsertRows();
 }
 
-Qt::ItemFlags BookRestModel::flags(const QModelIndex &index) const {
-  if (!index.isValid())
-    return Qt::NoItemFlags;
-
-  return QAbstractListModel::flags(index) | Qt::ItemIsEditable;
-}
-
 bool BookRestModel::setData(const QModelIndex &index, const QVariant &value,
                             int role) {
-  if (!index.isValid()) {
+  if (!checkIndex(index, CheckIndexOption::IndexIsValid |
+                           CheckIndexOption::ParentIsInvalid)) {
     return false;
   }
 
-  int row = index.row();
-  if (row < 0 || row >= m_bookCards.size() || data(index, role) == value) {
+  if (data(index, role) == value) {
     return false;
   }
 
-  BookCard &bookCard = m_bookCards[row];
+  BookCard &bookCard = m_bookCards[index.row()];
 
   switch (role) {
     case ButtonStateRole:
@@ -110,20 +113,17 @@ bool BookRestModel::setData(const QModelIndex &index, const QVariant &value,
 }
 
 QVariant BookRestModel::data(const QModelIndex &index, int role) const {
-  if (!index.isValid()) {
-    return false;
+  if (!checkIndex(index, CheckIndexOption::IndexIsValid)) {
+    return {};
   }
 
-  int row = index.row();
-  if (row < 0 || row >= m_bookCards.size()) {
-    return false;
-  }
-
-  const BookCard &bookCard = m_bookCards.at(row);
+  const BookCard &bookCard = m_bookCards.at(index.row());
 
   switch (role) {
     case Qt::DisplayRole:
-      return QVariant::fromValue(m_bookCards.at(row));
+      return dataForColumn(index);
+    case ObjectRole:
+      return QVariant::fromValue(bookCard);
     case IdRole:
       return bookCard.bookId();
     case HoverRatingRole:
@@ -186,11 +186,11 @@ void BookRestModel::reset() {
   beginResetModel();
 
   m_bookCards.clear();
+  m_booksCount = 0;
   for (auto &work : m_imageWork) {
     work.reply->abort();
   }
   m_imageWork.clear();
-  m_booksCount = 0;
 
   endResetModel();
 }
@@ -251,14 +251,21 @@ void BookRestModel::processImageUrl(int row, const QUrl &url) {
     }
   });
 
+  auto handleImage = [this, row](const QPixmap &pixmap) {
+    if (m_imageWork.contains(row)) {
+      setData(index(row), pixmap, CoverRole);
+      m_imageWork.remove(row);
+    }
+  };
+
   future
-    .then(this, [this, row](const QPixmap &pixmap) {
-    setData(index(row), pixmap, CoverRole);
-    m_imageWork.remove(row);
-  }).onFailed([this, row](const NetworkError & /*err*/) {
-    QPixmap defaultCover(":/images/DefaultBookCover");
-    setData(index(row), defaultCover, CoverRole);
-    m_imageWork.remove(row);
+    .then(this, [handleImage](const QPixmap &pixmap) {
+    handleImage(pixmap);
+  }).onFailed([handleImage](const NetworkError &err) {
+    if (err.type() != QNetworkReply::OperationCanceledError) {
+      QPixmap defaultCover(":/images/DefaultBookCover");
+      handleImage(defaultCover);
+    }
   });
 }
 
@@ -326,6 +333,8 @@ bool BookRestModel::removeRows(int row, int count, const QModelIndex &parent) {
 }
 
 const BookCard &BookRestModel::get(int row) const {
+  Q_ASSERT(row >= 0 && row < rowCount());
+
   return m_bookCards.at(row);
 }
 
@@ -336,11 +345,52 @@ void BookRestModel::shouldFetchImages(bool shouldFetchImages) {
     return;
   }
 
-  for (int i = 0; i < m_bookCards.size(); ++i) {
+  for (int i = 0; i < rowCount(); ++i) {
     const BookCard &card = m_bookCards[i];
 
     if (card.cover().isNull()) {
       processImageUrl(i, card.coverUrl());
     }
+  }
+}
+
+QVariant BookRestModel::dataForColumn(const QModelIndex &index) const {
+  switch (index.column()) {
+    case Id:
+      return index.data(IdRole);
+    case Title:
+      return index.data(TitleRole);
+    case Authors:
+      return index.data(AuthorsRole).toStringList().join(", ");
+    case Categories:
+      return index.data(BookRestModel::CategoriesRole)
+        .toStringList()
+        .join(", ");
+    case Rating:
+      return index.data(BookRestModel::RatingRole);
+    default:
+      return {};
+  }
+};
+
+QVariant BookRestModel::headerData(int section, Qt::Orientation orientation,
+                                   int role) const {
+  if (role != Qt::DisplayRole || orientation == Qt::Vertical) {
+    return QAbstractListModel::headerData(section, orientation, role);
+  }
+
+  switch (section) {
+    case Id:
+      return tr("Id");
+    case Title:
+      return tr("Title");
+    case Authors:
+      return tr("Authors");
+    case Categories:
+      return tr("Categories");
+    case Rating:
+      return tr("Rating");
+    default:
+      return "";
   }
 }

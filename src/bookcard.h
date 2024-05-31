@@ -44,7 +44,7 @@ public:
   void setButtonState(QStyle::State buttonState);
   QStyle::State buttonState() const;
 
-  int ratingFromPosition(const QRect &rect, const QPoint &pos);
+  int ratingFromPosition(const QRect &rect, const QPoint &pos) const;
   QRect buttonRect(const QRect &rect) const;
 
 private:

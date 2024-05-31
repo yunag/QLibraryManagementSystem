@@ -58,7 +58,7 @@
         <x>0</x>
         <y>0</y>
         <width>990</width>
-        <height>991</height>
+        <height>997</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -122,11 +122,6 @@
              </property>
              <item row="0" column="0">
               <widget class="QLabel" name="label_4">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
                <property name="text">
                 <string>Book Id:</string>
                </property>
@@ -134,11 +129,6 @@
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="bookIdLabel">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
                <property name="text">
                 <string>&lt;id&gt;</string>
                </property>
@@ -146,11 +136,6 @@
              </item>
              <item row="1" column="0">
               <widget class="QLabel" name="label_5">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
                <property name="text">
                 <string>Publication Date:</string>
                </property>
@@ -158,11 +143,6 @@
              </item>
              <item row="1" column="1">
               <widget class="QLabel" name="bookDateLabel">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
                <property name="text">
                 <string>&lt;date&gt;</string>
                </property>
@@ -170,11 +150,6 @@
              </item>
              <item row="2" column="0">
               <widget class="QLabel" name="label_8">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
                <property name="text">
                 <string>Copies Owned:</string>
                </property>
@@ -182,11 +157,6 @@
              </item>
              <item row="2" column="1">
               <widget class="QLabel" name="numCopiesOwnedLabel">
-               <property name="font">
-                <font>
-                 <family>Montserrat</family>
-                </font>
-               </property>
                <property name="text">
                 <string>&lt;copies&gt;</string>
                </property>
@@ -208,7 +178,6 @@
              </property>
              <property name="font">
               <font>
-               <family>Montserrat</family>
                <pointsize>20</pointsize>
                <bold>true</bold>
                <underline>true</underline>
@@ -242,10 +211,7 @@
             <widget class="QLabel" name="label_2">
              <property name="font">
               <font>
-               <family>Montserrat</family>
-               <pointsize>18</pointsize>
-               <bold>true</bold>
-               <underline>false</underline>
+               <pointsize>20</pointsize>
               </font>
              </property>
              <property name="text">
@@ -277,11 +243,6 @@
                <height>300</height>
               </size>
              </property>
-             <property name="font">
-              <font>
-               <family>Montserrat</family>
-              </font>
-             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
@@ -292,7 +253,7 @@ p, li { white-space: pre-wrap; }
 hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Montserrat'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:15px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Open Sans','Arial','sans-serif'; font-size:14px; color:#000000; background-color:#ffffff;&quot;&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis ullamcorper luctus leo, et sollicitudin nulla condimentum id. Maecenas iaculis urna vitae magna finibus, a volutpat elit cursus. Proin eu felis at lectus condimentum tempus. Quisque justo odio, finibus non vulputate at, dapibus eget augue. Aliquam aliquam ligula ut mauris venenatis, nec sodales leo tincidunt. Nullam et blandit velit, sit amet vestibulum tortor. Suspendisse potenti. In eu imperdiet augue. Integer cursus, libero vel bibendum dapibus, felis lorem convallis lacus, vitae dignissim justo enim eu orci. Vivamus sed faucibus eros. Pellentesque posuere urna et ex luctus consectetur. Mauris facilisis nisi nec orci tristique suscipit.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:15px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Open Sans','Arial','sans-serif'; font-size:14px; color:#000000; background-color:#ffffff;&quot;&gt;Sed lobortis imperdiet tortor et pulvinar. Morbi aliquam ac nulla nec elementum. Fusce non lorem eu enim consequat viverra et eu urna. In vulputate neque velit, nec tincidunt felis ultricies eget. Morbi eu tellus rutrum, bibendum augue vel, elementum elit. Suspendisse facilisis, magna quis hendrerit blandit, magna nibh semper enim, sed consequat odio purus tristique augue. Vestibulum sodales massa sed suscipit sagittis. Suspendisse fermentum risus efficitur lectus congue, in placerat magna fermentum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Praesent ac hendrerit leo, vitae euismod libero. Nam scelerisque felis nibh, non congue justo pellentesque quis. Curabitur eget orci vitae sem hendrerit tincidunt.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:15px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; background-color:#ffffff;&quot;&gt;&lt;span style=&quot; font-family:'Open Sans','Arial','sans-serif'; font-size:14px; color:#000000; background-color:#ffffff;&quot;&gt;Donec a consectetur erat, a iaculis urna. Quisque metus ipsum, sodales eu suscipit eget, maximus vel diam. Maecenas in augue ut sem sagittis volutpat. Nunc id quam convallis, sagittis velit sit amet, feugiat urna. Aliquam vestibulum eu quam congue sollicitudin. Mauris semper luctus nulla eget auctor. Nunc pulvinar leo non neque dictum pellentesque. Donec at velit metus. In elementum sem pretium, rutrum magna sollicitudin, vehicula nisl. Quisque sed nisi justo. Fusce ut lorem dictum, consectetur augue id, sagittis nulla. Fusce sit amet efficitur lectus. Vivamus lacus erat, consectetur vel accumsan id, posuere sit amet purus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -323,10 +284,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <widget class="QLabel" name="label_3">
          <property name="font">
           <font>
-           <family>Montserrat</family>
-           <pointsize>18</pointsize>
-           <bold>true</bold>
-           <underline>false</underline>
+           <pointsize>15</pointsize>
           </font>
          </property>
          <property name="text">
@@ -341,11 +299,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-          </font>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAsNeeded</enum>
@@ -408,10 +361,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <widget class="QLabel" name="label_10">
          <property name="font">
           <font>
-           <family>Montserrat</family>
-           <pointsize>18</pointsize>
-           <bold>true</bold>
-           <underline>false</underline>
+           <pointsize>15</pointsize>
           </font>
          </property>
          <property name="text">
@@ -426,11 +376,6 @@ li.checked::marker { content: &quot;\2612&quot;; }
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>Montserrat</family>
-          </font>
          </property>
          <property name="verticalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>

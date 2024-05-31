@@ -12,8 +12,8 @@
 void BookCardDelegate::paint(QPainter *painter,
                              const QStyleOptionViewItem &option,
                              const QModelIndex &index) const {
-  if (index.data().canConvert<BookCard>()) {
-    auto bookCard = qvariant_cast<BookCard>(index.data());
+  if (index.data(BookRestModel::ObjectRole).canConvert<BookCard>()) {
+    auto bookCard = index.data(BookRestModel::ObjectRole).value<BookCard>();
 
     int hoverRating = index.data(BookRestModel::HoverRatingRole).toInt();
     bookCard.paint(painter, option, hoverRating);
@@ -24,8 +24,8 @@ void BookCardDelegate::paint(QPainter *painter,
 
 QSize BookCardDelegate::sizeHint(const QStyleOptionViewItem &option,
                                  const QModelIndex &index) const {
-  if (index.data().canConvert<BookCard>()) {
-    auto bookCard = qvariant_cast<BookCard>(index.data());
+  if (index.data(BookRestModel::ObjectRole).canConvert<BookCard>()) {
+    auto bookCard = index.data(BookRestModel::ObjectRole).value<BookCard>();
     return bookCard.sizeHint();
   }
 
@@ -35,12 +35,13 @@ QSize BookCardDelegate::sizeHint(const QStyleOptionViewItem &option,
 bool BookCardDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
                                    const QStyleOptionViewItem &option,
                                    const QModelIndex &index) {
-  if (!index.data().canConvert<BookCard>()) {
+  if (!index.data(BookRestModel::ObjectRole).canConvert<BookCard>()) {
     return QStyledItemDelegate::editorEvent(event, model, option, index);
   }
 
   QRect rect = option.rect;
-  auto bookCard = qvariant_cast<BookCard>(index.data());
+  const auto &bookCard =
+    index.data(BookRestModel::ObjectRole).value<BookCard>();
 
   auto *mouseEvent = dynamic_cast<QMouseEvent *>(event);
   if (!mouseEvent) {

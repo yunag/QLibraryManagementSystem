@@ -32,12 +32,12 @@ ReplyPointer WidgetUtils::asyncLoadImage(AspectRatioLabel *label,
   future
     .then(label,
           [label, movie](const QPixmap &image) {
-    label->setMovie(nullptr);
+    QObject::disconnect(movie.get(), &QMovie::frameChanged, label, nullptr);
     label->setPixmap(image);
   })
     .onFailed(label, [label, notFoundPixmap = std::move(notFoundPixmap),
                       movie](const NetworkError &err) {
-    label->setMovie(nullptr);
+    QObject::disconnect(movie.get(), &QMovie::frameChanged, label, nullptr);
     if (err.type() != QNetworkReply::OperationCanceledError) {
       label->setPixmap(notFoundPixmap);
     }

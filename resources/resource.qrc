@@ -27,5 +27,7 @@
         <file>images/starRating.svg</file>
         <file>images/LoadingSpinner.gif</file>
         <file>icons/link-horizontal.svg</file>
+        <file>icons/grid.svg</file>
+        <file>icons/table.svg</file>
     </qresource>
 </RCC>

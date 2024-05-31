@@ -16,14 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="searchFiltersLabel">
-     <property name="font">
-      <font>
-       <family>Montserrat</family>
-       <pointsize>16</pointsize>
-       <bold>true</bold>
-       <underline>true</underline>
-      </font>
-     </property>
      <property name="text">
       <string>Search Filters</string>
      </property>
@@ -47,12 +39,6 @@
    </item>
    <item>
     <widget class="QLabel" name="sortByLabel">
-     <property name="font">
-      <font>
-       <family>Montserrat</family>
-       <underline>true</underline>
-      </font>
-     </property>
      <property name="text">
       <string>Sort By:</string>
      </property>
@@ -94,11 +80,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="font">
-        <font>
-         <family>Montserrat</family>
-        </font>
-       </property>
        <property name="text">
         <string>Ascending</string>
        </property>
@@ -114,11 +95,6 @@
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
-       </property>
-       <property name="font">
-        <font>
-         <family>Montserrat</family>
-        </font>
        </property>
        <property name="text">
         <string>Descending</string>

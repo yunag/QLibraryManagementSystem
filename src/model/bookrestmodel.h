@@ -15,8 +15,20 @@ class BookRestModel : public QAbstractListModel {
 public:
   explicit BookRestModel(QObject *parent = nullptr);
 
+  enum HorizontalSection {
+    Id = 0,
+    Title,
+    Authors,
+    Categories,
+    Rating,
+    Last = Rating
+  };
+
+  Q_ENUM(HorizontalSection);
+
   enum BookCardRoles {
     TitleRole = Qt::UserRole + 1,
+    ObjectRole,
     IdRole,
     CoverRole,
     CoverUrlRole,
@@ -35,6 +47,11 @@ public:
   Q_PROPERTY(
     QString orderBy READ orderBy WRITE setOrderBy NOTIFY orderByChanged FINAL)
 
+  QVariant headerData(int section, Qt::Orientation orientation,
+                      int role) const override;
+  QVariant dataForColumn(const QModelIndex &index) const;
+
+  int columnCount(const QModelIndex &parent) const override;
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   bool removeRows(int row, int count,
                   const QModelIndex &parent = QModelIndex()) override;
@@ -52,7 +69,6 @@ public:
   QVariant data(const QModelIndex &index, int role) const override;
   bool setData(const QModelIndex &index, const QVariant &value,
                int role) override;
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
 
   QVariantMap filters() const;
   void setFilters(const QVariantMap &newFilters);

@@ -10,11 +10,6 @@
     <height>30</height>
    </rect>
   </property>
-  <property name="font">
-   <font>
-    <family>Montserrat</family>
-   </font>
-  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -57,13 +52,6 @@
        <height>16777215</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <family>Montserrat</family>
-       <pointsize>10</pointsize>
-       <bold>false</bold>
-      </font>
-     </property>
      <property name="text">
       <string>prev</string>
      </property>
@@ -95,13 +83,6 @@
        <height>0</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <family>Montserrat</family>
-       <pointsize>10</pointsize>
-       <bold>false</bold>
-      </font>
-     </property>
      <property name="layoutDirection">
       <enum>Qt::RightToLeft</enum>
      </property>
@@ -118,23 +99,10 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <family>Montserrat</family>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="totalPagesText">
-     <property name="font">
-      <font>
-       <family>Montserrat</family>
-       <pointsize>10</pointsize>
-       <bold>false</bold>
-      </font>
-     </property>
      <property name="text">
       <string>&lt;of N&gt;</string>
      </property>

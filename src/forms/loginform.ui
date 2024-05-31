@@ -10,11 +10,6 @@
     <height>682</height>
    </rect>
   </property>
-  <property name="font">
-   <font>
-    <family>Roboto</family>
-   </font>
-  </property>
   <property name="windowTitle">
    <string>QLibraryLogin</string>
   </property>
@@ -52,11 +47,6 @@
        <height>100</height>
       </size>
      </property>
-     <property name="font">
-      <font>
-       <family>Montserrat</family>
-      </font>
-     </property>
      <property name="styleSheet">
       <string notr="true">border-image: url(:/images/LibraryBackground.jpg);</string>
      </property>
@@ -67,11 +57,6 @@
    </item>
    <item>
     <widget class="QWidget" name="loginWidget" native="true">
-     <property name="font">
-      <font>
-       <family>Roboto</family>
-      </font>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <spacer name="verticalSpacer">
@@ -103,11 +88,6 @@
           <height>100</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="styleSheet">
          <string notr="true"> image: url(:/images/LibraryLogo.png);</string>
         </property>
@@ -136,11 +116,6 @@
        <layout class="QGridLayout" name="gridLayout" columnstretch="10,0">
         <item row="1" column="0">
          <widget class="QLineEdit" name="host">
-          <property name="font">
-           <font>
-            <family>Montserrat</family>
-           </font>
-          </property>
           <property name="maxLength">
            <number>80</number>
           </property>
@@ -151,11 +126,6 @@
         </item>
         <item row="0" column="1">
          <widget class="QLabel" name="portLabel">
-          <property name="font">
-           <font>
-            <family>Montserrat</family>
-           </font>
-          </property>
           <property name="text">
            <string>Port</string>
           </property>
@@ -163,12 +133,6 @@
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="hostLabel">
-          <property name="font">
-           <font>
-            <family>Montserrat</family>
-            <bold>false</bold>
-           </font>
-          </property>
           <property name="text">
            <string>Host</string>
           </property>
@@ -176,11 +140,6 @@
         </item>
         <item row="1" column="1">
          <widget class="QLineEdit" name="port">
-          <property name="font">
-           <font>
-            <family>Montserrat</family>
-           </font>
-          </property>
           <property name="text">
            <string/>
           </property>
@@ -196,11 +155,6 @@
       </item>
       <item>
        <widget class="QLabel" name="usernameLabel">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="text">
          <string>Username</string>
         </property>
@@ -208,11 +162,6 @@
       </item>
       <item>
        <widget class="QLineEdit" name="username">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="maxLength">
          <number>80</number>
         </property>
@@ -223,11 +172,6 @@
       </item>
       <item>
        <widget class="QLabel" name="passwordLabel">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="text">
          <string>Password</string>
         </property>
@@ -235,11 +179,6 @@
       </item>
       <item>
        <widget class="PasswordLineEdit" name="password">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="text">
          <string/>
         </property>
@@ -272,11 +211,6 @@
       </item>
       <item>
        <widget class="QCheckBox" name="rememberMeCheckBox">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="text">
          <string>Remember me</string>
         </property>
@@ -300,11 +234,6 @@
       </item>
       <item>
        <widget class="QPushButton" name="loginButton">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="text">
          <string>Log In</string>
         </property>
@@ -334,11 +263,6 @@
       </item>
       <item>
        <widget class="QPushButton" name="retrievePasswordButton">
-        <property name="font">
-         <font>
-          <family>Montserrat</family>
-         </font>
-        </property>
         <property name="text">
          <string>Retrieve Password</string>
         </property>

@@ -74,6 +74,13 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Sql Concurrent Network Svg)
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
+set_target_properties(
+  ${PROJECT_NAME}
+  PROPERTIES AUTOMOC ON
+             AUTOUIC ON
+             AUTORCC ON
+             AUTOUIC_SEARCH_PATHS "forms")
+
 add_subdirectory(model)
 add_subdirectory(network)
 add_subdirectory(delegate)
@@ -83,7 +90,7 @@ add_subdirectory(controllers)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Network Qt6::Concurrent Qt6::Svg kwidgets)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_compile_options(
   ${PROJECT_NAME}
@@ -109,11 +116,6 @@ target_compile_options(
           -Wundef
           -Wunused-macros
           -Wwrite-strings)
-
-set_property(
-  TARGET ${PROJECT_NAME}
-  APPEND
-  PROPERTY AUTOUIC_SEARCH_PATHS forms)
 
 set_target_properties(
   ${PROJECT_NAME}

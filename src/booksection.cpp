@@ -12,7 +12,6 @@
 
 #include "controllers/bookcontroller.h"
 #include "controllers/bookratingcontroller.h"
-#include "libraryapplication.h"
 
 #include "model/bookrestmodel.h"
 #include "model/bookresttableproxymodel.h"
@@ -22,7 +21,6 @@
 
 #include "bookadddialog.h"
 #include "searchfilterdialog.h"
-#include "smoothscrollbar.h"
 
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection),
@@ -47,20 +45,25 @@ BookSection::BookSection(QWidget *parent)
 
   ui->bookCover->setAspectRatio(Qt::KeepAspectRatio);
 
-  auto *proxyTableModel = new BookRestTableProxyModel(this);
-  proxyTableModel->setSourceModel(m_model);
-  ui->bookTableView->setModel(proxyTableModel);
+  ui->bookTableView->setModel(m_model);
   ui->bookTableView->setItemDelegateForColumn(BookRestTableProxyModel::Rating,
                                               new TableRatingDelegate);
-  ui->bookTableView->setMouseTracking(true);
-  connect(ui->bookTableView, &QTableView::pressed, this,
-          [this](const QModelIndex &index) {
-    auto cover = index.data(BookRestModel::CoverRole).value<QPixmap>();
 
+  ui->bookTableView->setMouseTracking(true);
+
+  QItemSelectionModel *selectionModel = ui->bookTableView->selectionModel();
+  connect(selectionModel, &QItemSelectionModel::currentChanged, this,
+          [this](const QModelIndex &current, const QModelIndex &previous) {
+    ui->showDetailsButton->setEnabled(current.isValid());
+
+    quint32 bookId = current.data(BookRestModel::IdRole).toUInt();
+    auto cover = current.data(BookRestModel::CoverRole).value<QPixmap>();
+
+    ui->bookId->setText(QString::number(bookId));
     if (!cover.isNull()) {
       ui->bookCover->setPixmap(cover);
     } else {
-      QUrl coverUrl = index.data(BookRestModel::CoverUrlRole).toUrl();
+      QUrl coverUrl = current.data(BookRestModel::CoverUrlRole).toUrl();
       WidgetUtils::asyncLoadImage(ui->bookCover, coverUrl);
     }
   });
@@ -89,6 +92,7 @@ BookSection::BookSection(QWidget *parent)
     if (button == ui->gridViewButton) {
       m_model->shouldFetchImages(true);
       ui->stackedWidget->setCurrentWidget(ui->gridViewPage);
+      distributeGridSize();
     } else {
       m_model->shouldFetchImages(false);
       ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
@@ -108,7 +112,6 @@ BookSection::BookSection(QWidget *parent)
   ui->bookListView->setAcceptDrops(false);
   ui->bookListView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
-  ui->searchLineEdit->setClearButtonEnabled(true);
   QAction *action = ui->searchLineEdit->addAction(QIcon(":/icons/searchIcon"),
                                                   QLineEdit::LeadingPosition);
 
@@ -141,6 +144,11 @@ BookSection::BookSection(QWidget *parent)
   connect(pagination, &Pagination::totalCountChanged, this,
           &BookSection::setBooksCount);
 
+  ui->showDetailsButton->setEnabled(false);
+  connect(ui->showDetailsButton, &QPushButton::clicked, this, [this]() {
+    quint32 bookId = ui->bookId->text().toUInt();
+    emit bookDetailsRequested(bookId);
+  });
   connect(ui->bookListView, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
     quint32 bookId = m_model->data(index, BookRestModel::IdRole).toUInt();
