@@ -6,22 +6,22 @@
 #include "network/network.h"
 #include "schema/schema.h"
 
+#include "abstractrestmodel.h"
 #include "bookcard.h"
-#include "pagination.h"
 
-class BookRestModel : public QAbstractListModel {
+class BookRestModel : public AbstractRestModel {
   Q_OBJECT
 
 public:
   explicit BookRestModel(QObject *parent = nullptr);
 
   enum HorizontalSection {
-    Id = 0,
-    Title,
-    Authors,
-    Categories,
-    Rating,
-    Last = Rating
+    IdHeader = 0,
+    TitleHeader,
+    AuthorsHeader,
+    CategoriesHeader,
+    RatingHeader,
+    Last = RatingHeader
   };
 
   Q_ENUM(HorizontalSection);
@@ -40,16 +40,13 @@ public:
   };
   Q_ENUM(BookCardRoles)
 
-  Q_PROPERTY(QVariantMap filters READ filters WRITE setFilters NOTIFY
-               filtersChanged FINAL)
-  Q_PROPERTY(Pagination *pagination READ pagination WRITE setPagination NOTIFY
-               paginationChanged FINAL)
-  Q_PROPERTY(
-    QString orderBy READ orderBy WRITE setOrderBy NOTIFY orderByChanged FINAL)
+  void handleRequestData(const QByteArray &data) override;
+  QUrlQuery includeFieldsQuery() override;
+  void reset();
 
   QVariant headerData(int section, Qt::Orientation orientation,
                       int role) const override;
-  QVariant dataForColumn(const QModelIndex &index) const;
+  static QVariant dataForColumn(const QModelIndex &index);
 
   int columnCount(const QModelIndex &parent) const override;
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -63,32 +60,9 @@ public:
 
   const BookCard &get(int row) const;
 
-  void reset();
-  void reload();
-
   QVariant data(const QModelIndex &index, int role) const override;
   bool setData(const QModelIndex &index, const QVariant &value,
                int role) override;
-
-  QVariantMap filters() const;
-  void setFilters(const QVariantMap &newFilters);
-
-  Pagination *pagination() const;
-  void setPagination(Pagination *newPagination);
-
-  QString orderBy() const;
-  void setOrderBy(const QString &newOrderBy);
-
-signals:
-  void filtersChanged();
-  void paginationChanged();
-  void sortChanged();
-  void orderByChanged();
-  void reloadFinished();
-
-private:
-  void updatePagination(ReplyPointer reply);
-  void processImageUrl(int row, const QUrl &url);
 
 private slots:
   void onBookData(const BookData &data);
@@ -99,21 +73,10 @@ private:
   bool m_shouldFetchImages;
   int m_booksCount;
 
-  struct ImageWork {
-    ReplyPointer reply;
-    QSharedPointer<QMovie> busyIndicator;
-  };
-
   struct {
     QPersistentModelIndex index;
     int rating;
   } m_hoverRating;
-
-  QHash<int, ImageWork> m_imageWork;
-
-  QVariantMap m_filters;
-  Pagination *m_pagination = nullptr;
-  QString m_orderBy;
 };
 
 #endif  // BOOKRESTMODEL_H

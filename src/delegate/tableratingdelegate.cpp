@@ -31,7 +31,8 @@ bool TableRatingDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
     return model->setData(index, rating, BookRestModel::HoverRatingRole);
   }
 
-  if (event->type() == QEvent::MouseButtonPress) {
+  if (event->type() == QEvent::MouseButtonPress &&
+      mouseEvent->button() == Qt::LeftButton) {
     int rating = m_painter.ratingFromPosition(rect, mouseEvent->pos());
     if (rating != -1) {
       return model->setData(index, rating, BookRestModel::RatingRole);

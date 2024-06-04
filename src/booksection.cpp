@@ -1,8 +1,7 @@
 #include <QtConcurrent>
 
 #include <QButtonGroup>
-#include <QDateTime>
-#include <QMovie>
+#include <QScrollBar>
 
 #include "booksection.h"
 #include "ui_booksection.h"
@@ -14,7 +13,6 @@
 #include "controllers/bookratingcontroller.h"
 
 #include "model/bookrestmodel.h"
-#include "model/bookresttableproxymodel.h"
 
 #include "delegate/bookcarddelegate.h"
 #include "delegate/tableratingdelegate.h"
@@ -29,59 +27,49 @@ BookSection::BookSection(QWidget *parent)
       m_searchFilterDialog(new SearchFilterDialog(m_model, this)) {
   ui->setupUi(this);
 
+  m_loadPageTimer.setInterval(0);
+  m_loadPageTimer.setSingleShot(true);
+
+  connect(&m_loadPageTimer, &QTimer::timeout, this, [this]() {
+    m_model->reset();
+    m_model->reload();
+  });
+
   auto *pagination = new Pagination(this);
   pagination->setPerPage(60);
 
   ui->pagination->setPagination(pagination);
 
   m_model->setOrderBy("id");
+  m_model->shouldFetchImages(true);
   m_model->setPagination(pagination);
 
   ui->bookListView->setModel(m_model);
-  ui->bookListView->setUniformItemSizes(true);
   ui->bookListView->setItemDelegate(new BookCardDelegate);
-  ui->bookListView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  ui->bookListView->setMouseTracking(true);
 
   ui->bookCover->setAspectRatio(Qt::KeepAspectRatio);
 
   ui->bookTableView->setModel(m_model);
-  ui->bookTableView->setItemDelegateForColumn(BookRestTableProxyModel::Rating,
+  ui->bookTableView->setSelectionModel(ui->bookListView->selectionModel());
+  ui->bookTableView->setItemDelegateForColumn(BookRestModel::RatingHeader,
                                               new TableRatingDelegate);
 
-  ui->bookTableView->setMouseTracking(true);
-
-  QItemSelectionModel *selectionModel = ui->bookTableView->selectionModel();
-  connect(selectionModel, &QItemSelectionModel::currentChanged, this,
-          [this](const QModelIndex &current, const QModelIndex &previous) {
-    ui->showDetailsButton->setEnabled(current.isValid());
-
-    quint32 bookId = current.data(BookRestModel::IdRole).toUInt();
-    auto cover = current.data(BookRestModel::CoverRole).value<QPixmap>();
-
-    ui->bookId->setText(QString::number(bookId));
-    if (!cover.isNull()) {
-      ui->bookCover->setPixmap(cover);
-    } else {
-      QUrl coverUrl = current.data(BookRestModel::CoverUrlRole).toUrl();
-      WidgetUtils::asyncLoadImage(ui->bookCover, coverUrl);
-    }
-  });
+  connect(ui->bookTableView->selectionModel(),
+          &QItemSelectionModel::currentChanged, this,
+          &BookSection::currentChanged);
 
   QHeaderView *horizontalHeader = ui->bookTableView->horizontalHeader();
-  horizontalHeader->setSectionResizeMode(BookRestTableProxyModel::Title,
+  horizontalHeader->setSectionResizeMode(BookRestModel::TitleHeader,
                                          QHeaderView::Stretch);
-  horizontalHeader->setSectionResizeMode(BookRestTableProxyModel::Authors,
+  horizontalHeader->setSectionResizeMode(BookRestModel::AuthorsHeader,
                                          QHeaderView::Stretch);
-  horizontalHeader->setSectionResizeMode(BookRestTableProxyModel::Categories,
+  horizontalHeader->setSectionResizeMode(BookRestModel::CategoriesHeader,
                                          QHeaderView::Stretch);
 
   /* Autoexclusive buttons must be in the same QButtonGroup */
   auto *buttonGroup = new QButtonGroup(this);
   buttonGroup->addButton(ui->gridViewButton);
   buttonGroup->addButton(ui->tableViewButton);
-
-  m_model->shouldFetchImages(true);
 
   connect(buttonGroup, &QButtonGroup::buttonToggled, this,
           [this](QAbstractButton *button, bool checked) {
@@ -106,7 +94,6 @@ BookSection::BookSection(QWidget *parent)
    * ui->bookListView->setVerticalScrollBar(vScrollBar);
    */
   ui->bookListView->verticalScrollBar()->setSingleStep(8);
-  ui->bookListView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   ui->bookListView->horizontalScrollBar()->setDisabled(true);
 
   ui->bookListView->setAcceptDrops(false);
@@ -117,38 +104,35 @@ BookSection::BookSection(QWidget *parent)
 
   connect(action, &QAction::triggered, m_searchFilterDialog,
           &SearchFilterDialog::open);
-  connect(m_searchFilterDialog, &QDialog::accepted, this,
-          &BookSection::loadPage);
 
-  connect(m_model, &BookRestModel::filtersChanged, this, [this]() {
-    m_model->reset();
+  auto handleSortFilterChange = [this]() {
     m_model->pagination()->setCurrentPage(0);
-    m_model->reload();
-  });
+    reloadPage();
+  };
+  connect(m_model, &BookRestModel::orderByChanged, this,
+          handleSortFilterChange);
+  connect(m_model, &BookRestModel::filtersChanged, this,
+          handleSortFilterChange);
 
   connect(m_model, &BookRestModel::dataChanged, this,
           [this](const QModelIndex &topLeft, const QModelIndex & /*topRight*/,
                  const QList<int> &roles) {
     const QModelIndex &index = topLeft;
 
-    for (int role : roles) {
-      if (role == BookRestModel::RatingRole) {
-        const BookCard &bookCard = m_model->get(index.row());
-        BookRatingController::rateBook(bookCard.bookId(), bookCard.rating());
-      }
+    if (roles.contains(BookRestModel::RatingRole)) {
+      const BookCard &bookCard = m_model->get(index.row());
+      BookRatingController::rateBook(bookCard.bookId(), bookCard.rating());
     }
   });
 
   connect(pagination, &Pagination::currentPageChanged, m_model,
-          [this](int /*page*/) { loadPage(); });
+          [this](int page) { reloadPage(); });
   connect(pagination, &Pagination::totalCountChanged, this,
           &BookSection::setBooksCount);
 
   ui->showDetailsButton->setEnabled(false);
-  connect(ui->showDetailsButton, &QPushButton::clicked, this, [this]() {
-    quint32 bookId = ui->bookId->text().toUInt();
-    emit bookDetailsRequested(bookId);
-  });
+  connect(ui->showDetailsButton, &QPushButton::clicked, this,
+          &BookSection::showDetailsButtonClicked);
   connect(ui->bookListView, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
     quint32 bookId = m_model->data(index, BookRestModel::IdRole).toUInt();
@@ -157,10 +141,8 @@ BookSection::BookSection(QWidget *parent)
 
   connect(ui->deleteButton, &QPushButton::clicked, this,
           &BookSection::deleteButtonClicked);
-  connect(ui->saveChangesButton, &QPushButton::clicked, this,
-          &BookSection::saveChanges);
   connect(m_bookAddDialog, &BookAddDialog::edited, this,
-          &BookSection::loadPage);
+          &BookSection::reloadPage);
   connect(ui->addButton, &QPushButton::clicked, this,
           &BookSection::addButtonClicked);
   connect(ui->updateButton, &QPushButton::clicked, this,
@@ -191,7 +173,7 @@ void BookSection::loadBooks() {
 }
 
 void BookSection::synchronizeNowButtonClicked() {
-  /* TODO: synchronize with the server */
+  reloadPage();
   updateLastSync();
 }
 
@@ -224,7 +206,7 @@ void BookSection::distributeGridSize() {
     return;
   }
 
-  auto bookCard = qvariant_cast<BookCard>(index.data());
+  auto bookCard = index.data().value<BookCard>();
   QSize itemSize = bookCard.sizeHint();
 
   /* NOTE: scrollbar->width() will report wrong value  
@@ -261,20 +243,18 @@ void BookSection::setBooksCount(qint32 booksCount) {
   ui->numberOfBooksLabel->setText(QString::number(booksCount));
 }
 
-void BookSection::saveChanges() {
-  ui->saveChangesButton->setEnabled(false);
-}
-
 void BookSection::deleteButtonClicked() {
   QModelIndexList selectedIndexes =
     ui->bookListView->selectionModel()->selectedIndexes();
 
   for (const QModelIndex &index : selectedIndexes) {
-    quint32 bookId = m_model->get(index.row()).bookId();
+    quint32 bookId = m_model->data(index, BookRestModel::IdRole).toUInt();
 
     BookController::deleteBookById(bookId)
       .then(this, [this, index](auto) {
-      m_model->removeRow(index.row());
+      if (index.isValid()) {
+        m_model->removeRow(index.row());
+      }
     }).onFailed(this, [this](const NetworkError &err) {
       handleError(this, err);
     });
@@ -293,7 +273,32 @@ void BookSection::updateButtonClicked() {
   m_bookAddDialog->editBook(bookCard.bookId());
 }
 
-void BookSection::loadPage() {
-  m_model->reset();
-  m_model->reload();
+void BookSection::reloadPage() {
+  m_loadPageTimer.start();
+}
+
+void BookSection::currentChanged(const QModelIndex &current,
+                                 const QModelIndex & /*previous*/) {
+  ui->showDetailsButton->setEnabled(current.isValid());
+
+  quint32 bookId = current.data(BookRestModel::IdRole).toUInt();
+  QString bookTitle = current.data(BookRestModel::TitleRole).toString();
+  auto cover = current.data(BookRestModel::CoverRole).value<QPixmap>();
+
+  ui->bookId->setText(QString::number(bookId));
+  ui->bookTitle->setText(bookTitle);
+  if (!cover.isNull()) {
+    ui->bookCover->setPixmap(cover);
+  } else {
+    QUrl coverUrl = current.data(BookRestModel::CoverUrlRole).toUrl();
+    WidgetUtils::asyncLoadImage(ui->bookCover, coverUrl);
+  }
+}
+
+void BookSection::showDetailsButtonClicked() {
+  bool converted;
+  quint32 bookId = ui->bookId->text().toUInt(&converted);
+  if (converted) {
+    emit bookDetailsRequested(bookId);
+  }
 }

@@ -29,7 +29,7 @@ class KRatingWidget : public QFrame {
   Q_PROPERTY(int maxRating READ maxRating WRITE setMaxRating)
   Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
   Q_PROPERTY(
-      bool halfStepsEnabled READ halfStepsEnabled WRITE setHalfStepsEnabled)
+    bool halfStepsEnabled READ halfStepsEnabled WRITE setHalfStepsEnabled)
   Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
   Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
 

@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.14)
 project(kwidgets LANGUAGES CXX)
 
-add_library(${PROJECT_NAME} kratingpainter.cpp kratingpainter.h kratingwidget.cpp kratingwidget.h)
+add_library(kwidgets kratingpainter.cpp kratingpainter.h kratingwidget.cpp kratingwidget.h)
+
+set_target_properties(kwidgets PROPERTIES AUTOMOC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
+target_link_libraries(kwidgets PRIVATE Qt6::Widgets)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(kwidgets PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

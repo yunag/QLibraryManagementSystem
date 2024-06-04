@@ -5,10 +5,10 @@
 #include "network/network.h"
 
 #include "categorycontroller.h"
-#include "libraryapplication.h"
+#include "resourcemanager.h"
 
 QFuture<QList<Category>> CategoryController::getCategories() {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   auto [future, reply] = manager->get("/api/categories");
 

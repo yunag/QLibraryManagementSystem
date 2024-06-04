@@ -1,2 +1,11 @@
-target_sources(${PROJECT_NAME} PRIVATE bookrestmodel.h bookrestmodel.cpp bookresttableproxymodel.h
-                                       bookresttableproxymodel.cpp loadingmodel.h loadingmodel.cpp)
+target_sources(
+  ${PROJECT_NAME}
+  PRIVATE bookrestmodel.h
+          bookrestmodel.cpp
+          authorrestmodel.h
+          authorrestmodel.cpp
+          abstractrestmodel.h
+          abstractrestmodel.cpp
+          modelhelper.h
+          loadingmodel.h
+          loadingmodel.cpp)

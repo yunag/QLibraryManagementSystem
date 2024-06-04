@@ -44,9 +44,13 @@ void KRatingWidget::setPixmapSize(int size) {
   updateGeometry();
 }
 
-int KRatingWidget::spacing() const { return d->ratingPainter.spacing(); }
+int KRatingWidget::spacing() const {
+  return d->ratingPainter.spacing();
+}
 
-QIcon KRatingWidget::icon() const { return d->ratingPainter.icon(); }
+QIcon KRatingWidget::icon() const {
+  return d->ratingPainter.icon();
+}
 
 void KRatingWidget::setSpacing(int s) {
   d->ratingPainter.setSpacing(s);
@@ -71,9 +75,13 @@ void KRatingWidget::setLayoutDirection(Qt::LayoutDirection direction) {
   update();
 }
 
-int KRatingWidget::rating() const { return d->rating; }
+int KRatingWidget::rating() const {
+  return d->rating;
+}
 
-int KRatingWidget::maxRating() const { return d->ratingPainter.maxRating(); }
+int KRatingWidget::maxRating() const {
+  return d->ratingPainter.maxRating();
+}
 
 bool KRatingWidget::halfStepsEnabled() const {
   return d->ratingPainter.halfStepsEnabled();
@@ -127,9 +135,8 @@ static inline int adjustedHoverRating(bool halfStep, int hoverRating,
 void KRatingWidget::mousePressEvent(QMouseEvent *e) {
   if (e->button() == Qt::LeftButton) {
     d->hoverRating = adjustedHoverRating(
-        halfStepsEnabled(),
-        d->ratingPainter.ratingFromPosition(contentsRect(), e->pos()),
-        d->rating);
+      halfStepsEnabled(),
+      d->ratingPainter.ratingFromPosition(contentsRect(), e->pos()), d->rating);
     // avoid set a rating to something less than zero, it may happen if widget
     // is scaled and mouse is clicked outside the star region.
     if (d->hoverRating >= 0) {
@@ -142,8 +149,8 @@ void KRatingWidget::mouseMoveEvent(QMouseEvent *e) {
   // when moving the mouse we show the user what the result of clicking will be
   const int prevHoverRating = d->hoverRating;
   d->hoverRating = adjustedHoverRating(
-      halfStepsEnabled(),
-      d->ratingPainter.ratingFromPosition(contentsRect(), e->pos()), d->rating);
+    halfStepsEnabled(),
+    d->ratingPainter.ratingFromPosition(contentsRect(), e->pos()), d->rating);
   if (d->hoverRating != prevHoverRating) {
     update();
   }
@@ -174,8 +181,10 @@ QSize KRatingWidget::sizeHint() const {
   }
 
   return QSize(pixSize.width() * numPix + spacing() * (numPix - 1) +
-                   frameWidth() * 2,
+                 frameWidth() * 2,
                pixSize.height() + frameWidth() * 2);
 }
 
-void KRatingWidget::resizeEvent(QResizeEvent *e) { QFrame::resizeEvent(e); }
+void KRatingWidget::resizeEvent(QResizeEvent *e) {
+  QFrame::resizeEvent(e);
+}

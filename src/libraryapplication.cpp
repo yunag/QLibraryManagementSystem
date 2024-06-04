@@ -1,6 +1,5 @@
 #include <QMessageBox>
 #include <QSettings>
-#include <QSqlError>
 #include <QThread>
 
 #include <QMovie>
@@ -10,6 +9,11 @@
 
 LibraryApplication::LibraryApplication(int &argc, char **argv)
     : QApplication(argc, argv) {
+
+  setOrganizationName("LibraryManagementOrganization");
+  setOrganizationDomain("LibraryManagementDomain");
+  setApplicationName("LibraryManagementSystem");
+
   /* Format debug messages */
   qSetMessagePattern(
     "[%{time yyyy/MM/dd h:mm:ss.zzz} "
@@ -18,44 +22,14 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
 
   /* INFO: For debug purposes */
   QThread::currentThread()->setObjectName("Main Thread");
-  setStyle("fusion");
+  setStyle("windowsvista");
 
   QFont appFont = font();
   appFont.setPointSize(10);
   setFont(appFont);
 
-  setupSettings();
-
   setHighDpiScaleFactorRoundingPolicy(
     Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
-}
-
-void LibraryApplication::setupSettings() {
-  QSettings settings;
-
-  /* TODO: Copy config to build dir */
-  QString configPath = applicationDirPath() + "/../..";
-
-  setOrganizationName("LibraryManagementOrganization");
-  setOrganizationDomain("LibraryManagementDomain");
-  setApplicationName("LibraryManagementSystem");
-
-  QSettings::setDefaultFormat(QSettings::IniFormat);
-  QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configPath);
-}
-
-/* TODO: Move it to resource manager class */
-QSharedPointer<QMovie> LibraryApplication::busyIndicator() {
-  QSharedPointer<QMovie> movie = m_loadingMovie.lock();
-  if (movie) {
-    return movie;
-  }
-
-  return m_loadingMovie = QSharedPointer<QMovie>(
-           new QMovie(":/images/LoadingSpinner.gif"), [](QMovie *movie) {
-    movie->stop();
-    movie->deleteLater();
-  });
 }
 
 int LibraryApplication::run() {

@@ -18,8 +18,7 @@ public:
 
   void clear();
 
-  void appendRow(QStandardItem *item, const QUrl &url,
-                 QSharedPointer<QMovie> movie);
+  void appendRow(QStandardItem *item, const QUrl &url);
   QVariant data(const QModelIndex &index,
                 int role = Qt::DisplayRole) const override;
 

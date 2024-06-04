@@ -18,7 +18,7 @@ BookData BookData::fromJson(const QJsonObject &json) {
 
   if (!json["cover_url"].isNull()) {
     QString path = "/" + json["cover_url"].toString();
-    QUrl coverUrl = App->network()->url();
+    QUrl coverUrl = ResourceManager::networkManager()->url();
     coverUrl.setPath(path);
     bookData.coverUrl = coverUrl;
   }
@@ -52,6 +52,12 @@ Author Author::fromJson(const QJsonObject &json) {
   author.id = json["id"].toVariant().toUInt();
   author.firstName = json["first_name"].toString();
   author.lastName = json["last_name"].toString();
+  author.imageUrl = json["last_name"].toString();
+
+  /* TODO: Remove after testing */
+  author.imageUrl =
+    "https://static.wikia.nocookie.net/kiminonawa/images/6/62/"
+    "Kimi-no-Na-wa.-Visual.jpg/revision/latest?cb=20160927170951";
 
   return author;
 }

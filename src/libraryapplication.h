@@ -3,11 +3,9 @@
 
 #include <QApplication>
 
-#include "network/network.h"
+#include "resourcemanager.h"
 
 #define App (dynamic_cast<LibraryApplication *>(qApp))
-
-class QSqlError;
 
 class LibraryApplication : public QApplication {
 public:
@@ -16,17 +14,10 @@ public:
   static int run();
 
 public:
-  RestApiManager *network() { return &m_networkManager; }
-
-  QSharedPointer<QMovie> busyIndicator();
+  ResourceManager *resourceManager() { return &m_resourceManager; }
 
 private:
-  static void setupSettings();
-
-private:
-  RestApiManager m_networkManager;
-
-  QWeakPointer<QMovie> m_loadingMovie;
+  ResourceManager m_resourceManager;
 };
 
 #endif  // LIBRARYAPPLICATION_H

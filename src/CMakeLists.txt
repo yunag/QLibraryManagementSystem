@@ -67,13 +67,16 @@ set(PROJECT_SOURCES
     paginationwidget.cpp
     elidedlabel.h
     elidedlabel.cpp
+    resourcemanager.h
+    resourcemanager.cpp
     ${PROJECT_FORMS}
     ${PROJECT_DAO_SOURCES})
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Sql Concurrent Network Svg)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Concurrent Network Svg)
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
+# BUG: Do not use Ninja (https://gitlab.kitware.com/cmake/cmake/-/issues/16776)
 set_target_properties(
   ${PROJECT_NAME}
   PROPERTIES AUTOMOC ON
@@ -88,7 +91,7 @@ add_subdirectory(schema)
 add_subdirectory(common)
 add_subdirectory(controllers)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Sql Qt6::Network Qt6::Concurrent Qt6::Svg kwidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Network Qt6::Concurrent Qt6::Svg kwidgets)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 

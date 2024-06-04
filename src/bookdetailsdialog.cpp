@@ -8,7 +8,6 @@
 #include "common/widgetutils.h"
 
 #include "bookdetailsdialog.h"
-#include "libraryapplication.h"
 #include "ui_bookdetailsdialog.h"
 
 #include "smoothscrollbar.h"
@@ -70,12 +69,11 @@ void BookDetailsDialog::setupList(QListView *listView) {
 QStandardItem *BookDetailsDialog::addItem(LoadingModel *model, const QUrl &url,
                                           const QString &text) {
   auto *item = new QStandardItem(text);
-  auto movie = App->busyIndicator();
 
   item->setFlags(item->flags() & ~Qt::ItemIsEditable);
   item->setTextAlignment(Qt::AlignBaseline | Qt::AlignHCenter);
   item->setSizeHint(kItemSize);
-  model->appendRow(item, url, movie);
+  model->appendRow(item, url);
 
   return item;
 }

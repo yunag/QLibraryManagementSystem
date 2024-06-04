@@ -1,9 +1,9 @@
 #include "authorbookcontroller.h"
-#include "libraryapplication.h"
+#include "resourcemanager.h"
 
 QFuture<QByteArray> AuthorBookController::createRelation(quint32 authorId,
                                                          quint32 bookId) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   QString apiRoute = "/api/authors/%1/books/%2";
 
@@ -14,7 +14,7 @@ QFuture<QByteArray> AuthorBookController::createRelation(quint32 authorId,
 
 QFuture<QByteArray> AuthorBookController::deleteRelation(quint32 authorId,
                                                          quint32 bookId) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   QString apiRoute = "/api/authors/%1/books/%2";
 
@@ -27,7 +27,7 @@ QFuture<QByteArray> AuthorBookController::deleteRelation(quint32 authorId,
 QFuture<QByteArray>
 AuthorBookController::updateRelations(quint32 bookId,
                                       const QList<quint32> &authorsId) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   QString apiRoute = "/api/books/%1/authors";
 

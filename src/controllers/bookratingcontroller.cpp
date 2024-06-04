@@ -1,10 +1,10 @@
 #include "controllers/bookratingcontroller.h"
-#include "libraryapplication.h"
+#include "resourcemanager.h"
 
 #include "network/network.h"
 
 QFuture<QByteArray> BookRatingController::rateBook(quint32 bookId, int rating) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   QString apiRoute = "/api/books/%1/rating";
   QVariantMap values;

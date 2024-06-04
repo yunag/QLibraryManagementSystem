@@ -6,7 +6,5 @@ target_sources(
           future.h
           json.cpp
           json.h
-          resourcemanager.cpp
-          resourcemanager.h
           widgetutils.cpp
           widgetutils.h)

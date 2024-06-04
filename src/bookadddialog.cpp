@@ -15,6 +15,7 @@
 #include "controllers/bookcontroller.h"
 #include "controllers/categorycontroller.h"
 
+#include "common/algorithm.h"
 #include "common/error.h"
 #include "common/future.h"
 #include "common/json.h"
@@ -42,20 +43,13 @@ BookAddDialog::~BookAddDialog() {
 
 template <typename T>
 QList<quint32> grabIds(const QList<T> &list) {
-  QList<quint32> ids;
-  for (const auto &item : list) {
-    ids << item.id;
-  }
-  return ids;
+  return algorithm::transform<QList<quint32>>(
+    list, [](const T &item) { return item.id; });
 }
 
 QList<quint32> grabIds(const QList<QStandardItem *> &items) {
-  QList<quint32> ids;
-  for (QStandardItem *item : items) {
-    ids << item->data().toUInt();
-  }
-
-  return ids;
+  return algorithm::transform<QList<quint32>>(
+    items, [](const QStandardItem *item) { return item->data().toUInt(); });
 }
 
 void BookAddDialog::accept() {
@@ -120,32 +114,28 @@ void BookAddDialog::open() {
 QFuture<void> BookAddDialog::fetchAuthors() {
   return AuthorController::getAuthors().then(
     this, [this](const QList<Author> &authors) {
-    QList<QStandardItem *> authorsItem;
-    for (const auto &author : authors) {
-      auto *authorItem =
-        new QStandardItem(author.firstName + " " + author.lastName);
+    auto items = algorithm::transform<QList<QStandardItem *>>(
+      authors, [](const Author &author) {
+      auto *item = new QStandardItem(author.firstName + " " + author.lastName);
+      item->setData(author.id);
+      return item;
+    });
 
-      authorItem->setData(author.id);
-      authorsItem.push_back(authorItem);
-    }
-
-    ui->authors->addItems(authorsItem);
+    ui->authors->addItems(items);
   });
 }
 
 QFuture<void> BookAddDialog::fetchCategories() {
   return CategoryController::getCategories().then(
     [this](const QList<Category> &categories) {
-    QList<QStandardItem *> categoriesItems;
+    auto items = algorithm::transform<QList<QStandardItem *>>(
+      categories, [](const Category &category) {
+      auto *item = new QStandardItem(category.name);
+      item->setData(category.id);
+      return item;
+    });
 
-    for (const auto &category : categories) {
-      auto *categoryItem = new QStandardItem(category.name);
-
-      categoryItem->setData(category.id);
-      categoriesItems.push_back(categoryItem);
-    }
-
-    ui->categories->addItems(categoriesItems);
+    ui->categories->addItems(items);
   });
 }
 
@@ -153,6 +143,7 @@ void BookUpdateStrategy::onOpen() {
   Ui::BookAddDialog *ui = m_dialog->ui;
 
   auto authorsId = grabIds(m_bookData.authors);
+
   for (auto *const item : ui->authors->leftList()) {
     quint32 authorId = item->data().toUInt();
 

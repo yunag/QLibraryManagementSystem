@@ -10,7 +10,7 @@
 #include "common/json.h"
 
 #include "bookcontroller.h"
-#include "libraryapplication.h"
+#include "resourcemanager.h"
 
 QHttpPart createHttpPart(QHttpMultiPart *multiPart, const QString &name,
                          const QByteArray &body) {
@@ -70,7 +70,7 @@ QHttpMultiPart *createMultiPart(const Book &book) {
 }
 
 QFuture<quint32> BookController::createBook(const Book &book) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   QHttpMultiPart *multiPart = createMultiPart(book);
 
@@ -83,7 +83,7 @@ QFuture<quint32> BookController::createBook(const Book &book) {
 }
 
 QFuture<BookData> BookController::getBookById(quint32 bookId) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   auto [future, reply] = manager->get("/api/books/" + QString::number(bookId));
 
@@ -95,7 +95,7 @@ QFuture<BookData> BookController::getBookById(quint32 bookId) {
 }
 
 QFuture<QByteArray> BookController::updateBook(const Book &book) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   QHttpMultiPart *multiPart = createMultiPart(book);
 
@@ -105,7 +105,7 @@ QFuture<QByteArray> BookController::updateBook(const Book &book) {
 }
 
 QFuture<QByteArray> BookController::deleteBookById(quint32 bookId) {
-  RestApiManager *manager = App->network();
+  RestApiManager *manager = ResourceManager::networkManager();
 
   auto [future, reply] =
     manager->deleteResource("/api/books/" + QString::number(bookId));

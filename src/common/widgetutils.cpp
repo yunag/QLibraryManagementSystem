@@ -3,7 +3,7 @@
 #include "network/imageloader.h"
 #include "network/network.h"
 
-#include "libraryapplication.h"
+#include "resourcemanager.h"
 #include "widgetutils.h"
 
 ReplyPointer WidgetUtils::asyncLoadImage(AspectRatioLabel *label,
@@ -15,29 +15,31 @@ ReplyPointer WidgetUtils::asyncLoadImage(AspectRatioLabel *label,
     return nullptr;
   }
 
-  QSharedPointer<QMovie> movie = App->busyIndicator();
-  movie->start();
+  auto busyIndicator = ResourceManager::busyIndicator();
+  busyIndicator->start();
 
-  QMovie *movieRaw = movie.get();
+  QMovie *busyIndicatorRaw = busyIndicator.get();
 
-  QObject::connect(movieRaw, &QMovie::frameChanged, label, [movieRaw, label]() {
-    label->setPixmap(movieRaw->currentPixmap());
+  QObject::connect(busyIndicatorRaw, &QMovie::frameChanged, label,
+                   [busyIndicatorRaw, label]() {
+    label->setPixmap(busyIndicatorRaw->currentPixmap());
   });
 
-  RestApiManager *networkManager = App->network();
-  ImageLoader imageLoader(networkManager);
+  ImageLoader imageLoader(ResourceManager::networkManager());
 
   auto [future, reply] = imageLoader.load(url);
 
   future
     .then(label,
-          [label, movie](const QPixmap &image) {
-    QObject::disconnect(movie.get(), &QMovie::frameChanged, label, nullptr);
+          [label, busyIndicator](const QPixmap &image) {
+    QObject::disconnect(busyIndicator.get(), &QMovie::frameChanged, label,
+                        nullptr);
     label->setPixmap(image);
   })
     .onFailed(label, [label, notFoundPixmap = std::move(notFoundPixmap),
-                      movie](const NetworkError &err) {
-    QObject::disconnect(movie.get(), &QMovie::frameChanged, label, nullptr);
+                      busyIndicator](const NetworkError &err) {
+    QObject::disconnect(busyIndicator.get(), &QMovie::frameChanged, label,
+                        nullptr);
     if (err.type() != QNetworkReply::OperationCanceledError) {
       label->setPixmap(notFoundPixmap);
     }

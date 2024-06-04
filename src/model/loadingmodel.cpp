@@ -22,32 +22,31 @@ QVariant LoadingModel::data(const QModelIndex &index, int role) const {
   }
 }
 
-void LoadingModel::appendRow(QStandardItem *item, const QUrl &url,
-                             QSharedPointer<QMovie> movie) {
+void LoadingModel::appendRow(QStandardItem *item, const QUrl &url) {
   QStandardItemModel::appendRow(item);
 
   QPersistentModelIndex persistentIndex = item->index();
 
-  RestApiManager *manager = App->network();
-  ImageLoader imageLoader(manager);
+  auto busyIndicator = ResourceManager::busyIndicator();
+  ImageLoader imageLoader(ResourceManager::networkManager());
 
-  movie->start();
+  busyIndicator->start();
 
-  connect(movie.get(), &QMovie::frameChanged, this,
+  connect(busyIndicator.get(), &QMovie::frameChanged, this,
           [this, persistentIndex](int) {
     emit dataChanged(persistentIndex, persistentIndex, {Qt::DecorationRole});
   });
 
   auto [future, reply] = imageLoader.load(url);
 
-  Data data{movie, future, reply};
+  Data data{busyIndicator, future, reply};
 
   m_data.insert(persistentIndex, data);
 
   future.then(this, [item](const QPixmap &image) { item->setIcon(image); })
     .onFailed(this, [item] {
     item->setIcon(QPixmap(":/images/DefaultBookCover"));
-  }).then(this, [this, persistentIndex, movie]() {
+  }).then(this, [this, persistentIndex, busyIndicator]() {
     auto it = m_data.find(persistentIndex);
     if (it != m_data.end()) {
       m_data.erase(it);

@@ -1,7 +1,12 @@
 #ifndef AUTHORSECTION_H
 #define AUTHORSECTION_H
 
+#include <QTimer>
 #include <QWidget>
+
+class AuthorRestModel;
+class AuthorAddDialog;
+class AuthorSectionSearchFilterDialog;
 
 namespace Ui {
 class AuthorSection;
@@ -14,8 +19,36 @@ public:
   explicit AuthorSection(QWidget *parent = nullptr);
   ~AuthorSection() override;
 
+  void loadAuthors();
+
+signals:
+  void authorDetailsRequested(quint32 authorId);
+
+protected:
+  void resizeEvent(QResizeEvent *event) override;
+
+private slots:
+  void reloadPage();
+  void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+
+  void synchronizeNowButtonClicked();
+  void searchTextChanged(const QString &text);
+  void addButtonClicked();
+  void showDetailsButtonClicked();
+  void updateButtonClicked();
+  void deleteButtonClicked();
+
+private:
+  void updateLastSync();
+  void setAuthorsCount(int count);
+
 private:
   Ui::AuthorSection *ui;
+
+  QTimer m_loadPageTimer;
+  AuthorRestModel *m_model;
+  AuthorAddDialog *m_authorAddDialog;
+  AuthorSectionSearchFilterDialog *m_searchFilterDialog;
 };
 
 #endif  // AUTHORSECTION_H

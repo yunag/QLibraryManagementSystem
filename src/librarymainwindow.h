@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 class BookSection;
+class AuthorSection;
 class LoginForm;
 class BookDetailsDialog;
 class AuthorDetailsDialog;
@@ -24,9 +25,10 @@ public:
 signals:
   void closed();
 
-public slots:
+private slots:
   void onLogged();
   void booksButtonClicked();
+  void authorsButtonClicked();
 
 protected:
   void closeEvent(QCloseEvent *event) override;
@@ -38,7 +40,8 @@ private:
   AuthorDetailsDialog *m_authorDetails;
 
   LoginForm *m_loginForm;
-  BookSection *m_booksSection;
+  BookSection *m_bookSection;
+  AuthorSection *m_authorSection;
 };
 
 #endif  // LIBRARYMAINWINDOW_H

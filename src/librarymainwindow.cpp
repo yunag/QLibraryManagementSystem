@@ -1,12 +1,13 @@
 #include <QScreen>
 
-#include "booksection.h"
 #include "librarymainwindow.h"
 #include "loginform.h"
 #include "ui_librarymainwindow.h"
 
 #include "authordetailsdialog.h"
+#include "authorsection.h"
 #include "bookdetailsdialog.h"
+#include "booksection.h"
 
 LibraryMainWindow::LibraryMainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::LibraryMainWindow), m_loginForm(nullptr) {
@@ -14,6 +15,8 @@ LibraryMainWindow::LibraryMainWindow(QWidget *parent)
 
   connect(ui->booksButton, &QPushButton::clicked, this,
           &LibraryMainWindow::booksButtonClicked);
+  connect(ui->authorsButton, &QPushButton::clicked, this,
+          &LibraryMainWindow::authorsButtonClicked);
 }
 
 LibraryMainWindow::~LibraryMainWindow() {
@@ -36,7 +39,8 @@ void LibraryMainWindow::onLogged() {
   resize(screenRect.width() * 3 / 4, screenRect.height() * 3 / 4);
   show();
 
-  m_booksSection = new BookSection(this);
+  m_bookSection = new BookSection(this);
+  m_authorSection = new AuthorSection(this);
   m_bookDetails = new BookDetailsDialog;
   m_authorDetails = new AuthorDetailsDialog;
 
@@ -54,30 +58,42 @@ void LibraryMainWindow::onLogged() {
     m_bookDetails->activateWindow();
     m_bookDetails->raise();
   };
-
-  connect(m_booksSection, &BookSection::bookDetailsRequested, this,
-          showBookDetails);
-
-  connect(m_authorDetails, &AuthorDetailsDialog::bookDetailsRequested, this,
-          showBookDetails);
-
-  connect(m_bookDetails, &BookDetailsDialog::authorDetailsRequested, this,
-          [this](quint32 authorId) {
+  auto showAuthorDetails = [this](quint32 authorId) {
     m_authorDetails->showDetails(authorId);
     m_authorDetails->activateWindow();
     m_authorDetails->raise();
-  });
+  };
 
-  ui->display->addWidget(m_booksSection);
+  connect(m_bookSection, &BookSection::bookDetailsRequested, this,
+          showBookDetails);
+  connect(m_authorSection, &AuthorSection::authorDetailsRequested, this,
+          showAuthorDetails);
+
+  connect(m_authorDetails, &AuthorDetailsDialog::bookDetailsRequested, this,
+          showBookDetails);
+  connect(m_bookDetails, &BookDetailsDialog::authorDetailsRequested, this,
+          showAuthorDetails);
+
+  ui->display->addWidget(m_bookSection);
+  ui->display->addWidget(m_authorSection);
 }
 
 void LibraryMainWindow::booksButtonClicked() {
-  if (ui->display->currentWidget() == m_booksSection) {
+  if (ui->display->currentWidget() == m_bookSection) {
     return;
   }
 
-  ui->display->setCurrentWidget(m_booksSection);
-  m_booksSection->loadBooks();
+  ui->display->setCurrentWidget(m_bookSection);
+  m_bookSection->loadBooks();
+}
+
+void LibraryMainWindow::authorsButtonClicked() {
+  if (ui->display->currentWidget() == m_authorSection) {
+    return;
+  }
+
+  ui->display->setCurrentWidget(m_authorSection);
+  //m_authorSection->loadAuthors();
 }
 
 void LibraryMainWindow::closeEvent(QCloseEvent *event) {

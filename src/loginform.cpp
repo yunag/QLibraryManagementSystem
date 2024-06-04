@@ -10,7 +10,8 @@
 #include "libraryapplication.h"
 
 LoginForm::LoginForm(QWidget *parent)
-    : QWidget(parent), ui(new Ui::LoginForm), m_authentication(App->network()) {
+    : QWidget(parent), ui(new Ui::LoginForm),
+      m_authentication(ResourceManager::networkManager()) {
   ui->setupUi(this);
 
   ui->port->setValidator(new QIntValidator(0, 65535, this));
