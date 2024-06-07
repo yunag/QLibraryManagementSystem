@@ -186,15 +186,16 @@ void BookCard::paint(QPainter *painter, const QStyleOptionViewItem &option,
   buttonOpt.iconSize = buttonOpt.rect.size();
   buttonOpt.icon = QIcon(":/icons/link-horizontal.svg");
 
-  QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOpt,
-                                     painter);
+  QStyle *style =
+    option.widget ? option.widget->style() : QApplication::style();
+  style->drawControl(QStyle::CE_PushButton, &buttonOpt, painter);
 
   m_ratingPainter->paint(painter, l.rating, m_rating, hoverRating);
 
   painter->restore();
 }
 
-QSize BookCard::sizeHint() const {
+QSize BookCard::sizeHint() {
   /* NOTE: hardcoded value */
   return {420, 250};
 }

@@ -11,8 +11,8 @@ public:
   UserAuthentication(RestApiManager *networkManager)
       : m_manager(networkManager) {}
 
-  QFuture<void> login(const QUrl &host, const QString &username,
-                      const QString &password);
+  QFuture<QByteArray> login(const QUrl &host, const QString &username,
+                            const QString &password);
   QFuture<void> registerUser(const QUrl &host, const QString &username,
                              const QString &password);
 

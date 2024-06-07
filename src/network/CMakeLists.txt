@@ -6,4 +6,6 @@ target_sources(
           network.h
           networkerror.h
           userauthentication.cpp
-          userauthentication.h)
+          userauthentication.h
+          httpmultipart.h
+          httpmultipart.cpp)

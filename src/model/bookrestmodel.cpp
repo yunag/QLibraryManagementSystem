@@ -24,14 +24,13 @@ int BookRestModel::rowCount(const QModelIndex &parent) const {
 int BookRestModel::columnCount(const QModelIndex &parent) const {
   CHECK_COLUMNCOUNT(parent);
 
-  return Last + 1;
+  return LastHeader + 1;
 }
 
 bool BookRestModel::canFetchMore(const QModelIndex &parent) const {
   CHECK_CANFETCHMORE(parent);
 
-  return m_booksCount < m_pagination->perPage() &&
-         m_booksCount < m_pagination->totalCount();
+  return m_booksCount < m_bookCards.size();
 }
 
 void BookRestModel::fetchMore(const QModelIndex &parent) {
@@ -128,7 +127,6 @@ QVariant BookRestModel::data(const QModelIndex &index, int role) const {
     default:
       return {};
   }
-  return {};
 }
 
 void BookRestModel::onBookData(const BookData &bookData) {
@@ -204,13 +202,13 @@ void BookRestModel::shouldFetchImages(bool shouldFetchImages) {
     return;
   }
 
-  for (int i = 0; i < rowCount(); ++i) {
-    BookCard &card = m_bookCards[i];
+  for (int row = 0; row < rowCount(); ++row) {
+    BookCard &card = m_bookCards[row];
 
     if (card.cover().isNull()) {
       auto busyIndicator = ResourceManager::busyIndicator();
 
-      processImageUrl(i, card.coverUrl(), busyIndicator, CoverRole);
+      processImageUrl(row, card.coverUrl(), busyIndicator, CoverRole);
       card.setBusyIndicator(ResourceManager::busyIndicator());
     }
   }
@@ -264,5 +262,5 @@ void BookRestModel::reset() {
   m_bookCards.clear();
   m_booksCount = 0;
 
-  beginResetModel();
+  endResetModel();
 }

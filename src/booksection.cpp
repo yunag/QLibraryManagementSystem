@@ -18,7 +18,7 @@
 #include "delegate/tableratingdelegate.h"
 
 #include "bookadddialog.h"
-#include "searchfilterdialog.h"
+#include "booksearchfilterdialog.h"
 
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection),
@@ -44,6 +44,7 @@ BookSection::BookSection(QWidget *parent)
   m_model->shouldFetchImages(true);
   m_model->setPagination(pagination);
 
+  ui->bookListView->setItemSize(BookCard::sizeHint());
   ui->bookListView->setModel(m_model);
   ui->bookListView->setItemDelegate(new BookCardDelegate);
 
@@ -72,20 +73,7 @@ BookSection::BookSection(QWidget *parent)
   buttonGroup->addButton(ui->tableViewButton);
 
   connect(buttonGroup, &QButtonGroup::buttonToggled, this,
-          [this](QAbstractButton *button, bool checked) {
-    if (!checked) {
-      return;
-    }
-
-    if (button == ui->gridViewButton) {
-      m_model->shouldFetchImages(true);
-      ui->stackedWidget->setCurrentWidget(ui->gridViewPage);
-      distributeGridSize();
-    } else {
-      m_model->shouldFetchImages(false);
-      ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
-    }
-  });
+          &BookSection::viewChangeButtonToggled);
 
   /* BUG: https://bugreports.qt.io/browse/QTBUG-99476 
    * Setting scrollbar will break signals between view and scroll
@@ -98,6 +86,10 @@ BookSection::BookSection(QWidget *parent)
 
   ui->bookListView->setAcceptDrops(false);
   ui->bookListView->setDragDropMode(QAbstractItemView::NoDragDrop);
+
+  QSettings settings;
+  ui->splitter->restoreState(
+    settings.value("booksection/splitter").toByteArray());
 
   QAction *action = ui->searchLineEdit->addAction(QIcon(":/icons/searchIcon"),
                                                   QLineEdit::LeadingPosition);
@@ -114,16 +106,7 @@ BookSection::BookSection(QWidget *parent)
   connect(m_model, &BookRestModel::filtersChanged, this,
           handleSortFilterChange);
 
-  connect(m_model, &BookRestModel::dataChanged, this,
-          [this](const QModelIndex &topLeft, const QModelIndex & /*topRight*/,
-                 const QList<int> &roles) {
-    const QModelIndex &index = topLeft;
-
-    if (roles.contains(BookRestModel::RatingRole)) {
-      const BookCard &bookCard = m_model->get(index.row());
-      BookRatingController::rateBook(bookCard.bookId(), bookCard.rating());
-    }
-  });
+  connect(m_model, &BookRestModel::dataChanged, this, &BookSection::bookRated);
 
   connect(pagination, &Pagination::currentPageChanged, m_model,
           [this](int page) { reloadPage(); });
@@ -154,6 +137,8 @@ BookSection::BookSection(QWidget *parent)
 }
 
 BookSection::~BookSection() {
+  QSettings settings;
+  settings.setValue("booksection/splitter", ui->splitter->saveState());
   delete ui;
 }
 
@@ -167,9 +152,7 @@ void BookSection::updateLastSync() {
 void BookSection::loadBooks() {
   updateLastSync();
 
-  connect(m_model, &BookRestModel::reloadFinished, this,
-          &BookSection::distributeGridSize, Qt::SingleShotConnection);
-  m_model->reload();
+  reloadPage();
 }
 
 void BookSection::synchronizeNowButtonClicked() {
@@ -181,12 +164,6 @@ void BookSection::addButtonClicked() {
   m_bookAddDialog->createBook();
 }
 
-void BookSection::resizeEvent(QResizeEvent *event) {
-  QWidget::resizeEvent(event);
-
-  distributeGridSize();
-}
-
 void BookSection::searchTextChanged(const QString &text) {
   QVariantMap filters = m_model->filters();
   if (!text.isEmpty()) {
@@ -196,47 +173,6 @@ void BookSection::searchTextChanged(const QString &text) {
   }
 
   m_model->setFilters(filters);
-}
-
-void BookSection::distributeGridSize() {
-  QListView *bookList = ui->bookListView;
-
-  QModelIndex index = m_model->index(0);
-  if (!index.isValid()) {
-    return;
-  }
-
-  auto bookCard = index.data().value<BookCard>();
-  QSize itemSize = bookCard.sizeHint();
-
-  /* NOTE: scrollbar->width() will report wrong value  
-   * which is necessary for calculating currently available viewport
-   * width. See https://stackoverflow.com/questions/16515646/how-to-get-scroll-bar-real-width-in-qt
-   */
-  int scrollBarWidth = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-
-  if (bookList->verticalScrollBar()->isVisible()) {
-    scrollBarWidth = bookList->verticalScrollBar()->width();
-  }
-
-  int itemWidth = itemSize.width();
-  int itemHeight = itemSize.height();
-
-  int viewportWidth = bookList->width() - scrollBarWidth;
-
-  int numItemsInRow = viewportWidth / itemWidth;
-  if (numItemsInRow) {
-    int totalItemsWidth = numItemsInRow * itemWidth;
-
-    int remaindedWidth = viewportWidth - totalItemsWidth;
-    int evenlyDistributedWidth = remaindedWidth / numItemsInRow;
-
-    const int extraHOffset = -3;
-    const int extraVSpace = 6;
-    QSize newGridSize(itemWidth + evenlyDistributedWidth + extraHOffset,
-                      itemHeight + extraVSpace);
-    bookList->setGridSize(newGridSize);
-  }
 }
 
 void BookSection::setBooksCount(qint32 booksCount) {
@@ -300,5 +236,36 @@ void BookSection::showDetailsButtonClicked() {
   quint32 bookId = ui->bookId->text().toUInt(&converted);
   if (converted) {
     emit bookDetailsRequested(bookId);
+  }
+}
+
+void BookSection::viewChangeButtonToggled(QAbstractButton *button,
+                                          bool checked) {
+  if (!checked) {
+    return;
+  }
+
+  if (button == ui->gridViewButton) {
+    m_model->shouldFetchImages(true);
+    /* NOTE: Even if it's not visible it will call `fetchMore`
+     * more times than necessary. This line `fixes` the problem 
+     */
+    ui->bookTableView->setMaximumSize(0, 0);
+    ui->stackedWidget->setCurrentWidget(ui->gridViewPage);
+  } else {
+    m_model->shouldFetchImages(false);
+    ui->bookTableView->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
+  }
+}
+
+void BookSection::bookRated(const QModelIndex &topLeft,
+                            const QModelIndex & /*topRight*/,
+                            const QList<int> &roles) {
+  const QModelIndex &index = topLeft;
+
+  if (roles.contains(BookRestModel::RatingRole)) {
+    const BookCard &bookCard = m_model->get(index.row());
+    BookRatingController::rateBook(bookCard.bookId(), bookCard.rating());
   }
 }

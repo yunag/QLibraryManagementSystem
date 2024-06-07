@@ -45,6 +45,9 @@ public:
   QString orderBy() const;
   void setOrderBy(const QString &newOrderBy);
 
+private slots:
+  void onBusyIndicatorFrameChanged(int frame);
+
 signals:
   void reloadFinished();
   void restManagerChanged();

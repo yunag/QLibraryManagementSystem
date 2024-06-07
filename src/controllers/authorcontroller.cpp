@@ -26,3 +26,16 @@ QFuture<QList<Author>> AuthorController::getAuthors() {
     return authors;
   });
 }
+
+QFuture<quint32> AuthorController::createAuthor(const Author &author) {
+  RestApiManager *manager = ResourceManager::networkManager();
+
+  QHttpMultiPart *multiPart = author.createHttpMultiPart();
+
+  auto [future, reply] = manager->post("/api/authors", multiPart);
+
+  return future.then([](const QByteArray &data) {
+    QJsonDocument json = *json::byteArrayToJson(data);
+    return json["id"].toVariant().toUInt();
+  });
+}

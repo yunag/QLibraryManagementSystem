@@ -2,9 +2,15 @@
 #define AUTHORRESTMODEL_H
 
 #include <QMovie>
+#include <QPixmap>
 
 #include "abstractrestmodel.h"
 #include "schema/author.h"
+
+struct AuthorItem : public Author {
+  AuthorItem(Author author) : Author(std::move(author)) {};
+  QPixmap image;
+};
 
 class AuthorRestModel : public AbstractRestModel {
   Q_OBJECT
@@ -51,9 +57,11 @@ public:
   void reset();
 
   QVariant data(const QModelIndex &index, int role) const override;
+  bool setData(const QModelIndex &index, const QVariant &value,
+               int role) override;
 
 private:
-  QList<Author> m_authors;
+  QList<AuthorItem> m_authors;
 
   bool m_shouldFetchImages;
   int m_authorsCount;

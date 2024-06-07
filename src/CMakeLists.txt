@@ -1,18 +1,16 @@
 set(PROJECT_FORMS
     forms/loginform.ui
     forms/bookadddialog.ui
-    forms/bookcard.ui
     forms/booksection.ui
     forms/librarymainwindow.ui
     forms/librarysidemenu.ui
-    forms/searchfilterdialog.ui
+    forms/booksearchfilterdialog.ui
     forms/twowaylist.ui
     forms/bookdetailsdialog.ui
     forms/authordetailsdialog.ui
+    forms/authoradddialog.ui
     forms/authorsection.ui
     forms/pagination.ui)
-
-set(PROJECT_DAO_SOURCES dao/authordetailsdao.h dao/authordetailsdao.cpp)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -51,8 +49,8 @@ set(PROJECT_SOURCES
     twowaylist.h
     loginform.h
     loginform.cpp
-    searchfilterdialog.h
-    searchfilterdialog.cpp
+    booksearchfilterdialog.h
+    booksearchfilterdialog.cpp
     smoothscrollarea.h
     smoothscrollarea.cpp
     smoothscrollbar.h
@@ -65,12 +63,15 @@ set(PROJECT_SOURCES
     pagination.cpp
     paginationwidget.h
     paginationwidget.cpp
+    gridview.h
+    gridview.cpp
     elidedlabel.h
     elidedlabel.cpp
     resourcemanager.h
     resourcemanager.cpp
-    ${PROJECT_FORMS}
-    ${PROJECT_DAO_SOURCES})
+    authoradddialog.h
+    authoradddialog.cpp
+    ${PROJECT_FORMS})
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Concurrent Network Svg)
 

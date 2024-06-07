@@ -2,6 +2,7 @@
 #include <QJsonObject>
 
 #include "libraryapplication.h"
+#include "network/httpmultipart.h"
 
 #include "schema/schema.h"
 
@@ -69,4 +70,42 @@ Category Category::fromJson(const QJsonObject &json) {
   category.name = json["name"].toString();
 
   return category;
+}
+
+QHttpMultiPart *Book::createHttpMultiPart() const {
+  auto *multiPart = new HttpMultiPart(QHttpMultiPart::FormDataType);
+
+  if (!title.isNull()) {
+    multiPart->addPart("title", title.toUtf8());
+  }
+  if (!description.isNull()) {
+    multiPart->addPart("description", description.toUtf8());
+  }
+  if (coverUrl.isValid()) {
+    multiPart->addFilePart("cover", coverUrl.toLocalFile());
+  }
+  if (!publicationDate.isNull()) {
+    multiPart->addPart("publication_date",
+                       publicationDate.toString(Qt::ISODate).toUtf8());
+  }
+
+  multiPart->addPart("copies_owned", QByteArray::number(copiesOwned));
+
+  return multiPart;
+}
+
+QHttpMultiPart *Author::createHttpMultiPart() const {
+  auto *multiPart = new HttpMultiPart(QHttpMultiPart::FormDataType);
+
+  if (!firstName.isNull()) {
+    multiPart->addPart("first_name", firstName.toUtf8());
+  }
+  if (!lastName.isNull()) {
+    multiPart->addPart("last_name", lastName.toUtf8());
+  }
+  if (imageUrl.isValid()) {
+    multiPart->addFilePart("avatar", imageUrl.toLocalFile());
+  }
+
+  return multiPart;
 }

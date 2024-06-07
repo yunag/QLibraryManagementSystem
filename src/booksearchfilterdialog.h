@@ -6,7 +6,7 @@
 class BookRestModel;
 
 namespace Ui {
-class SearchFilterDialog;
+class BookSearchFilterDialog;
 }
 
 class SearchFilterDialog : public QDialog {
@@ -21,7 +21,7 @@ public:
   void accept() override;
 
 private:
-  Ui::SearchFilterDialog *ui;
+  Ui::BookSearchFilterDialog *ui;
   BookRestModel *m_model;
 };
 

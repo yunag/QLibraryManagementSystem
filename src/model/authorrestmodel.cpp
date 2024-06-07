@@ -1,3 +1,4 @@
+#include <QIcon>
 #include <QJsonArray>
 
 #include "common/algorithm.h"
@@ -15,8 +16,10 @@ AuthorRestModel::AuthorRestModel(QObject *parent)
 
 void AuthorRestModel::handleRequestData(const QByteArray &data) {
   QJsonArray authors = json::byteArrayToJson(data)->array();
-  m_authors = algorithm::transform<QList<Author>>(authors, [](auto authorJson) {
-    return Author::fromJson(authorJson.toObject());
+  m_authors =
+    algorithm::transform<QList<AuthorItem>>(authors, [](auto authorJson) {
+    AuthorItem author = Author::fromJson(authorJson.toObject());
+    return author;
   });
 
   fetchMore({});
@@ -24,12 +27,12 @@ void AuthorRestModel::handleRequestData(const QByteArray &data) {
 
 int AuthorRestModel::columnCount(const QModelIndex &parent) const {
   CHECK_COLUMNCOUNT(parent);
-  return LastHeader;
+  return LastHeader + 1;
 }
 
 int AuthorRestModel::rowCount(const QModelIndex &parent) const {
   CHECK_ROWCOUNT(parent);
-  return static_cast<int>(m_authors.size());
+  return m_authorsCount;
 }
 
 bool AuthorRestModel::removeRows(int row, int count,
@@ -46,8 +49,7 @@ bool AuthorRestModel::removeRows(int row, int count,
 bool AuthorRestModel::canFetchMore(const QModelIndex &parent) const {
   CHECK_CANFETCHMORE(parent);
 
-  return m_authorsCount < m_pagination->perPage() &&
-         m_authorsCount < m_pagination->totalCount();
+  return m_authorsCount < m_authors.size();
 }
 
 void AuthorRestModel::fetchMore(const QModelIndex &parent) {
@@ -92,13 +94,13 @@ void AuthorRestModel::shouldFetchImages(bool shouldFetchImages) {
     return;
   }
 
-  for (int i = 0; i < rowCount(); ++i) {
-    Author &author = m_authors[i];
+  for (int row = 0; row < rowCount(); ++row) {
+    AuthorItem &author = m_authors[row];
 
-    if (data(index(i), ImageRole).isNull()) {
+    if (author.image.isNull()) {
       auto busyIndicator = ResourceManager::busyIndicator();
 
-      processImageUrl(i, author.imageUrl, busyIndicator, ImageRole);
+      processImageUrl(row, author.imageUrl, busyIndicator, ImageRole);
     }
   }
 }
@@ -106,11 +108,13 @@ void AuthorRestModel::shouldFetchImages(bool shouldFetchImages) {
 QVariant AuthorRestModel::data(const QModelIndex &index, int role) const {
   CHECK_DATA(index);
 
-  const Author &author = m_authors.at(index.row());
+  const AuthorItem &author = m_authors.at(index.row());
 
   switch (role) {
     case Qt::DisplayRole:
       return dataForColumn(index);
+    case ImageRole:
+      return author.image;
     case IdRole:
       return author.id;
     case ImageUrlRole:
@@ -123,6 +127,29 @@ QVariant AuthorRestModel::data(const QModelIndex &index, int role) const {
     default:
       return {};
   }
+}
+
+bool AuthorRestModel::setData(const QModelIndex &index, const QVariant &value,
+                              int role) {
+  CHECK_DATA(index);
+
+  if (data(index, role) == value) {
+    return false;
+  }
+
+  AuthorItem &author = m_authors[index.row()];
+
+  switch (role) {
+    case ImageRole:
+      author.image = value.value<QPixmap>();
+      break;
+    default:
+      AbstractRestModel::setData(index, value, role);
+      break;
+  }
+
+  emit dataChanged(index, index, {role});
+  return true;
 }
 
 QVariant AuthorRestModel::dataForColumn(const QModelIndex &index) {
@@ -143,7 +170,7 @@ QVariant AuthorRestModel::headerData(int section, Qt::Orientation orientation,
   CHECK_HEADERDATA(section, orientation);
 
   if (role != Qt::DisplayRole || orientation == Qt::Vertical) {
-    return QAbstractListModel::headerData(section, orientation, role);
+    return AbstractRestModel::headerData(section, orientation, role);
   }
 
   switch (section) {

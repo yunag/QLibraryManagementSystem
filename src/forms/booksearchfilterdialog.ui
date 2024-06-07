@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SearchFilterDialog</class>
- <widget class="QDialog" name="SearchFilterDialog">
+ <class>BookSearchFilterDialog</class>
+ <widget class="QDialog" name="BookSearchFilterDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

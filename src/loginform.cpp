@@ -1,4 +1,5 @@
 #include <QKeyEvent>
+#include <QSettings>
 #include <QValidator>
 
 #include "common/error.h"
@@ -6,8 +7,7 @@
 #include "ui_loginform.h"
 
 #include "network/networkerror.h"
-
-#include "libraryapplication.h"
+#include "resourcemanager.h"
 
 LoginForm::LoginForm(QWidget *parent)
     : QWidget(parent), ui(new Ui::LoginForm),
@@ -48,10 +48,19 @@ void LoginForm::loginButtonClicked() {
   hostUrl.setPort(port);
   hostUrl.setScheme("http");
 
+  ui->loginButton->setDisabled(true);
   m_authentication.login(hostUrl, username, password)
-    .then([this]() {
+    .then([this, hostUrl](const QByteArray &token) {
+    if (ui->rememberMeCheckBox->isChecked()) {
+      QSettings settings;
+      settings.setValue("credentials/token", token);
+      settings.setValue("server/host", hostUrl.host());
+      settings.setValue("server/port", hostUrl.port());
+    }
+
     emit logged();
   }).onFailed(this, [this](const NetworkError &err) {
+    ui->loginButton->setEnabled(true);
     handleError(this, err);
   });
 }

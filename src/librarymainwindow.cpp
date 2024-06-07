@@ -1,4 +1,5 @@
 #include <QScreen>
+#include <QSettings>
 
 #include "librarymainwindow.h"
 #include "loginform.h"
@@ -8,6 +9,7 @@
 #include "authorsection.h"
 #include "bookdetailsdialog.h"
 #include "booksection.h"
+#include "resourcemanager.h"
 
 LibraryMainWindow::LibraryMainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::LibraryMainWindow), m_loginForm(nullptr) {
@@ -24,16 +26,35 @@ LibraryMainWindow::~LibraryMainWindow() {
 }
 
 void LibraryMainWindow::showLoginForm() {
-  m_loginForm = new LoginForm;
-  m_loginForm->setAttribute(Qt::WA_DeleteOnClose);
+  QSettings settings;
 
-  connect(m_loginForm, &LoginForm::logged, this, &LibraryMainWindow::onLogged);
+  if (settings.contains("credentials/token")) {
+    RestApiManager *restManager = ResourceManager::networkManager();
+    restManager->setBearerToken(
+      settings.value("credentials/token").toByteArray());
 
-  m_loginForm->show();
+    QUrl hostUrl;
+    hostUrl.setHost(settings.value("server/host").toString());
+    hostUrl.setPort(settings.value("server/port").toInt());
+    hostUrl.setScheme("http");
+
+    restManager->setUrl(hostUrl);
+    onLogged();
+  } else {
+    m_loginForm = new LoginForm;
+    m_loginForm->setAttribute(Qt::WA_DeleteOnClose);
+
+    connect(m_loginForm, &LoginForm::logged, this,
+            &LibraryMainWindow::onLogged);
+
+    m_loginForm->show();
+  }
 }
 
 void LibraryMainWindow::onLogged() {
-  m_loginForm->close();
+  if (m_loginForm) {
+    m_loginForm->close();
+  }
 
   QRect screenRect = QGuiApplication::primaryScreen()->geometry();
   resize(screenRect.width() * 3 / 4, screenRect.height() * 3 / 4);
@@ -93,7 +114,7 @@ void LibraryMainWindow::authorsButtonClicked() {
   }
 
   ui->display->setCurrentWidget(m_authorSection);
-  //m_authorSection->loadAuthors();
+  m_authorSection->loadAuthors();
 }
 
 void LibraryMainWindow::closeEvent(QCloseEvent *event) {

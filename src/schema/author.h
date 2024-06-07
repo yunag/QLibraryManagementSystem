@@ -4,6 +4,7 @@
 #include <QString>
 #include <QUrl>
 
+class QHttpMultiPart;
 class QJsonObject;
 
 struct Author {
@@ -13,6 +14,7 @@ struct Author {
   QUrl imageUrl;
 
   static Author fromJson(const QJsonObject &json);
+  QHttpMultiPart *createHttpMultiPart() const;
 };
 
 #endif  // AUTHOR_H

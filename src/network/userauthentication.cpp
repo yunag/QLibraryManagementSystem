@@ -3,9 +3,9 @@
 #include "network/network.h"
 #include "network/userauthentication.h"
 
-QFuture<void> UserAuthentication::login(const QUrl &host,
-                                        const QString &username,
-                                        const QString &password) {
+QFuture<QByteArray> UserAuthentication::login(const QUrl &host,
+                                              const QString &username,
+                                              const QString &password) {
   m_manager->setUrl(host);
 
   QVariantMap userFields;
@@ -19,6 +19,7 @@ QFuture<void> UserAuthentication::login(const QUrl &host,
     QString token = json["token"].toString();
 
     m_manager->setBearerToken(token.toUtf8());
+    return token.toUtf8();
   });
 }
 

@@ -58,13 +58,9 @@ void AbstractRestModel::processImageUrl(int row, const QUrl &url,
   if (busyIndicator) {
     busyIndicator->start();
 
-    disconnect(busyIndicator.get(), &QMovie::frameChanged, this, nullptr);
     connect(busyIndicator.get(), &QMovie::frameChanged, this,
-            [this, role](int) {
-      for (const auto &persistentIndex : m_imageReplies.keys()) {
-        emit dataChanged(persistentIndex, persistentIndex, {role});
-      }
-    });
+            &AbstractRestModel::onBusyIndicatorFrameChanged,
+            Qt::UniqueConnection);
   }
 
   auto handleImage = [this, persistentIndex, busyIndicator,
@@ -84,6 +80,12 @@ void AbstractRestModel::processImageUrl(int row, const QUrl &url,
       handleImage(defaultCover);
     }
   });
+}
+
+void AbstractRestModel::onBusyIndicatorFrameChanged(int /*frame*/) {
+  for (const auto &persistentIndex : m_imageReplies.keys()) {
+    emit dataChanged(persistentIndex, persistentIndex);
+  }
 }
 
 RestApiManager *AbstractRestModel::restManager() const {

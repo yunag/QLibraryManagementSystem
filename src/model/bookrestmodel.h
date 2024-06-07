@@ -21,7 +21,7 @@ public:
     AuthorsHeader,
     CategoriesHeader,
     RatingHeader,
-    Last = RatingHeader
+    LastHeader = RatingHeader
   };
 
   Q_ENUM(HorizontalSection);

@@ -4,6 +4,8 @@
 #include <QTimer>
 #include <QWidget>
 
+class QAbstractButton;
+
 class AuthorRestModel;
 class AuthorAddDialog;
 class AuthorSectionSearchFilterDialog;
@@ -24,9 +26,6 @@ public:
 signals:
   void authorDetailsRequested(quint32 authorId);
 
-protected:
-  void resizeEvent(QResizeEvent *event) override;
-
 private slots:
   void reloadPage();
   void currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -37,6 +36,7 @@ private slots:
   void showDetailsButtonClicked();
   void updateButtonClicked();
   void deleteButtonClicked();
+  void viewChangeButtonToggled(QAbstractButton *button, bool checked);
 
 private:
   void updateLastSync();

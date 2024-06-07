@@ -16,7 +16,7 @@ public:
 
   void paint(QPainter *painter, const QStyleOptionViewItem &option,
              int hoverRating) const;
-  QSize sizeHint() const;
+  static QSize sizeHint();
 
   void setCover(const QPixmap &pixmap);
   QPixmap cover() const;

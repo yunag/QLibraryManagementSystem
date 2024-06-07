@@ -8,6 +8,7 @@
 class AuthorController {
 public:
   static QFuture<QList<Author>> getAuthors();
+  static QFuture<quint32> createAuthor(const Author &author);
 };
 
 #endif /* !AUTHORCONTROLLER_H */

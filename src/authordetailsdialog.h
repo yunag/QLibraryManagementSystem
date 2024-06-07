@@ -3,7 +3,6 @@
 
 #include <QDialog>
 
-class AuthorDetailsDAO;
 class AuthorDetails;
 
 namespace Ui {
@@ -27,8 +26,8 @@ signals:
 private:
   void updateUi(const AuthorDetails &details);
 
+private:
   Ui::AuthorDetailsDialog *ui;
-  AuthorDetailsDAO *m_dao;
 };
 
 #endif  // AUTHORDETAILSDIALOG_H

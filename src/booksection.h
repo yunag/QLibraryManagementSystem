@@ -6,7 +6,7 @@
 
 #include <QTimer>
 
-class QStandardItemModel;
+class QAbstractButton;
 
 class BookCard;
 class BookCardData;
@@ -30,9 +30,6 @@ public:
 signals:
   void bookDetailsRequested(quint32 bookId);
 
-protected:
-  void resizeEvent(QResizeEvent *event) override;
-
 private slots:
   void reloadPage();
   void currentChanged(const QModelIndex &current, const QModelIndex &previous);
@@ -43,9 +40,11 @@ private slots:
   void showDetailsButtonClicked();
   void updateButtonClicked();
   void deleteButtonClicked();
+  void viewChangeButtonToggled(QAbstractButton *button, bool checked);
+  void bookRated(const QModelIndex &topLeft, const QModelIndex &topRight,
+                 const QList<int> &roles);
 
 private:
-  void distributeGridSize();
   void updateLastSync();
   void setBooksCount(int booksCount);
 
