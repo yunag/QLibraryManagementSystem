@@ -20,6 +20,9 @@
 #include "bookadddialog.h"
 #include "booksearchfilterdialog.h"
 
+#include <chrono>
+using namespace std::chrono_literals;
+
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection),
       m_model(new BookRestModel(this)),
@@ -27,13 +30,19 @@ BookSection::BookSection(QWidget *parent)
       m_searchFilterDialog(new BookSearchFilterDialog(m_model, this)) {
   ui->setupUi(this);
 
-  m_loadPageTimer.setInterval(0);
+  m_loadPageTimer.setInterval(0ms);
   m_loadPageTimer.setSingleShot(true);
+
+  m_searchTimer.setInterval(300ms); /* Average typing speed: 200cpm */
+  m_searchTimer.setSingleShot(true);
 
   connect(&m_loadPageTimer, &QTimer::timeout, this, [this]() {
     m_model->reset();
     m_model->reload();
   });
+
+  connect(&m_searchTimer, &QTimer::timeout, this,
+          &BookSection::searchTextChanged);
 
   auto *pagination = new Pagination(this);
   pagination->setPerPage(60);
@@ -132,8 +141,8 @@ BookSection::BookSection(QWidget *parent)
           &BookSection::updateButtonClicked);
   connect(ui->synchronizeNowButton, &QPushButton::clicked, this,
           &BookSection::synchronizeNowButtonClicked);
-  connect(ui->searchLineEdit, &QLineEdit::textChanged, this,
-          &BookSection::searchTextChanged);
+  connect(ui->searchLineEdit, &QLineEdit::textChanged, &m_searchTimer,
+          [this](auto) { m_searchTimer.start(); });
 }
 
 BookSection::~BookSection() {
@@ -164,8 +173,9 @@ void BookSection::addButtonClicked() {
   m_bookAddDialog->createBook();
 }
 
-void BookSection::searchTextChanged(const QString &text) {
+void BookSection::searchTextChanged() {
   QVariantMap filters = m_model->filters();
+  QString text = ui->searchLineEdit->text();
   if (!text.isEmpty()) {
     filters["title"] = text;
   } else {
