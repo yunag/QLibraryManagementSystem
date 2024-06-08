@@ -14,9 +14,6 @@
 #include "delegate/authoricondelegate.h"
 #include "model/authorrestmodel.h"
 
-#include <chrono>
-using namespace std::chrono_literals;
-
 AuthorSection::AuthorSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::AuthorSection),
       m_model(new AuthorRestModel(this)),
@@ -28,7 +25,9 @@ AuthorSection::AuthorSection(QWidget *parent)
   m_loadPageTimer.setInterval(0);
   m_loadPageTimer.setSingleShot(true);
 
-  m_searchTimer.setInterval(300ms);
+  QSettings settings;
+  m_searchTimer.setInterval(
+    settings.value("general/msSearchTimerUpdateSpeed").toInt());
   m_searchTimer.setSingleShot(true);
 
   connect(&m_searchTimer, &QTimer::timeout, this,
@@ -81,7 +80,6 @@ AuthorSection::AuthorSection(QWidget *parent)
   ui->authorListView->setAcceptDrops(false);
   ui->authorListView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
-  QSettings settings;
   ui->splitter->restoreState(
     settings.value("authorsection/splitter").toByteArray());
 

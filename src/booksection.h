@@ -29,6 +29,7 @@ public:
 
 signals:
   void bookDetailsRequested(quint32 bookId);
+  void authorsPickerRequested();
 
 private slots:
   void reloadPage();

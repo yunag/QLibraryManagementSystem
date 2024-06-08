@@ -17,6 +17,9 @@ public:
   ResourceManager *resourceManager() { return &m_resourceManager; }
 
 private:
+  static void setupSettings();
+
+private:
   ResourceManager m_resourceManager;
 };
 

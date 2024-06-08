@@ -20,9 +20,6 @@
 #include "bookadddialog.h"
 #include "booksearchfilterdialog.h"
 
-#include <chrono>
-using namespace std::chrono_literals;
-
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection),
       m_model(new BookRestModel(this)),
@@ -30,10 +27,12 @@ BookSection::BookSection(QWidget *parent)
       m_searchFilterDialog(new BookSearchFilterDialog(m_model, this)) {
   ui->setupUi(this);
 
-  m_loadPageTimer.setInterval(0ms);
+  m_loadPageTimer.setInterval(0);
   m_loadPageTimer.setSingleShot(true);
 
-  m_searchTimer.setInterval(300ms); /* Average typing speed: 200cpm */
+  QSettings settings;
+  m_searchTimer.setInterval(
+    settings.value("general/msSearchTimerUpdateSpeed").toInt());
   m_searchTimer.setSingleShot(true);
 
   connect(&m_loadPageTimer, &QTimer::timeout, this, [this]() {
@@ -96,7 +95,6 @@ BookSection::BookSection(QWidget *parent)
   ui->bookListView->setAcceptDrops(false);
   ui->bookListView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
-  QSettings settings;
   ui->splitter->restoreState(
     settings.value("booksection/splitter").toByteArray());
 

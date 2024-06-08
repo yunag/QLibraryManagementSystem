@@ -1,11 +1,11 @@
-#include <QMessageBox>
 #include <QSettings>
 #include <QThread>
 
-#include <QMovie>
-
 #include "libraryapplication.h"
 #include "librarymainwindow.h"
+
+#include <chrono>
+using namespace std::chrono_literals;
 
 LibraryApplication::LibraryApplication(int &argc, char **argv)
     : QApplication(argc, argv) {
@@ -30,6 +30,21 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
 
   setHighDpiScaleFactorRoundingPolicy(
     Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+}
+
+void LibraryApplication::setupSettings() {
+  QSettings settings;
+
+  auto ensureSettings = [&](QAnyStringView key, const QVariant &value) {
+    if (!settings.contains(key)) {
+      settings.setValue(key, value);
+    }
+  };
+
+  settings.beginGroup("general");
+  /* Average typing speed: 200cpm */
+  ensureSettings("msSearchTimerUpdateSpeed", 300);
+  settings.endGroup();
 }
 
 int LibraryApplication::run() {
