@@ -24,7 +24,7 @@ BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection),
       m_model(new BookRestModel(this)),
       m_bookAddDialog(new BookAddDialog(this)),
-      m_searchFilterDialog(new SearchFilterDialog(m_model, this)) {
+      m_searchFilterDialog(new BookSearchFilterDialog(m_model, this)) {
   ui->setupUi(this);
 
   m_loadPageTimer.setInterval(0);
@@ -95,7 +95,7 @@ BookSection::BookSection(QWidget *parent)
                                                   QLineEdit::LeadingPosition);
 
   connect(action, &QAction::triggered, m_searchFilterDialog,
-          &SearchFilterDialog::open);
+          &BookSearchFilterDialog::open);
 
   auto handleSortFilterChange = [this]() {
     m_model->pagination()->setCurrentPage(0);
@@ -186,7 +186,8 @@ void BookSection::deleteButtonClicked() {
   for (const QModelIndex &index : selectedIndexes) {
     quint32 bookId = m_model->data(index, BookRestModel::IdRole).toUInt();
 
-    BookController::deleteBookById(bookId)
+    BookController controller;
+    controller.deleteResource(bookId)
       .then(this, [this, index](auto) {
       if (index.isValid()) {
         m_model->removeRow(index.row());

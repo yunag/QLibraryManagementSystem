@@ -10,6 +10,7 @@
 struct AuthorItem : public Author {
   AuthorItem(Author author) : Author(std::move(author)) {};
   QPixmap image;
+  Qt::ItemFlags flags = {Qt::ItemIsEnabled};
 };
 
 class AuthorRestModel : public AbstractRestModel {
@@ -35,6 +36,7 @@ public:
     ImageRole,
     FirstNameRole,
     LastNameRole,
+    FlagsRole
   };
   Q_ENUM(AuthorsRole)
 
@@ -56,6 +58,7 @@ public:
 
   void reset();
 
+  Qt::ItemFlags flags(const QModelIndex &index) const override;
   QVariant data(const QModelIndex &index, int role) const override;
   bool setData(const QModelIndex &index, const QVariant &value,
                int role) override;

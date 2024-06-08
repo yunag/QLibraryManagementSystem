@@ -112,8 +112,9 @@ void BookAddDialog::open() {
 };
 
 QFuture<void> BookAddDialog::fetchAuthors() {
-  return AuthorController::getAuthors().then(
-    this, [this](const QList<Author> &authors) {
+  AuthorController controller;
+  return controller.getAuthors().then(this,
+                                      [this](const QList<Author> &authors) {
     auto items = algorithm::transform<QList<QStandardItem *>>(
       authors, [](const Author &author) {
       auto *item = new QStandardItem(author.firstName + " " + author.lastName);
@@ -142,7 +143,7 @@ QFuture<void> BookAddDialog::fetchCategories() {
 void BookUpdateStrategy::onOpen() {
   Ui::BookAddDialog *ui = m_dialog->ui;
 
-  auto authorsId = grabIds(m_bookData.authors);
+  auto authorsId = grabIds(m_bookDetails.authors);
 
   for (auto *const item : ui->authors->leftList()) {
     quint32 authorId = item->data().toUInt();
@@ -152,7 +153,7 @@ void BookUpdateStrategy::onOpen() {
     }
   }
 
-  auto categoriesId = grabIds(m_bookData.categories);
+  auto categoriesId = grabIds(m_bookDetails.categories);
   for (auto *const item : ui->categories->leftList()) {
     quint32 categoryId = item->data().toUInt();
 
@@ -161,34 +162,32 @@ void BookUpdateStrategy::onOpen() {
     }
   }
 
-  WidgetUtils::asyncLoadImage(ui->coverLabel, m_bookData.coverUrl);
+  WidgetUtils::asyncLoadImage(ui->coverLabel, m_bookDetails.coverUrl);
 
-  ui->titleLineEdit->setText(m_bookData.title);
-  ui->copiesOwned->setValue(m_bookData.copiesOwned);
-  ui->publicationDate->setDate(m_bookData.publicationDate);
-  ui->descriptionText->setPlainText(m_bookData.description);
+  ui->titleLineEdit->setText(m_bookDetails.title);
+  ui->copiesOwned->setValue(m_bookDetails.copiesOwned);
+  ui->publicationDate->setDate(m_bookDetails.publicationDate);
+  ui->descriptionText->setPlainText(m_bookDetails.description);
 }
 
-void BookUpdateStrategy::onAccept(const Book &bookWithoutId) {
+void BookUpdateStrategy::onAccept(const Book &book) {
   Ui::BookAddDialog *ui = m_dialog->ui;
 
   auto syncronizer = makeFutureSyncronizer<QByteArray>();
 
-  Book bookWithId = bookWithoutId;
-  bookWithId.id = m_bookData.id;
-
-  BookController::updateBook(bookWithId)
+  BookController controller;
+  controller.update(m_bookDetails.id, book)
     .then(m_dialog,
-          [syncronizer, this, ui](auto) {
+          [syncronizer, this, ui]() {
     syncronizer->addFuture(AuthorBookController::updateRelations(
-      m_bookData.id, grabIds(ui->authors->rightList())));
+      m_bookDetails.id, grabIds(ui->authors->rightList())));
 
     syncronizer->addFuture(BookCategoryController::updateRelations(
-      m_bookData.id, grabIds(ui->categories->rightList())));
+      m_bookDetails.id, grabIds(ui->categories->rightList())));
   })
     .then(QtFuture::Launch::Async, [syncronizer, this]() {
     syncronizer->waitForFinished();
-    emit m_dialog->edited(m_bookData.id);
+    emit m_dialog->edited(m_bookDetails.id);
   }).onFailed(m_dialog, [this](const NetworkError &err) {
     handleError(m_dialog, err);
   });
@@ -199,7 +198,8 @@ void BookCreateStrategy::onAccept(const Book &book) {
 
   auto syncronizer = makeFutureSyncronizer<QByteArray>();
 
-  BookController::createBook(book)
+  BookController controller;
+  controller.create(book)
     .then(m_dialog,
           [syncronizer, ui](quint32 bookId) {
     syncronizer->addFuture(AuthorBookController::updateRelations(
@@ -221,8 +221,9 @@ void BookCreateStrategy::onAccept(const Book &book) {
 void BookAddDialog::editBook(quint32 bookId) {
   m_strategy = m_updateStrategy;
 
-  BookController::getBookById(bookId).then([this](const BookData &data) {
-    m_updateStrategy->setBookData(data);
+  BookController controller;
+  controller.get(bookId).then([this](const BookDetails &data) {
+    m_updateStrategy->setBookDetails(data);
     open();
   });
 }

@@ -17,7 +17,7 @@ class BookDetailsDialog;
 class BookDetailsDialog : public QDialog {
   Q_OBJECT
 
-  static constexpr QSize kItemSize = QSize(120, 150);
+  static constexpr QSize kItemSize = QSize(130, 200);
 
 public:
   explicit BookDetailsDialog(QWidget *parent = nullptr);
@@ -32,7 +32,7 @@ protected:
   void closeEvent(QCloseEvent *event) override;
 
 private:
-  void updateUi(const BookData &bookDetails);
+  void updateUi(const BookDetails &bookDetails);
   static void setupList(QListView *listView);
   static QStandardItem *addItem(LoadingModel *model, const QUrl &url,
                                 const QString &text);

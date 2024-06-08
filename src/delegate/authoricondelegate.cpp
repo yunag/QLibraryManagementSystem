@@ -46,14 +46,27 @@ void AuthorIconDelegate::paint(QPainter *painter,
     QPixmap pixmap = image.scaled(imageRect.size(), Qt::KeepAspectRatio,
                                   Qt::SmoothTransformation);
     QRect pixmapRect = pixmap.rect();
+
     pixmapRect.moveCenter(imageRect.center());
     pixmapRect.moveBottom(imageRect.bottom());
+
+    if (!(opt.state & QStyle::State_Enabled)) {
+      QImage grayScaleImage = pixmap.toImage();
+      grayScaleImage =
+        grayScaleImage.convertToFormat(QImage::Format_Grayscale8);
+      pixmap = QPixmap::fromImage(grayScaleImage);
+    }
 
     painter->drawPixmap(pixmapRect.topLeft(), pixmap);
   }
 
   QRect textRect = rect;
-  textRect.setTop(imageRect.bottom());
+  int margin = 5;
+  textRect.setTop(imageRect.bottom() + margin);
+
+  QFont font = painter->font();
+  font.setPointSize(12);
+  painter->setFont(font);
 
   /* TODO: Elide very long text */
   painter->drawText(textRect,

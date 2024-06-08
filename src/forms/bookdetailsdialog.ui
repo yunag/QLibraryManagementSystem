@@ -70,7 +70,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3" stretch="12,4">
            <item>
-            <widget class="ImagePickerLabel" name="bookCover">
+            <widget class="AspectRatioLabel" name="bookCover">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
                <horstretch>0</horstretch>
@@ -426,15 +426,15 @@ li.checked::marker { content: &quot;\2612&quot;; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ImagePickerLabel</class>
-   <extends>QLabel</extends>
-   <header>imagepickerlabel.h</header>
-  </customwidget>
-  <customwidget>
    <class>SmoothScrollArea</class>
    <extends>QScrollArea</extends>
    <header>smoothscrollarea.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AspectRatioLabel</class>
+   <extends>QLabel</extends>
+   <header>aspectratiolabel.h</header>
   </customwidget>
  </customwidgets>
  <resources>

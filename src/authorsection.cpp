@@ -9,6 +9,7 @@
 #include "controllers/authorcontroller.h"
 
 #include "authoradddialog.h"
+#include "authorsearchfilterdialog.h"
 
 #include "delegate/authoricondelegate.h"
 #include "model/authorrestmodel.h"
@@ -16,7 +17,8 @@
 AuthorSection::AuthorSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::AuthorSection),
       m_model(new AuthorRestModel(this)),
-      m_authorAddDialog(new AuthorAddDialog(this)) {
+      m_authorAddDialog(new AuthorAddDialog(this)),
+      m_searchFilterDialog(new AuthorSearchFilterDialog(m_model, this)) {
 
   ui->setupUi(this);
 
@@ -77,8 +79,8 @@ AuthorSection::AuthorSection(QWidget *parent)
   QAction *action = ui->searchLineEdit->addAction(QIcon(":/icons/searchIcon"),
                                                   QLineEdit::LeadingPosition);
 
-  // connect(action, &QAction::triggered, m_searchFilterDialog,
-  //         &AuthorSectionSearchFilterDialog::open);
+  connect(action, &QAction::triggered, m_searchFilterDialog,
+          &AuthorSearchFilterDialog::open);
 
   auto handleSortFilterChange = [this]() {
     m_model->pagination()->setCurrentPage(0);
@@ -103,6 +105,8 @@ AuthorSection::AuthorSection(QWidget *parent)
     emit authorDetailsRequested(authorId);
   });
 
+  connect(m_authorAddDialog, &AuthorAddDialog::edited, this,
+          &AuthorSection::reloadPage);
   connect(ui->deleteButton, &QPushButton::clicked, this,
           &AuthorSection::deleteButtonClicked);
   connect(ui->addButton, &QPushButton::clicked, this,
@@ -183,7 +187,10 @@ void AuthorSection::updateButtonClicked() {
     return;
   }
 
-  //m_bookAddDialog->editBook(bookCard.bookId());
+  QModelIndex index = selectedIndexes.first();
+  quint32 id = index.data(AuthorRestModel::IdRole).toUInt();
+
+  m_authorAddDialog->editAuthor(id);
 }
 
 void AuthorSection::reloadPage() {

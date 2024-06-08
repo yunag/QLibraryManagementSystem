@@ -11,4 +11,6 @@ target_sources(
           bookratingcontroller.cpp
           bookratingcontroller.h
           categorycontroller.cpp
-          categorycontroller.h)
+          categorycontroller.h
+          controller.h
+          controller.cpp)

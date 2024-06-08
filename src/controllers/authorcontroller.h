@@ -3,12 +3,16 @@
 
 #include <QFuture>
 
-#include "schema/author.h"
+#include "controller.h"
+#include "schema/schema.h"
 
-class AuthorController {
+class AuthorController : public Controller {
 public:
-  static QFuture<QList<Author>> getAuthors();
-  static QFuture<quint32> createAuthor(const Author &author);
+  QFuture<QList<Author>> getAuthors();
+  QFuture<quint32> create(const Author &author);
+  QFuture<AuthorDetails> get(quint32 id);
+  QFuture<void> update(quint32 id, const Author &author);
+  QFuture<void> deleteResource(quint32 id);
 };
 
 #endif /* !AUTHORCONTROLLER_H */

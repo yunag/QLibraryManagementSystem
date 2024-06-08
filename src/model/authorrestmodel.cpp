@@ -9,7 +9,7 @@
 #include "resourcemanager.h"
 
 AuthorRestModel::AuthorRestModel(QObject *parent)
-    : AbstractRestModel(parent), m_authorsCount(0) {
+    : AbstractRestModel(parent), m_shouldFetchImages(false), m_authorsCount(0) {
   setRoute("/api/authors");
   setRestManager(ResourceManager::networkManager());
 }
@@ -115,6 +115,8 @@ QVariant AuthorRestModel::data(const QModelIndex &index, int role) const {
       return dataForColumn(index);
     case ImageRole:
       return author.image;
+    case FlagsRole:
+      return QVariant::fromValue(author.flags);
     case IdRole:
       return author.id;
     case ImageUrlRole:
@@ -142,6 +144,9 @@ bool AuthorRestModel::setData(const QModelIndex &index, const QVariant &value,
   switch (role) {
     case ImageRole:
       author.image = value.value<QPixmap>();
+      break;
+    case FlagsRole:
+      author.flags = value.value<Qt::ItemFlags>();
       break;
     default:
       AbstractRestModel::setData(index, value, role);
@@ -183,4 +188,9 @@ QVariant AuthorRestModel::headerData(int section, Qt::Orientation orientation,
     default:
       return {};
   }
+}
+
+Qt::ItemFlags AuthorRestModel::flags(const QModelIndex &index) const {
+  CHECK_FLAGS(index);
+  return index.data(FlagsRole).value<Qt::ItemFlags>();
 }

@@ -65,7 +65,7 @@ public:
                int role) override;
 
 private slots:
-  void onBookData(const BookData &data);
+  void onBookDetails(const BookDetails &details);
 
 private:
   QList<BookCard> m_bookCards;

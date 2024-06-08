@@ -10,7 +10,7 @@
 #include "resourcemanager.h"
 
 BookRestModel::BookRestModel(QObject *parent)
-    : AbstractRestModel(parent), m_booksCount(0) {
+    : AbstractRestModel(parent), m_shouldFetchImages(false), m_booksCount(0) {
   setRoute("/api/books");
   setRestManager(ResourceManager::networkManager());
 }
@@ -129,23 +129,22 @@ QVariant BookRestModel::data(const QModelIndex &index, int role) const {
   }
 }
 
-void BookRestModel::onBookData(const BookData &bookData) {
-  auto authors = algorithm::transform<QStringList>(bookData.authors,
+void BookRestModel::onBookDetails(const BookDetails &details) {
+  auto authors = algorithm::transform<QStringList>(details.authors,
                                                    [](const Author &author) {
     return author.firstName + " " + author.lastName;
   });
 
   auto categories = algorithm::transform<QStringList>(
-    bookData.categories,
-    [](const Category &category) { return category.name; });
+    details.categories, [](const Category &category) { return category.name; });
 
   BookCard bookCard;
-  bookCard.setTitle(bookData.title);
-  bookCard.setBookId(bookData.id);
+  bookCard.setTitle(details.title);
+  bookCard.setBookId(details.id);
   bookCard.setAuthors(authors);
   bookCard.setCategories(categories);
-  bookCard.setRating(qRound(bookData.rating));
-  bookCard.setCoverUrl(bookData.coverUrl);
+  bookCard.setRating(qRound(details.rating));
+  bookCard.setCoverUrl(details.coverUrl);
 
   m_bookCards.push_back(bookCard);
 }
@@ -159,18 +158,18 @@ QUrlQuery BookRestModel::includeFieldsQuery() {
 
 void BookRestModel::handleRequestData(const QByteArray &data) {
   QJsonArray books = json::byteArrayToJson(data)->array();
-  auto booksData =
-    algorithm::transform<QList<BookData>>(books, [](auto bookJson) {
-    return BookData::fromJson(bookJson.toObject());
+  auto booksDetails =
+    algorithm::transform<QList<BookDetails>>(books, [](auto bookJson) {
+    return BookDetails::fromJson(bookJson.toObject());
   });
 
-  int numItemsToInsert = static_cast<int>(booksData.size());
+  int numItemsToInsert = static_cast<int>(booksDetails.size());
   if (!numItemsToInsert) {
     return;
   }
 
-  for (const auto &bookData : booksData) {
-    onBookData(bookData);
+  for (const auto &bookDetails : booksDetails) {
+    onBookDetails(bookDetails);
   }
 
   fetchMore({});

@@ -8,7 +8,7 @@ class QAbstractButton;
 
 class AuthorRestModel;
 class AuthorAddDialog;
-class AuthorSectionSearchFilterDialog;
+class AuthorSearchFilterDialog;
 
 namespace Ui {
 class AuthorSection;
@@ -48,7 +48,7 @@ private:
   QTimer m_loadPageTimer;
   AuthorRestModel *m_model;
   AuthorAddDialog *m_authorAddDialog;
-  AuthorSectionSearchFilterDialog *m_searchFilterDialog;
+  AuthorSearchFilterDialog *m_searchFilterDialog;
 };
 
 #endif  // AUTHORSECTION_H

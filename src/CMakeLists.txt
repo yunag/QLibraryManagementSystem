@@ -10,7 +10,8 @@ set(PROJECT_FORMS
     forms/authordetailsdialog.ui
     forms/authoradddialog.ui
     forms/authorsection.ui
-    forms/pagination.ui)
+    forms/pagination.ui
+    forms/authorsearchfilterdialog.ui)
 
 set(PROJECT_SOURCES
     main.cpp
@@ -71,6 +72,8 @@ set(PROJECT_SOURCES
     resourcemanager.cpp
     authoradddialog.h
     authoradddialog.cpp
+    authorsearchfilterdialog.h
+    authorsearchfilterdialog.cpp
     ${PROJECT_FORMS})
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Concurrent Network Svg)

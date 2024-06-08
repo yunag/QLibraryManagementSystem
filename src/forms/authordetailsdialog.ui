@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>858</width>
-    <height>701</height>
+    <width>846</width>
+    <height>853</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,8 +40,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>821</width>
-        <height>721</height>
+        <width>826</width>
+        <height>833</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -53,7 +53,7 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_3" stretch="12,0">
            <item>
-            <widget class="ImagePickerLabel" name="authorImage">
+            <widget class="AspectRatioLabel" name="authorImage">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
                <horstretch>0</horstretch>
@@ -105,6 +105,12 @@
                <height>0</height>
               </size>
              </property>
+             <property name="font">
+              <font>
+               <pointsize>20</pointsize>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="text">
               <string>&lt;Author name&gt;</string>
              </property>
@@ -131,6 +137,11 @@
            </item>
            <item>
             <widget class="QLabel" name="label_2">
+             <property name="font">
+              <font>
+               <pointsize>15</pointsize>
+              </font>
+             </property>
              <property name="text">
               <string>Bio</string>
              </property>
@@ -199,6 +210,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </item>
        <item>
         <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <pointsize>15</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>Books</string>
          </property>
@@ -261,15 +277,15 @@ li.checked::marker { content: &quot;\2612&quot;; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ImagePickerLabel</class>
-   <extends>QLabel</extends>
-   <header>imagepickerlabel.h</header>
-  </customwidget>
-  <customwidget>
    <class>SmoothScrollArea</class>
    <extends>QScrollArea</extends>
    <header>smoothscrollarea.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AspectRatioLabel</class>
+   <extends>QLabel</extends>
+   <header>aspectratiolabel.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -11,7 +11,7 @@ class QAbstractButton;
 class BookCard;
 class BookCardData;
 class BookAddDialog;
-class SearchFilterDialog;
+class BookSearchFilterDialog;
 class BookRestModel;
 
 namespace Ui {
@@ -54,7 +54,7 @@ private:
   QTimer m_loadPageTimer;
   BookRestModel *m_model;
   BookAddDialog *m_bookAddDialog;
-  SearchFilterDialog *m_searchFilterDialog;
+  BookSearchFilterDialog *m_searchFilterDialog;
 };
 
 #endif  // BOOKSECTION_H

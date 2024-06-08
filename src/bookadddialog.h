@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QFuture>
 
+#include "controllers/bookcontroller.h"
 #include "schema/schema.h"
 
 namespace Ui {
@@ -25,13 +26,13 @@ class BookUpdateStrategy : public BookDialogStrategy {
 public:
   BookUpdateStrategy(BookAddDialog *dialog) : m_dialog(dialog) {}
 
-  void setBookData(const BookData &data) { m_bookData = data; }
+  void setBookDetails(const BookDetails &details) { m_bookDetails = details; }
 
   void onOpen() override;
   void onAccept(const Book &book) override;
 
 private:
-  BookData m_bookData;
+  BookDetails m_bookDetails;
 
   BookAddDialog *m_dialog;
 };

@@ -1,24 +1,17 @@
 #include <QHttpMultiPart>
 
-#include <QFile>
-#include <QFileInfo>
 #include <QJsonObject>
-#include <QMimeDatabase>
 
-#include "network/httpmultipart.h"
 #include "network/network.h"
 
 #include "common/json.h"
 
 #include "bookcontroller.h"
-#include "resourcemanager.h"
 
-QFuture<quint32> BookController::createBook(const Book &book) {
-  RestApiManager *manager = ResourceManager::networkManager();
-
+QFuture<quint32> BookController::create(const Book &book) {
   QHttpMultiPart *multiPart = book.createHttpMultiPart();
 
-  auto [future, reply] = manager->post("/api/books", multiPart);
+  auto [future, reply] = m_manager->post("/api/books", multiPart);
 
   return future.then([](const QByteArray &data) {
     QJsonDocument json = *json::byteArrayToJson(data);
@@ -26,33 +19,27 @@ QFuture<quint32> BookController::createBook(const Book &book) {
   });
 }
 
-QFuture<BookData> BookController::getBookById(quint32 bookId) {
-  RestApiManager *manager = ResourceManager::networkManager();
-
-  auto [future, reply] = manager->get("/api/books/" + QString::number(bookId));
+QFuture<BookDetails> BookController::get(quint32 id) {
+  auto [future, reply] = m_manager->get("/api/books/" + QString::number(id));
 
   return future.then([](const QByteArray &data) {
     QJsonObject json = json::byteArrayToJson(data)->object();
 
-    return BookData::fromJson(json);
+    return BookDetails::fromJson(json);
   });
 }
 
-QFuture<QByteArray> BookController::updateBook(const Book &book) {
-  RestApiManager *manager = ResourceManager::networkManager();
-
+QFuture<void> BookController::update(quint32 id, const Book &book) {
   QHttpMultiPart *multiPart = book.createHttpMultiPart();
 
   auto [future, reply] =
-    manager->put("/api/books/" + QString::number(book.id), multiPart);
-  return future;
+    m_manager->put("/api/books/" + QString::number(id), multiPart);
+  return future.then([](auto) {});
 }
 
-QFuture<QByteArray> BookController::deleteBookById(quint32 bookId) {
-  RestApiManager *manager = ResourceManager::networkManager();
-
+QFuture<void> BookController::deleteResource(quint32 id) {
   auto [future, reply] =
-    manager->deleteResource("/api/books/" + QString::number(bookId));
+    m_manager->deleteResource("/api/books/" + QString::number(id));
 
-  return future;
+  return future.then([](auto) {});
 }

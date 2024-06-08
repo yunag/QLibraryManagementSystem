@@ -1,5 +1,5 @@
-#ifndef SEARCHFILTERDIALOG_H
-#define SEARCHFILTERDIALOG_H
+#ifndef BOOKSEARCHFILTERDIALOG_H
+#define BOOKSEARCHFILTERDIALOG_H
 
 #include <QDialog>
 
@@ -9,15 +9,15 @@ namespace Ui {
 class BookSearchFilterDialog;
 }
 
-class SearchFilterDialog : public QDialog {
+class BookSearchFilterDialog : public QDialog {
   Q_OBJECT
 
 public:
-  explicit SearchFilterDialog(BookRestModel *model, QWidget *parent = nullptr);
-  ~SearchFilterDialog() override;
+  explicit BookSearchFilterDialog(BookRestModel *model,
+                                  QWidget *parent = nullptr);
+  ~BookSearchFilterDialog() override;
 
 public:
-  void open() override;
   void accept() override;
 
 private:
@@ -25,4 +25,4 @@ private:
   BookRestModel *m_model;
 };
 
-#endif  // SEARCHFILTERDIALOG_H
+#endif  // BOOKSEARCHFILTERDIALOG_H

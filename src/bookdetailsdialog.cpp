@@ -41,8 +41,10 @@ BookDetailsDialog::~BookDetailsDialog() {
 }
 
 void BookDetailsDialog::showDetails(quint32 bookId) {
-  BookController::getBookById(bookId)
-    .then(this, [this](const BookData &bookDetails) {
+  BookController controller;
+
+  controller.get(bookId)
+    .then(this, [this](const BookDetails &bookDetails) {
     updateUi(bookDetails);
     show();
   }).onFailed(this, [this](const NetworkError &err) {
@@ -52,18 +54,16 @@ void BookDetailsDialog::showDetails(quint32 bookId) {
 
 void BookDetailsDialog::setupList(QListView *listView) {
 
-  listView->setIconSize(kItemSize * 0.8);
+  listView->setIconSize(kItemSize * 0.78);
 
   auto *smoothScrollBar = new SmoothScrollBar(listView);
   listView->setAcceptDrops(false);
   listView->verticalScrollBar()->setDisabled(true);
   listView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   listView->setHorizontalScrollBar(smoothScrollBar);
+  listView->setTextElideMode(Qt::ElideRight);
 
   listView->setDragDropMode(QAbstractItemView::NoDragDrop);
-
-  listView->setMaximumHeight(kItemSize.height() +
-                             listView->horizontalScrollBar()->height());
 }
 
 QStandardItem *BookDetailsDialog::addItem(LoadingModel *model, const QUrl &url,
@@ -78,7 +78,7 @@ QStandardItem *BookDetailsDialog::addItem(LoadingModel *model, const QUrl &url,
   return item;
 }
 
-void BookDetailsDialog::updateUi(const BookData &book) {
+void BookDetailsDialog::updateUi(const BookDetails &book) {
   setWindowTitle(book.title);
 
   ui->bookTitleLabel->setText(book.title);
@@ -94,7 +94,8 @@ void BookDetailsDialog::updateUi(const BookData &book) {
   for (const Author &author : book.authors) {
     QString authorFullName = author.firstName + " " + author.lastName;
 
-    QStandardItem *item = addItem(m_authorsModel, QUrl(""), authorFullName);
+    QStandardItem *item =
+      addItem(m_authorsModel, author.imageUrl, authorFullName);
 
     item->setData(author.id);
   }

@@ -15,6 +15,7 @@ struct Book {
   qreal rating;
   int copiesOwned = 0;
 
+  static Book fromJson(const QJsonObject &json);
   QHttpMultiPart *createHttpMultiPart() const;
 };
 

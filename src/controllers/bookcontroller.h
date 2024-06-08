@@ -3,14 +3,16 @@
 
 #include <QFuture>
 
+#include "controller.h"
+
 #include "schema/schema.h"
 
-class BookController {
+class BookController : public Controller {
 public:
-  static QFuture<quint32> createBook(const Book &book);
-  static QFuture<BookData> getBookById(quint32 bookId);
-  static QFuture<QByteArray> updateBook(const Book &book);
-  static QFuture<QByteArray> deleteBookById(quint32 bookId);
+  QFuture<quint32> create(const Book &book);
+  QFuture<BookDetails> get(quint32 id);
+  QFuture<void> update(quint32 id, const Book &book);
+  QFuture<void> deleteResource(quint32 id);
 };
 
 #endif /* !BOOKCONTROLLER_H */

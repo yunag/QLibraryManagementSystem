@@ -3,7 +3,8 @@
 
 #include "model/bookrestmodel.h"
 
-SearchFilterDialog::SearchFilterDialog(BookRestModel *model, QWidget *parent)
+BookSearchFilterDialog::BookSearchFilterDialog(BookRestModel *model,
+                                               QWidget *parent)
     : QDialog(parent), ui(new Ui::BookSearchFilterDialog), m_model(model) {
 
   ui->setupUi(this);
@@ -32,11 +33,11 @@ SearchFilterDialog::SearchFilterDialog(BookRestModel *model, QWidget *parent)
     [this](bool checked) { ui->publicationDateEnd->setEnabled(checked); });
 }
 
-SearchFilterDialog::~SearchFilterDialog() {
+BookSearchFilterDialog::~BookSearchFilterDialog() {
   delete ui;
 }
 
-void SearchFilterDialog::accept() {
+void BookSearchFilterDialog::accept() {
   if (ui->publicationDateStart->date() > ui->publicationDateEnd->date()) {
     return;
   }
@@ -88,8 +89,4 @@ void SearchFilterDialog::accept() {
   m_model->setOrderBy(orderBy);
 
   QDialog::accept();
-}
-
-void SearchFilterDialog::open() {
-  QDialog::open();
 }

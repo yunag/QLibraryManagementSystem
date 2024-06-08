@@ -15,11 +15,17 @@ public:
   ~AuthorAddDialog() override;
 
   void createAuthor();
+  void editAuthor(quint32 id);
 
+  void accept() override;
   void init();
 
+signals:
+  void edited(quint32 id);
+
 private:
-  bool isUpdating;
+  bool m_isUpdating;
+  quint32 m_id;
 
   Ui::AuthorAddDialog *ui;
 };

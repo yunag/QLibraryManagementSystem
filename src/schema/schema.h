@@ -6,15 +6,16 @@
 #include "schema/bookauthor.h"
 #include "schema/category.h"
 
-struct BookData : Book {
+struct BookDetails : Book {
   QList<Author> authors;
   QList<Category> categories;
 
-  static BookData fromJson(const QJsonObject &json);
+  static BookDetails fromJson(const QJsonObject &json);
 };
 
-struct AuthorData : Author {
+struct AuthorDetails : Author {
   QList<Book> books;
+  static AuthorDetails fromJson(const QJsonObject &json);
 };
 
 #endif /* !SCHEMA_H */

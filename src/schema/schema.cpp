@@ -4,47 +4,47 @@
 #include "libraryapplication.h"
 #include "network/httpmultipart.h"
 
+#include "common/algorithm.h"
+
 #include "schema/schema.h"
 
-BookData BookData::fromJson(const QJsonObject &json) {
-  BookData bookData;
+Book Book::fromJson(const QJsonObject &json) {
+  Book book;
 
-  bookData.id = json["id"].toVariant().toUInt();
-  bookData.publicationDate =
+  book.id = json["id"].toVariant().toUInt();
+  book.publicationDate =
     QDate::fromString(json["publication_date"].toString(), "dd-MM-yyyy");
-  bookData.copiesOwned = json["copies_owned"].toInt();
-  bookData.description = json["description"].toString();
-  bookData.title = json["title"].toString();
-  bookData.rating = json["rating"].toDouble();
+  book.copiesOwned = json["copies_owned"].toInt();
+  book.description = json["description"].toString();
+  book.title = json["title"].toString();
+  book.rating = json["rating"].toDouble();
 
   if (!json["cover_url"].isNull()) {
     QString path = "/" + json["cover_url"].toString();
     QUrl coverUrl = ResourceManager::networkManager()->url();
     coverUrl.setPath(path);
-    bookData.coverUrl = coverUrl;
+    book.coverUrl = coverUrl;
   }
   /* TODO: Remove after testing */
-  bookData.coverUrl =
-    "https://static.wikia.nocookie.net/kiminonawa/images/6/62/"
-    "Kimi-no-Na-wa.-Visual.jpg/revision/latest?cb=20160927170951";
+  book.coverUrl = "https://static.wikia.nocookie.net/kiminonawa/images/6/62/"
+                  "Kimi-no-Na-wa.-Visual.jpg/revision/latest?cb=20160927170951";
+  return book;
+}
 
+BookDetails BookDetails::fromJson(const QJsonObject &json) {
   QJsonArray categoriesJson = json["categories"].toArray();
-
-  for (const auto categoryJson : categoriesJson) {
-    Category category = Category::fromJson(categoryJson.toObject());
-
-    bookData.categories.push_back(category);
-  }
-
   QJsonArray authorsJson = json["authors"].toArray();
 
-  for (const auto authorJson : authorsJson) {
-    Author author = Author::fromJson(authorJson.toObject());
+  auto categories = algorithm::transform<QList<Category>>(
+    categoriesJson, [](auto categoryJson) {
+    return Category::fromJson(categoryJson.toObject());
+  });
+  auto authors =
+    algorithm::transform<QList<Author>>(authorsJson, [](auto authorJson) {
+    return Author::fromJson(authorJson.toObject());
+  });
 
-    bookData.authors.push_back(author);
-  }
-
-  return bookData;
+  return {Book::fromJson(json), authors, categories};
 }
 
 Author Author::fromJson(const QJsonObject &json) {
@@ -61,6 +61,16 @@ Author Author::fromJson(const QJsonObject &json) {
     "Kimi-no-Na-wa.-Visual.jpg/revision/latest?cb=20160927170951";
 
   return author;
+}
+
+AuthorDetails AuthorDetails::fromJson(const QJsonObject &json) {
+  QJsonArray booksJson = json["books"].toArray();
+
+  auto books = algorithm::transform<QList<Book>>(booksJson, [](auto bookJson) {
+    return Book::fromJson(bookJson.toObject());
+  });
+
+  return {Author::fromJson(json), books};
 }
 
 Category Category::fromJson(const QJsonObject &json) {
