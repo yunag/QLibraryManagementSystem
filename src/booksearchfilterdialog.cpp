@@ -25,12 +25,28 @@ BookSearchFilterDialog::BookSearchFilterDialog(BookRestModel *model,
     currentRating += 2;
   }
 
-  connect(
-    ui->publicationDateStartCheckBox, &QCheckBox::toggled, this,
-    [this](bool checked) { ui->publicationDateStart->setEnabled(checked); });
-  connect(
-    ui->publicationDateEndCheckBox, &QCheckBox::toggled, this,
-    [this](bool checked) { ui->publicationDateEnd->setEnabled(checked); });
+  ui->publicationDateStart->setMinimumDate({600, 1, 1});
+  ui->publicationDateEnd->setMinimumDate({600, 1, 1});
+  connect(ui->publicationDateStart, &QDateEdit::dateChanged, this,
+          [this](QDate /*date*/) {
+    QDate dateInRange =
+      qMax(ui->publicationDateStart->date(), ui->publicationDateEnd->date());
+    ui->publicationDateEnd->setDate(dateInRange);
+  });
+  connect(ui->publicationDateEnd, &QDateEdit::dateChanged, this,
+          [this](QDate /*date*/) {
+    QDate dateInRange =
+      qMin(ui->publicationDateStart->date(), ui->publicationDateEnd->date());
+    ui->publicationDateStart->setDate(dateInRange);
+  });
+  connect(ui->publicationDateStartCheckBox, &QCheckBox::toggled,
+          ui->publicationDateStart, &QDateEdit::setEnabled);
+  connect(ui->publicationDateEndCheckBox, &QCheckBox::toggled,
+          ui->publicationDateEnd, &QDateEdit::setEnabled);
+  connect(ui->buttonBox, &QDialogButtonBox::accepted, this,
+          &BookSearchFilterDialog::accept);
+  connect(ui->buttonBox, &QDialogButtonBox::rejected, this,
+          &BookSearchFilterDialog::reject);
 }
 
 BookSearchFilterDialog::~BookSearchFilterDialog() {

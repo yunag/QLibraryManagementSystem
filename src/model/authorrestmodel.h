@@ -10,7 +10,7 @@
 struct AuthorItem : public Author {
   AuthorItem(Author author) : Author(std::move(author)) {};
   QPixmap image;
-  Qt::ItemFlags flags = {Qt::ItemIsEnabled};
+  Qt::ItemFlags flags = {Qt::ItemIsEnabled | Qt::ItemIsSelectable};
 };
 
 class AuthorRestModel : public AbstractRestModel {

@@ -31,7 +31,7 @@ private slots:
   void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
   void synchronizeNowButtonClicked();
-  void searchTextChanged(const QString &text);
+  void searchTextChanged();
   void addButtonClicked();
   void showDetailsButtonClicked();
   void updateButtonClicked();
@@ -46,6 +46,8 @@ private:
   Ui::AuthorSection *ui;
 
   QTimer m_loadPageTimer;
+  QTimer m_searchTimer;
+
   AuthorRestModel *m_model;
   AuthorAddDialog *m_authorAddDialog;
   AuthorSearchFilterDialog *m_searchFilterDialog;

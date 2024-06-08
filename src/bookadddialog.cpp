@@ -31,6 +31,9 @@ BookAddDialog::BookAddDialog(QWidget *parent)
 
   ui->coverLabel->setAspectRatio(Qt::KeepAspectRatio);
 
+  connect(ui->hideButton, &QPushButton::clicked, this,
+          [this](auto) { hide(); });
+
   connect(ui->buttonBox, &QDialogButtonBox::accepted, this,
           &BookAddDialog::accept);
   connect(ui->buttonBox, &QDialogButtonBox::rejected, this,

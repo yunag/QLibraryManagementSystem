@@ -14,6 +14,9 @@
 #include "delegate/authoricondelegate.h"
 #include "model/authorrestmodel.h"
 
+#include <chrono>
+using namespace std::chrono_literals;
+
 AuthorSection::AuthorSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::AuthorSection),
       m_model(new AuthorRestModel(this)),
@@ -24,6 +27,12 @@ AuthorSection::AuthorSection(QWidget *parent)
 
   m_loadPageTimer.setInterval(0);
   m_loadPageTimer.setSingleShot(true);
+
+  m_searchTimer.setInterval(300ms);
+  m_searchTimer.setSingleShot(true);
+
+  connect(&m_searchTimer, &QTimer::timeout, this,
+          &AuthorSection::searchTextChanged);
 
   connect(&m_loadPageTimer, &QTimer::timeout, this, [this]() {
     m_model->reset();
@@ -92,7 +101,7 @@ AuthorSection::AuthorSection(QWidget *parent)
           handleSortFilterChange);
 
   connect(pagination, &Pagination::currentPageChanged, m_model,
-          [this](int page) { reloadPage(); });
+          [this](auto) { reloadPage(); });
   connect(pagination, &Pagination::totalCountChanged, this,
           &AuthorSection::setAuthorsCount);
 
@@ -116,7 +125,7 @@ AuthorSection::AuthorSection(QWidget *parent)
   connect(ui->synchronizeNowButton, &QPushButton::clicked, this,
           &AuthorSection::synchronizeNowButtonClicked);
   connect(ui->searchLineEdit, &QLineEdit::textChanged, this,
-          &AuthorSection::searchTextChanged);
+          [this](auto) { m_searchTimer.start(); });
 }
 
 AuthorSection::~AuthorSection() {
@@ -147,15 +156,16 @@ void AuthorSection::addButtonClicked() {
   m_authorAddDialog->createAuthor();
 }
 
-void AuthorSection::searchTextChanged(const QString &text) {
-  // QVariantMap filters = m_model->filters();
-  // if (!text.isEmpty()) {
-  //   filters["title"] = text;
-  // } else {
-  //   filters.remove("title");
-  // }
+void AuthorSection::searchTextChanged() {
+  QVariantMap filters = m_model->filters();
+  QString text = ui->searchLineEdit->text();
+  if (!text.isEmpty()) {
+    filters["name"] = text;
+  } else {
+    filters.remove("title");
+  }
 
-  // m_model->setFilters(filters);
+  m_model->setFilters(filters);
 }
 
 void AuthorSection::setAuthorsCount(qint32 authorsCount) {
