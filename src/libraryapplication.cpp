@@ -28,6 +28,8 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
   appFont.setPointSize(10);
   setFont(appFont);
 
+  setupSettings();
+
   setHighDpiScaleFactorRoundingPolicy(
     Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 }

@@ -70,6 +70,7 @@ public:
 
 signals:
   void edited(quint32 bookId);
+  void authorsPickerRequested();
 
 private:
   BookDialogStrategy *m_strategy;

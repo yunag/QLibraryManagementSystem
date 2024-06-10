@@ -39,19 +39,18 @@ void LibraryMainWindow::showLoginForm() {
     hostUrl.setScheme("http");
 
     restManager->setUrl(hostUrl);
-    onLogged();
+    logged();
   } else {
     m_loginForm = new LoginForm;
     m_loginForm->setAttribute(Qt::WA_DeleteOnClose);
 
-    connect(m_loginForm, &LoginForm::logged, this,
-            &LibraryMainWindow::onLogged);
+    connect(m_loginForm, &LoginForm::logged, this, &LibraryMainWindow::logged);
 
     m_loginForm->show();
   }
 }
 
-void LibraryMainWindow::onLogged() {
+void LibraryMainWindow::logged() {
   if (m_loginForm) {
     m_loginForm->close();
   }
@@ -85,6 +84,8 @@ void LibraryMainWindow::onLogged() {
     m_authorDetails->raise();
   };
 
+  connect(m_bookSection, &BookSection::authorsPickerRequested, this,
+          &LibraryMainWindow::authorsPickerRequested);
   connect(m_bookSection, &BookSection::bookDetailsRequested, this,
           showBookDetails);
   connect(m_authorSection, &AuthorSection::authorDetailsRequested, this,
@@ -120,4 +121,13 @@ void LibraryMainWindow::authorsButtonClicked() {
 void LibraryMainWindow::closeEvent(QCloseEvent *event) {
   emit closed();
   QMainWindow::closeEvent(event);
+}
+
+void LibraryMainWindow::authorsPickerRequested() {
+  ui->authorsButton->setEnabled(true);
+  ui->booksButton->setEnabled(false);
+  ui->categoriesButton->setEnabled(false);
+
+  setCentralWidget(m_authorSection);
+  m_authorSection->show();
 }

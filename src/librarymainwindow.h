@@ -26,7 +26,8 @@ signals:
   void closed();
 
 private slots:
-  void onLogged();
+  void authorsPickerRequested();
+  void logged();
   void booksButtonClicked();
   void authorsButtonClicked();
 

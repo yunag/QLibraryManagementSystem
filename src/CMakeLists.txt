@@ -76,7 +76,7 @@ set(PROJECT_SOURCES
     authorsearchfilterdialog.cpp
     ${PROJECT_FORMS})
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Concurrent Network Svg)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Concurrent Network Svg StateMachine)
 
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
 
@@ -95,7 +95,8 @@ add_subdirectory(schema)
 add_subdirectory(common)
 add_subdirectory(controllers)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Network Qt6::Concurrent Qt6::Svg kwidgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets Qt6::Network Qt6::Concurrent Qt6::Svg Qt6::StateMachine
+                                              kwidgets)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
