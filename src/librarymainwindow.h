@@ -7,6 +7,7 @@
 
 class BookSection;
 class AuthorSection;
+class CategorySection;
 class LoginForm;
 class BookDetailsDialog;
 class AuthorDetailsDialog;
@@ -24,6 +25,8 @@ public:
 
   void showLoginForm();
   void requestAuthorsPicker();
+  void requestBookDetails(quint32 id);
+  void requestAuthorDetails(quint32 id);
 
 signals:
   void closed();
@@ -35,18 +38,20 @@ private slots:
 
 protected:
   void closeEvent(QCloseEvent *event) override;
+  void changeEvent(QEvent *event) override;
 
 private:
   Ui::LibraryMainWindow *ui;
 
+  bool m_initialized = false;
+
   BookDetailsDialog *m_bookDetails;
   AuthorDetailsDialog *m_authorDetails;
-
-  QWidget *m_centralWidget;
 
   LoginForm *m_loginForm;
   BookSection *m_bookSection;
   AuthorSection *m_authorSection;
+  CategorySection *m_categorySection;
 };
 
 #endif  // LIBRARYMAINWINDOW_H

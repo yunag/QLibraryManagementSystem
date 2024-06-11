@@ -13,16 +13,10 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QWidget" name="topBar" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_9">
+    <widget class="QWidget" name="authorPicker" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -36,187 +30,25 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QLabel" name="numberOfAuthorsTextLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="HeaderListView" name="authorPickerList">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
         </property>
-        <property name="text">
-         <string>Number of Authors: </string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        <property name="viewMode">
+         <enum>QListView::IconMode</enum>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="numberOfAuthorsLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>&lt;count&gt;</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_18">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+       <widget class="QPushButton" name="confirmButton">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>0</width>
+          <height>30</height>
          </size>
         </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLabel" name="lastSyncTextLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
         <property name="text">
-         <string>Last Sync:</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lastSyncLabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>&lt;sync datetime&gt;</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_19">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Minimum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="gridViewButton">
-        <property name="text">
-         <string>GridView</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/resource.qrc">
-          <normaloff>:/icons/grid.svg</normaloff>:/icons/grid.svg</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-        <property name="autoExclusive">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="tableViewButton">
-        <property name="text">
-         <string>TableView</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/resource.qrc">
-          <normaloff>:/icons/table.svg</normaloff>:/icons/table.svg</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>16</width>
-          <height>16</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
-        </property>
-        <property name="autoExclusive">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_20">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Maximum</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="searchLineEdit">
-        <property name="placeholderText">
-         <string>Search</string>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="synchronizeNowButton">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Synchronize Now</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../../resources/resource.qrc">
-          <normaloff>:/icons/reload.svg</normaloff>:/icons/reload.svg</iconset>
+         <string>Confirm</string>
         </property>
        </widget>
       </item>
@@ -224,10 +56,16 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
      <item>
-      <widget class="QWidget" name="authorPicker" native="true">
-       <layout class="QVBoxLayout" name="verticalLayout_6">
+      <widget class="QWidget" name="topBar" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_9">
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -241,29 +79,196 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="numberOfAuthorsTextLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
-           <string>Selected</string>
+           <string>Number of Authors: </string>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QListView" name="authorPickerList">
-          <property name="viewMode">
-           <enum>QListView::IconMode</enum>
+         <widget class="QLabel" name="numberOfAuthorsLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>&lt;count&gt;</string>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="confirmButton">
-          <property name="minimumSize">
+         <spacer name="horizontalSpacer_18">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
            <size>
-            <width>0</width>
-            <height>30</height>
+            <width>40</width>
+            <height>20</height>
            </size>
           </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="lastSyncTextLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
-           <string>Confirm</string>
+           <string>Last Sync:</string>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lastSyncLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>&lt;sync datetime&gt;</string>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_19">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Minimum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="gridViewButton">
+          <property name="text">
+           <string>GridView</string>
+          </property>
+          <property name="icon">
+           <iconset theme="view-grid"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>18</width>
+            <height>18</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="tableViewButton">
+          <property name="text">
+           <string>TableView</string>
+          </property>
+          <property name="icon">
+           <iconset theme="table"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>18</width>
+            <height>18</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+          <property name="autoExclusive">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_20">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Maximum</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="searchLineEdit">
+          <property name="placeholderText">
+           <string>Search</string>
+          </property>
+          <property name="clearButtonEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="synchronizeNowButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Synchronize Now</string>
+          </property>
+          <property name="icon">
+           <iconset theme="state-sync"/>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>18</width>
+            <height>18</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -272,9 +277,6 @@
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_4">
-       <property name="spacing">
-        <number>6</number>
-       </property>
        <item>
         <widget class="QStackedWidget" name="stackedWidget">
          <property name="sizePolicy">
@@ -315,11 +317,7 @@
               <bool>true</bool>
              </property>
              <property name="styleSheet">
-              <string notr="true">QListView {
-	outline: 0;
-	background-color: &quot;#eeeeee&quot;
-}
-</string>
+              <string notr="true"/>
              </property>
              <property name="horizontalScrollBarPolicy">
               <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -618,7 +616,12 @@
   <customwidget>
    <class>GridView</class>
    <extends>QListView</extends>
-   <header>gridview.h</header>
+   <header>view/gridview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HeaderListView</class>
+   <extends>QListView</extends>
+   <header>view/headerlistview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

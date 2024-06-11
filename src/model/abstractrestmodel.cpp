@@ -25,8 +25,8 @@ void AbstractRestModel::reload() {
   m_reply = reply;
 
   future
-    .then(this, [this, replyPtr = reply](const QByteArray &data) {
-    updatePagination(replyPtr);
+    .then(this, [this](const QByteArray &data) {
+    updatePagination(m_reply);
 
     handleRequestData(data);
 
@@ -41,7 +41,7 @@ void AbstractRestModel::updatePagination(ReplyPointer reply) {
 
   m_pagination->setCurrentPage(reply->rawHeader(currentPage).toInt());
   m_pagination->setTotalCount(reply->rawHeader(totalCount).toInt());
-  m_pagination->setPageCount(reply->rawHeader(pageCount).toInt());
+  Q_UNUSED(pageCount);
 }
 
 void AbstractRestModel::processImageUrl(int row, const QUrl &url,
@@ -141,13 +141,7 @@ void AbstractRestModel::setRoute(const QString &route) {
   m_route = route;
 }
 
-void AbstractRestModel::abortReplies() {
-  for (auto &reply : m_imageReplies) {
-    reply->abort();
-  }
-
+void AbstractRestModel::clearReplies() {
   m_imageReplies.clear();
-  if (m_reply) {
-    m_reply->abort();
-  }
+  m_reply.reset();
 }

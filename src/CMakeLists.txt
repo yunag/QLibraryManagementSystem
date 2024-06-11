@@ -10,12 +10,15 @@ set(PROJECT_FORMS
     forms/authordetailsdialog.ui
     forms/authoradddialog.ui
     forms/authorsection.ui
+    forms/categorysection.ui
     forms/pagination.ui
     forms/authorsearchfilterdialog.ui)
 
 set(PROJECT_SOURCES
     main.cpp
     ../resources/resource.qrc
+    errormessagepopup.h
+    errormessagepopup.cpp
     bookdetailsdialog.h
     bookdetailsdialog.cpp
     libraryapplication.h
@@ -64,8 +67,6 @@ set(PROJECT_SOURCES
     pagination.cpp
     paginationwidget.h
     paginationwidget.cpp
-    gridview.h
-    gridview.cpp
     elidedlabel.h
     elidedlabel.cpp
     resourcemanager.h
@@ -74,6 +75,8 @@ set(PROJECT_SOURCES
     authoradddialog.cpp
     authorsearchfilterdialog.h
     authorsearchfilterdialog.cpp
+    categorysection.h
+    categorysection.cpp
     ${PROJECT_FORMS})
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Concurrent Network Svg StateMachine)
@@ -88,9 +91,10 @@ set_target_properties(
              AUTORCC ON
              AUTOUIC_SEARCH_PATHS "forms")
 
-add_subdirectory(model)
 add_subdirectory(network)
+add_subdirectory(model)
 add_subdirectory(delegate)
+add_subdirectory(view)
 add_subdirectory(schema)
 add_subdirectory(common)
 add_subdirectory(controllers)

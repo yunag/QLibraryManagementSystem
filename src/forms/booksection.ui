@@ -19,6 +19,9 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="view-list-icons"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QWidget" name="topBar" native="true">
@@ -143,8 +146,13 @@
          <string>GridView</string>
         </property>
         <property name="icon">
-         <iconset resource="../../resources/resource.qrc">
-          <normaloff>:/icons/grid.svg</normaloff>:/icons/grid.svg</iconset>
+         <iconset theme="view-grid"/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -163,13 +171,12 @@
          <string>TableView</string>
         </property>
         <property name="icon">
-         <iconset resource="../../resources/resource.qrc">
-          <normaloff>:/icons/table.svg</normaloff>:/icons/table.svg</iconset>
+         <iconset theme="table"/>
         </property>
         <property name="iconSize">
          <size>
-          <width>16</width>
-          <height>16</height>
+          <width>18</width>
+          <height>18</height>
          </size>
         </property>
         <property name="checkable">
@@ -201,6 +208,12 @@
       </item>
       <item>
        <widget class="QLineEdit" name="searchLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
         <property name="placeholderText">
          <string>Search</string>
         </property>
@@ -221,8 +234,13 @@
          <string>Synchronize Now</string>
         </property>
         <property name="icon">
-         <iconset resource="../../resources/resource.qrc">
-          <normaloff>:/icons/reload.svg</normaloff>:/icons/reload.svg</iconset>
+         <iconset theme="state-sync"/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>18</width>
+          <height>18</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -263,11 +281,7 @@
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">QListView {
-	outline: 0;
-	background-color: &quot;#eeeeee&quot;
-}
-</string>
+          <string notr="true"/>
          </property>
          <property name="horizontalScrollBarPolicy">
           <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -336,7 +350,7 @@
            <enum>Qt::SolidLine</enum>
           </property>
          </widget>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
             <widget class="AspectRatioLabel" name="bookCover">
@@ -529,12 +543,6 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
       </widget>
      </item>
     </layout>
@@ -556,7 +564,7 @@
   <customwidget>
    <class>GridView</class>
    <extends>QListView</extends>
-   <header>gridview.h</header>
+   <header>view/gridview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

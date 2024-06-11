@@ -9,20 +9,18 @@ class Pagination : public QObject {
 public:
   Q_INVOKABLE explicit Pagination(QObject *parent = nullptr);
 
+  Q_PROPERTY(QString currentPageHeader READ currentPageHeader WRITE
+               setCurrentPageHeader NOTIFY currentPageHeaderChanged)
+  Q_PROPERTY(QString pageCountHeader READ pageCountHeader WRITE
+               setPageCountHeader NOTIFY pageCountHeaderChanged)
+  Q_PROPERTY(QString totalCountHeader READ totalCountHeader WRITE
+               setTotalCountHeader NOTIFY totalCountHeaderChanged)
   Q_PROPERTY(int perPage READ perPage WRITE setPerPage NOTIFY perPageChanged)
   Q_PROPERTY(int currentPage READ currentPage WRITE setCurrentPage NOTIFY
                currentPageChanged)
-  Q_PROPERTY(QString currentPageHeader READ currentPageHeader WRITE
-               setCurrentPageHeader NOTIFY currentPageHeaderChanged)
-  Q_PROPERTY(
-    int pageCount READ pageCount WRITE setPageCount NOTIFY pageCountChanged)
-  Q_PROPERTY(QString pageCountHeader READ pageCountHeader WRITE
-               setPageCountHeader NOTIFY pageCountHeaderChanged)
+  Q_PROPERTY(int pageCount READ pageCount NOTIFY pageCountChanged)
 
-  Q_PROPERTY(QString totalCountHeader READ totalCountHeader WRITE
-               setTotalCountHeader NOTIFY totalCountHeaderChanged)
-  Q_PROPERTY(
-    int totalCount READ totalCount WRITE setTotalCount NOTIFY totalCountChanged)
+  Q_PROPERTY(int totalCount READ totalCount NOTIFY totalCountChanged)
 
   int perPage() const;
   int currentPage() const;
@@ -48,6 +46,8 @@ public slots:
   void setCurrentPageHeader(const QString &currentPageHeader);
   void setTotalCount(int totalCount);
   void setTotalCountHeader(const QString &totalCountHeader);
+
+private slots:
   void setPageCount(int pageCount);
   void setPageCountHeader(const QString &pageCountHeader);
 

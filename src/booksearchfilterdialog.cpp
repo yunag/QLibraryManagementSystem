@@ -18,7 +18,6 @@ BookSearchFilterDialog::BookSearchFilterDialog(BookRestModel *model,
                                           ui->rating4, ui->rating5};
   int currentRating = 0;
   for (KRatingWidget *rating : ratingWidgets) {
-    rating->setIcon(QIcon(":/images/starRating.svg"));
     rating->setRating(currentRating);
     rating->setMouseTracking(false);
     rating->setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -105,4 +104,15 @@ void BookSearchFilterDialog::accept() {
   m_model->setOrderBy(orderBy);
 
   QDialog::accept();
+}
+
+void BookSearchFilterDialog::setSearchText(const QString &text) {
+  QVariantMap filters = m_model->filters();
+  if (!text.isEmpty()) {
+    filters["title"] = text;
+  } else {
+    filters.remove("title");
+  }
+
+  m_model->setFilters(filters);
 }

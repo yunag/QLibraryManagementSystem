@@ -31,14 +31,28 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLineEdit" name="lineEdit">
-         <property name="placeholderText">
-          <string>Filter</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLineEdit" name="lineEdit">
+           <property name="placeholderText">
+            <string>Filter</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="syncButton">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset theme="state-sync"/>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="DragDropListView" name="leftListView">

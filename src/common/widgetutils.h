@@ -7,6 +7,8 @@
 
 #include "aspectratiolabel.h"
 
+class QLineEdit;
+
 class WidgetUtils {
 public:
   static ReplyPointer asyncLoadImage(AspectRatioLabel *label, const QUrl &url);

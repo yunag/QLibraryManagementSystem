@@ -1,11 +1,9 @@
 #include <QSettings>
+#include <QStyleHints>
 #include <QThread>
 
 #include "libraryapplication.h"
 #include "librarymainwindow.h"
-
-#include <chrono>
-using namespace std::chrono_literals;
 
 LibraryApplication::LibraryApplication(int &argc, char **argv)
     : QApplication(argc, argv) {
@@ -13,6 +11,12 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
   setOrganizationName("LibraryManagementOrganization");
   setOrganizationDomain("LibraryManagementDomain");
   setApplicationName("LibraryManagementSystem");
+
+  if (styleHints()->colorScheme() == Qt::ColorScheme::Light) {
+    QIcon::setFallbackThemeName("fluent-light");
+  } else {
+    QIcon::setFallbackThemeName("fluent-dark");
+  }
 
   /* Format debug messages */
   qSetMessagePattern(
@@ -22,7 +26,6 @@ LibraryApplication::LibraryApplication(int &argc, char **argv)
 
   /* INFO: For debug purposes */
   QThread::currentThread()->setObjectName("Main Thread");
-  setStyle("windowsvista");
 
   QFont appFont = font();
   appFont.setPointSize(10);

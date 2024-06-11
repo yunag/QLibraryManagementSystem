@@ -6,6 +6,12 @@
 #include "schema/bookauthor.h"
 #include "schema/category.h"
 
+class Schema {
+public:
+  virtual ~Schema() = default;
+  virtual QVariant createResource() const;
+};
+
 struct BookDetails : Book {
   QList<Author> authors;
   QList<Category> categories;

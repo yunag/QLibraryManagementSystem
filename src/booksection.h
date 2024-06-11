@@ -27,9 +27,6 @@ public:
 
   void loadBooks();
 
-signals:
-  void bookDetailsRequested(quint32 bookId);
-
 private slots:
   void reloadPage();
   void currentChanged(const QModelIndex &current, const QModelIndex &previous);

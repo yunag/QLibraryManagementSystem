@@ -16,7 +16,15 @@ SmoothScrollBar::SmoothScrollBar(const QEasingCurve &curve, int duration,
 
   connect(m_animation, &QPropertyAnimation::finished, this,
           &SmoothScrollBar::scrollFinished);
-  connect(this, &QScrollBar::rangeChanged, this, [this](int min, int max) {
+  connect(this, &SmoothScrollBar::valueChanged, this, [this](int value) {
+    if (m_animation->currentValue().toInt() != value) {
+      m_animation->stop();
+
+      m_animation->setEndValue(value);
+    }
+  });
+  connect(this, &QScrollBar::rangeChanged, this,
+          [this](int /*min*/, int /*max*/) {
     m_animation->stop();
 
     m_animation->setEndValue(value());

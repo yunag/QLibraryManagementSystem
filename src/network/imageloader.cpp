@@ -15,11 +15,11 @@ FutureImage ImageLoader::load(const QUrl &url) {
 
   auto futureImage =
     future.then(QtFuture::Launch::Async, [](const QByteArray &data) {
-      QPixmap pixmap;
-      pixmap.loadFromData(data);
+    QPixmap pixmap;
+    pixmap.loadFromData(data);
 
-      return pixmap;
-    });
+    return pixmap;
+  });
 
   return {futureImage, reply};
 }

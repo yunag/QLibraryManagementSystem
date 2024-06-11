@@ -47,11 +47,18 @@ void PaginationWidget::updatePageButtons() {
 }
 
 void PaginationWidget::updateTotalPages() {
-  QFontMetrics metrics(ui->pageInput->font());
   QString totalPages = QString::number(m_pagination->pageCount());
 
-  ui->pageInput->setMaximumWidth(
-    metrics.boundingRect(QString(totalPages.size() + 2, '0')).width());
+  QStyleOptionFrame op;
+  op.initFrom(ui->pageInput);
+
+  int fontSize =
+    op.fontMetrics.boundingRect(QString(totalPages.size(), '0')).size().width();
+
+  QSize size = ui->pageInput->style()->sizeFromContents(
+    QStyle::CT_LineEdit, &op, QSize(fontSize, ui->pageInput->height()));
+
+  ui->pageInput->setMaximumWidth(qMax(size.width(), 35));
   ui->pageInput->setText(QString::number(m_pagination->currentPage() + 1));
 
   updatePageButtons();

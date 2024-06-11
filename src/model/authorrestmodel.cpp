@@ -11,7 +11,7 @@
 #include "resourcemanager.h"
 
 AuthorRestModel::AuthorRestModel(QObject *parent)
-    : AbstractRestModel(parent), m_shouldFetchImages(false), m_authorsCount(0) {
+    : AbstractRestModel(parent), m_authorsCount(0) {
   setRoute("/api/authors");
   setRestManager(ResourceManager::networkManager());
 }
@@ -42,7 +42,10 @@ bool AuthorRestModel::removeRows(int row, int count,
   CHECK_REMOVEROWS(row, count, parent);
 
   beginRemoveRows({}, row, row + count - 1);
+
   m_authors.remove(row, count);
+  m_authorsCount -= count;
+
   endRemoveRows();
 
   return true;
@@ -66,45 +69,23 @@ void AuthorRestModel::fetchMore(const QModelIndex &parent) {
 
   m_authorsCount += numItemsFetch;
 
-  endInsertRows();
-
-  if (!m_shouldFetchImages) {
-    return;
-  }
-
   for (int row = m_authorsCount - numItemsFetch; row < m_authorsCount; ++row) {
     const auto &author = m_authors.at(row);
 
     auto busyIndicator = ResourceManager::busyIndicator();
     processImageUrl(row, author.imageUrl, busyIndicator, ImageRole);
   }
+
+  endInsertRows();
 }
 
 void AuthorRestModel::reset() {
   beginResetModel();
-  abortReplies();
+  clearReplies();
 
   m_authors.clear();
   m_authorsCount = 0;
   endResetModel();
-}
-
-void AuthorRestModel::shouldFetchImages(bool shouldFetchImages) {
-  m_shouldFetchImages = shouldFetchImages;
-
-  if (!m_shouldFetchImages) {
-    return;
-  }
-
-  for (int row = 0; row < rowCount(); ++row) {
-    AuthorItem &author = m_authors[row];
-
-    if (author.image.isNull()) {
-      auto busyIndicator = ResourceManager::busyIndicator();
-
-      processImageUrl(row, author.imageUrl, busyIndicator, ImageRole);
-    }
-  }
 }
 
 QVariant AuthorRestModel::data(const QModelIndex &index, int role) const {
@@ -196,7 +177,13 @@ QVariant AuthorRestModel::headerData(int section, Qt::Orientation orientation,
 
 Qt::ItemFlags AuthorRestModel::flags(const QModelIndex &index) const {
   CHECK_FLAGS(index);
-  return index.data(FlagsRole).value<Qt::ItemFlags>();
+  auto flags = index.data(FlagsRole).value<Qt::ItemFlags>();
+
+  if (m_imageReplies.contains(index)) {
+    /* Allow selection only when item is fully loaded */
+    flags &= ~Qt::ItemIsSelectable;
+  }
+  return flags;
 }
 
 QStringList AuthorRestModel::mimeTypes() const {

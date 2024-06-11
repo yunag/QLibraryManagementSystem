@@ -5,7 +5,7 @@
 
 TableRatingDelegate::TableRatingDelegate(QObject *parent)
     : QStyledItemDelegate(parent) {
-  m_painter.setIcon(QIcon(":/images/starRating.svg"));
+  //m_painter.setIcon(QIcon(":/images/starRating.svg"));
 }
 
 void TableRatingDelegate::paint(QPainter *painter,

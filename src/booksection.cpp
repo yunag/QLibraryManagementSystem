@@ -1,7 +1,6 @@
-#include <QtConcurrent>
-
 #include <QButtonGroup>
 #include <QScrollBar>
+#include <QSettings>
 
 #include "booksection.h"
 #include "ui_booksection.h"
@@ -19,6 +18,9 @@
 
 #include "bookadddialog.h"
 #include "booksearchfilterdialog.h"
+
+#include "libraryapplication.h"
+#include "librarymainwindow.h"
 
 BookSection::BookSection(QWidget *parent)
     : QWidget(parent), ui(new Ui::BookSection),
@@ -49,7 +51,6 @@ BookSection::BookSection(QWidget *parent)
   ui->pagination->setPagination(pagination);
 
   m_model->setOrderBy("id");
-  m_model->shouldFetchImages(true);
   m_model->setPagination(pagination);
 
   ui->bookListView->setItemSize(BookCard::sizeHint());
@@ -98,7 +99,7 @@ BookSection::BookSection(QWidget *parent)
   ui->splitter->restoreState(
     settings.value("booksection/splitter").toByteArray());
 
-  QAction *action = ui->searchLineEdit->addAction(QIcon(":/icons/searchIcon"),
+  QAction *action = ui->searchLineEdit->addAction(QIcon::fromTheme("searching"),
                                                   QLineEdit::LeadingPosition);
 
   connect(action, &QAction::triggered, m_searchFilterDialog,
@@ -116,7 +117,7 @@ BookSection::BookSection(QWidget *parent)
   connect(m_model, &BookRestModel::dataChanged, this, &BookSection::bookRated);
 
   connect(pagination, &Pagination::currentPageChanged, m_model,
-          [this](int page) { reloadPage(); });
+          [this](int /*page*/) { reloadPage(); });
   connect(pagination, &Pagination::totalCountChanged, this,
           &BookSection::setBooksCount);
 
@@ -125,8 +126,8 @@ BookSection::BookSection(QWidget *parent)
           &BookSection::showDetailsButtonClicked);
   connect(ui->bookListView, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
-    quint32 bookId = m_model->data(index, BookRestModel::IdRole).toUInt();
-    emit bookDetailsRequested(bookId);
+    quint32 id = m_model->data(index, BookRestModel::IdRole).toUInt();
+    App->mainWindow()->requestBookDetails(id);
   });
 
   connect(ui->deleteButton, &QPushButton::clicked, this,
@@ -174,15 +175,7 @@ void BookSection::addButtonClicked() {
 }
 
 void BookSection::searchTextChanged() {
-  QVariantMap filters = m_model->filters();
-  QString text = ui->searchLineEdit->text();
-  if (!text.isEmpty()) {
-    filters["title"] = text;
-  } else {
-    filters.remove("title");
-  }
-
-  m_model->setFilters(filters);
+  m_searchFilterDialog->setSearchText(ui->searchLineEdit->text());
 }
 
 void BookSection::setBooksCount(qint32 booksCount) {
@@ -202,6 +195,9 @@ void BookSection::deleteButtonClicked() {
       if (index.isValid()) {
         m_model->removeRow(index.row());
       }
+
+      Pagination *pagination = m_model->pagination();
+      pagination->setTotalCount(pagination->totalCount() - 1);
     }).onFailed(this, [this](const NetworkError &err) {
       handleError(this, err);
     });
@@ -244,9 +240,9 @@ void BookSection::currentChanged(const QModelIndex &current,
 
 void BookSection::showDetailsButtonClicked() {
   bool converted;
-  quint32 bookId = ui->bookId->text().toUInt(&converted);
+  quint32 id = ui->bookId->text().toUInt(&converted);
   if (converted) {
-    emit bookDetailsRequested(bookId);
+    App->mainWindow()->requestBookDetails(id);
   }
 }
 
@@ -257,14 +253,12 @@ void BookSection::viewChangeButtonToggled(QAbstractButton *button,
   }
 
   if (button == ui->gridViewButton) {
-    m_model->shouldFetchImages(true);
     /* NOTE: Even if it's not visible it will call `fetchMore`
      * more times than necessary. This line `fixes` the problem 
      */
     ui->bookTableView->setMaximumSize(0, 0);
     ui->stackedWidget->setCurrentWidget(ui->gridViewPage);
   } else {
-    m_model->shouldFetchImages(false);
     ui->bookTableView->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
   }

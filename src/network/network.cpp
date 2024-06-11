@@ -150,8 +150,11 @@ void RestApiManager::setBearerToken(const QByteArray &token) {
 }
 
 FutureReply RestApiManager::futureReply(QNetworkReply *replyBase) {
-  auto reply = std::shared_ptr<QNetworkReply>(
-    replyBase, [](QObject *obj) { obj->deleteLater(); });
+  auto reply =
+    std::shared_ptr<QNetworkReply>(replyBase, [](QNetworkReply *rep) {
+    rep->abort();
+    rep->deleteLater();
+  });
 
   auto future =
     QtFuture::connect(reply.get(), &QNetworkReply::finished).then([reply]() {

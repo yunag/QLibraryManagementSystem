@@ -30,7 +30,7 @@ public:
 
   virtual void handleRequestData(const QByteArray &data) = 0;
 
-  void abortReplies();
+  void clearReplies();
   void setRoute(const QString &route);
 
   RestApiManager *restManager() const;

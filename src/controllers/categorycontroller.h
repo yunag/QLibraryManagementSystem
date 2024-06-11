@@ -3,11 +3,14 @@
 
 #include <QFuture>
 
+#include "controllers/controller.h"
 #include "schema/category.h"
 
-class CategoryController {
+class CategoryController : public Controller {
 public:
-  static QFuture<QList<Category>> getCategories();
+  QFuture<QList<Category>> getCategories();
+  QFuture<void> create(const Category &category);
+  QFuture<void> deleteResource(quint32 id);
 };
 
 #endif /* !CATEGORYCONTROLLER_H */

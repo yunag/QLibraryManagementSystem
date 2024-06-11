@@ -69,8 +69,6 @@ public:
   bool canFetchMore(const QModelIndex &parent) const override;
   void fetchMore(const QModelIndex &parent) override;
 
-  void shouldFetchImages(bool shouldFetchImages);
-
   void reset();
 
   Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -85,7 +83,6 @@ public:
 private:
   QList<AuthorItem> m_authors;
 
-  bool m_shouldFetchImages;
   int m_authorsCount;
 };
 

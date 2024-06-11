@@ -1,0 +1,17 @@
+[Icon Theme]
+Name=Fluent Icons Light
+Comment=https://fluenticons.co/
+
+Directories=24,application
+
+[24]
+Size=24
+Context=Applications
+Type=Scalable
+MinSize=16
+MaxSize=512
+
+[application]
+Size=64
+Context=Applications
+Type=Scalable

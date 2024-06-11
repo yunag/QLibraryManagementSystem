@@ -4,7 +4,17 @@ Pagination::Pagination(QObject *parent)
     : QObject(parent), m_perPage(20), m_currentPage(0), m_pageCount(0),
       m_totalCount(0), m_currentPageHeader("X-Pagination-Current-Page"),
       m_totalCountHeader("X-Pagination-Total-Count"),
-      m_pageCountHeader("X-Pagination-Page-Count") {}
+      m_pageCountHeader("X-Pagination-Page-Count") {
+
+  auto handle = [this](int) {
+    if (m_perPage) {
+      setPageCount(qCeil(float(m_totalCount) / float(m_perPage)));
+    }
+  };
+
+  connect(this, &Pagination::perPageChanged, this, handle);
+  connect(this, &Pagination::totalCountChanged, this, handle);
+}
 
 int Pagination::perPage() const {
   return m_perPage;

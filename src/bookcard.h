@@ -48,7 +48,7 @@ public:
   QRect buttonRect(const QRect &rect) const;
 
 private:
-  KRatingPainter *m_ratingPainter;
+  QSharedPointer<KRatingPainter> m_ratingPainter;
 
   QString m_title;
   QPixmap m_cover;

@@ -1,9 +1,18 @@
 #include <QButtonGroup>
+#include <QPropertyAnimation>
 #include <QScrollBar>
 #include <QSettings>
 
+#include <QFinalState>
+#include <QState>
+#include <QStateMachine>
+
 #include "authorsection.h"
+#include "common/error.h"
 #include "ui_authorsection.h"
+
+#include "libraryapplication.h"
+#include "librarymainwindow.h"
 
 #include "common/widgetutils.h"
 #include "controllers/authorcontroller.h"
@@ -13,6 +22,7 @@
 
 #include "delegate/authoricondelegate.h"
 #include "delegate/leftaligndelegate.h"
+
 #include "model/authorlistmodel.h"
 #include "model/authorrestmodel.h"
 
@@ -24,7 +34,8 @@ AuthorSection::AuthorSection(QWidget *parent)
   ui->setupUi(this);
 
   ui->authorPicker->setMaximumSize(0, 0);
-  ui->horizontalLayout->setSpacing(0);
+  ui->authorPicker->setVisible(false);
+  ui->authorPickerList->setHeaderText("Authors");
 
   m_loadPageTimer.setInterval(0);
   m_loadPageTimer.setSingleShot(true);
@@ -42,13 +53,17 @@ AuthorSection::AuthorSection(QWidget *parent)
     m_model->reload();
   });
 
+  connect(ui->authorPickerList, &HeaderListView::doubleClicked, this,
+          [this](const QModelIndex &index) {
+    ui->authorPickerList->model()->removeRow(index.row());
+  });
+
   auto *pagination = new Pagination(this);
   pagination->setPerPage(25);
 
   ui->pagination->setPagination(pagination);
 
   m_model->setOrderBy("firstname");
-  m_model->shouldFetchImages(true);
   m_model->setPagination(pagination);
 
   ui->authorListView->setItemDelegate(new AuthorIconDelegate);
@@ -87,7 +102,7 @@ AuthorSection::AuthorSection(QWidget *parent)
   ui->splitter->restoreState(
     settings.value("authorsection/splitter").toByteArray());
 
-  QAction *action = ui->searchLineEdit->addAction(QIcon(":/icons/searchIcon"),
+  QAction *action = ui->searchLineEdit->addAction(QIcon::fromTheme("searching"),
                                                   QLineEdit::LeadingPosition);
 
   connect(action, &QAction::triggered, m_searchFilterDialog,
@@ -112,8 +127,8 @@ AuthorSection::AuthorSection(QWidget *parent)
           &AuthorSection::showDetailsButtonClicked);
   connect(ui->authorListView, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
-    quint32 authorId = m_model->data(index, AuthorRestModel::IdRole).toUInt();
-    emit authorDetailsRequested(authorId);
+    quint32 id = m_model->data(index, AuthorRestModel::IdRole).toUInt();
+    App->mainWindow()->requestAuthorDetails(id);
   });
 
   connect(m_authorAddDialog, &AuthorAddDialog::edited, this,
@@ -128,6 +143,9 @@ AuthorSection::AuthorSection(QWidget *parent)
           &AuthorSection::synchronizeNowButtonClicked);
   connect(ui->searchLineEdit, &QLineEdit::textChanged, this,
           [this](auto) { m_searchTimer.start(); });
+
+  connect(m_model, &AuthorRestModel::rowsInserted, this,
+          &AuthorSection::authorListRowsInserted);
 }
 
 AuthorSection::~AuthorSection() {
@@ -161,15 +179,7 @@ void AuthorSection::addButtonClicked() {
 }
 
 void AuthorSection::searchTextChanged() {
-  QVariantMap filters = m_model->filters();
-  QString text = ui->searchLineEdit->text();
-  if (!text.isEmpty()) {
-    filters["name"] = text;
-  } else {
-    filters.remove("name");
-  }
-
-  m_model->setFilters(filters);
+  m_searchFilterDialog->setSearchText(ui->searchLineEdit->text());
 }
 
 void AuthorSection::setAuthorsCount(qint32 authorsCount) {
@@ -179,18 +189,22 @@ void AuthorSection::setAuthorsCount(qint32 authorsCount) {
 void AuthorSection::deleteButtonClicked() {
   QModelIndexList selectedIndexes =
     ui->authorListView->selectionModel()->selectedIndexes();
+  AuthorController controller;
 
   for (const QModelIndex &index : selectedIndexes) {
-    quint32 bookId = m_model->data(index, AuthorRestModel::IdRole).toUInt();
+    quint32 id = m_model->data(index, AuthorRestModel::IdRole).toUInt();
 
-    //AuthorController::deleteById(bookId)
-    //  .then(this, [this, index](auto) {
-    //  if (index.isValid()) {
-    //    m_model->removeRow(index.row());
-    //  }
-    //}).onFailed(this, [this](const NetworkError &err) {
-    //  handleError(this, err);
-    //});
+    controller.deleteResource(id)
+      .then(this, [this, index](auto) {
+      if (index.isValid()) {
+        m_model->removeRow(index.row());
+      }
+
+      Pagination *pagination = m_model->pagination();
+      pagination->setTotalCount(pagination->totalCount() - 1);
+    }).onFailed(this, [this](const NetworkError &err) {
+      handleError(this, err);
+    });
   }
 }
 
@@ -232,9 +246,9 @@ void AuthorSection::currentChanged(const QModelIndex &current,
 
 void AuthorSection::showDetailsButtonClicked() {
   bool converted;
-  quint32 bookId = ui->authorId->text().toUInt(&converted);
+  quint32 id = ui->authorId->text().toUInt(&converted);
   if (converted) {
-    emit authorDetailsRequested(bookId);
+    App->mainWindow()->requestAuthorDetails(id);
   }
 }
 
@@ -245,42 +259,36 @@ void AuthorSection::viewChangeButtonToggled(QAbstractButton *button,
   }
 
   if (button == ui->gridViewButton) {
-    m_model->shouldFetchImages(true);
     /* NOTE: Even if it's not visible it will call `fetchMore`
      * more times than necessary. This line `fixes` the problem 
      */
     ui->authorTableView->setMaximumSize(0, 0);
     ui->stackedWidget->setCurrentWidget(ui->gridViewPage);
   } else {
-    m_model->shouldFetchImages(false);
     ui->authorTableView->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
   }
 }
 
-#include <QFinalState>
-#include <QState>
-#include <QStateMachine>
-
-#include <QPainter>
-#include <QPropertyAnimation>
-#include <QStandardItemModel>
-
-#include <QMimeData>
-
 void AuthorSection::toggleAuthorPickerMode() {
   auto *machine = new QStateMachine(this);
   machine->setGlobalRestorePolicy(QState::RestoreProperties);
 
-  auto *animation = new QPropertyAnimation(ui->authorPicker, "maximumSize");
+  auto *animation =
+    new QPropertyAnimation(ui->authorPicker, "maximumSize", machine);
   animation->setDuration(200);
   animation->setEasingCurve(QEasingCurve::InOutQuad);
 
   machine->addDefaultAnimation(animation);
 
-  ui->authorPickerList->setModel(new AuthorListModel(this));
+  auto *model = new AuthorListModel(machine);
+  connect(model, &AuthorListModel::rowsInserted, this,
+          &AuthorSection::authorPickerListModifed);
+  connect(model, &AuthorListModel::rowsRemoved, this,
+          &AuthorSection::authorPickerListModifed);
+
+  ui->authorPickerList->setModel(model);
   ui->authorPickerList->setItemDelegate(new LeftAlignDelegate);
-  //ui->authorPickerList->setUniformItemSizes(true);
 
   auto *s1 = new QState();
   auto *s2 = new QState();
@@ -289,7 +297,7 @@ void AuthorSection::toggleAuthorPickerMode() {
   s1->assignProperty(ui->updateButton, "visible", false);
   s1->assignProperty(ui->deleteButton, "visible", false);
   s1->assignProperty(ui->addButton, "visible", false);
-  s1->assignProperty(ui->horizontalLayout, "spacing", 6);
+  s1->assignProperty(ui->authorPicker, "visible", true);
 
   s1->assignProperty(ui->authorListView, "dragDropMode",
                      QAbstractItemView::DragOnly);
@@ -304,23 +312,26 @@ void AuthorSection::toggleAuthorPickerMode() {
                      QSize(200, QWIDGETSIZE_MAX));
 
   s1->addTransition(ui->confirmButton, &QPushButton::clicked, s2);
+  s2->assignProperty(ui->authorPicker, "visible", true);
   s2->addTransition(s2, &QState::propertiesAssigned, s3);
 
   connect(machine, &QStateMachine::finished, this, [this, machine]() {
-    machine->deleteLater();
     auto *model =
       qobject_cast<AuthorListModel *>(ui->authorPickerList->model());
     QList<Author> authors;
 
     for (int row = 0; row < model->rowCount(); ++row) {
       QModelIndex index = model->index(row, 0);
-      Author author =
+      auto author =
         model->data(index, AuthorRestModel::ObjectRole).value<AuthorItem>();
       authors.push_back(std::move(author));
     }
 
+    model->removeRows(0, model->rowCount());
+    machine->deleteLater();
+
     emit authorsPickingFinished(authors);
-  }, Qt::QueuedConnection);
+  });
 
   machine->addState(s1);
   machine->addState(s2);
@@ -328,4 +339,45 @@ void AuthorSection::toggleAuthorPickerMode() {
 
   machine->setInitialState(s1);
   machine->start();
+}
+
+void AuthorSection::authorPickerListModifed(const QModelIndex & /*parent*/,
+                                            int /*first*/, int /*last*/) {
+  auto *model = qobject_cast<AuthorListModel *>(ui->authorPickerList->model());
+
+  for (int i = 0; i < m_model->rowCount(); ++i) {
+    QModelIndex index = m_model->index(i);
+    quint32 authorId = m_model->data(index, AuthorRestModel::IdRole).toUInt();
+
+    auto flags =
+      m_model->data(index, AuthorRestModel::FlagsRole).value<Qt::ItemFlags>();
+
+    flags.setFlag(Qt::ItemIsEnabled, !model->hasAuthorId(authorId));
+
+    m_model->setData(index, QVariant::fromValue(flags),
+                     AuthorRestModel::FlagsRole);
+  }
+}
+
+void AuthorSection::authorListRowsInserted(const QModelIndex & /*parent*/,
+                                           int first, int last) {
+  auto *pickerListModel =
+    qobject_cast<AuthorListModel *>(ui->authorPickerList->model());
+  if (!pickerListModel) {
+    return;
+  }
+
+  for (int i = first; i <= last; ++i) {
+    QModelIndex index = m_model->index(i);
+    quint32 authorId = m_model->data(index, AuthorRestModel::IdRole).toUInt();
+
+    if (pickerListModel->hasAuthorId(authorId)) {
+      auto flags =
+        m_model->data(index, AuthorRestModel::FlagsRole).value<Qt::ItemFlags>();
+      flags &= ~Qt::ItemIsEnabled;
+
+      m_model->setData(index, QVariant::fromValue(flags),
+                       AuthorRestModel::FlagsRole);
+    }
+  }
 }

@@ -41,11 +41,6 @@
        <height>0</height>
       </size>
      </property>
-     <property name="styleSheet">
-      <string notr="true">QScrollArea#scrollArea {
-    background-color: transparent;
-}</string>
-     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>

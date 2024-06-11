@@ -1,6 +1,9 @@
 #include "authordetailsdialog.h"
 #include "ui_authordetailsdialog.h"
 
+#include "libraryapplication.h"
+#include "librarymainwindow.h"
+
 #include "common/error.h"
 #include "common/widgetutils.h"
 
@@ -35,8 +38,9 @@ AuthorDetailsDialog::AuthorDetailsDialog(QWidget *parent)
   connect(ui->booksList, &QListView::doubleClicked, this,
           [this](const QModelIndex &index) {
     QStandardItem *item = m_bookModel->item(index.row());
+    quint32 id = item->data().toUInt();
 
-    emit bookDetailsRequested(item->data().toUInt());
+    App->mainWindow()->requestBookDetails(id);
   });
 }
 
@@ -46,6 +50,8 @@ AuthorDetailsDialog::~AuthorDetailsDialog() {
 
 void AuthorDetailsDialog::showDetails(quint32 authorId) {
   AuthorController controller;
+
+  ui->scrollArea->verticalScrollBar()->setValue(0);
 
   controller.get(authorId)
     .then(this, [this](const AuthorDetails &details) {
@@ -57,9 +63,13 @@ void AuthorDetailsDialog::showDetails(quint32 authorId) {
 }
 
 void AuthorDetailsDialog::updateUi(const AuthorDetails &details) {
-  ui->authorNameLabel->setText(details.firstName + " " + details.lastName);
+  QString fullName = details.firstName + " " + details.lastName;
+  ui->authorNameLabel->setText(fullName);
+  setWindowTitle(fullName);
+
   /* TODO: implement */
-  // ui->bioText->setText(details.bio);
+  ui->bioText->setText("");
+
   WidgetUtils::asyncLoadImage(ui->authorImage, details.imageUrl);
 
   m_bookModel->clear();
@@ -87,5 +97,5 @@ QStandardItem *AuthorDetailsDialog::addItem(LoadingModel *model,
 void AuthorDetailsDialog::closeEvent(QCloseEvent *event) {
   m_bookModel->clear();
 
-  QDialog::close();
+  QDialog::closeEvent(event);
 }

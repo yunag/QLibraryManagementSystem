@@ -22,9 +22,6 @@ public:
 
   void showDetails(quint32 authorId);
 
-signals:
-  void bookDetailsRequested(quint32 bookId);
-
 protected:
   void closeEvent(QCloseEvent *event) override;
 

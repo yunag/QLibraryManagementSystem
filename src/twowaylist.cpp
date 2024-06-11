@@ -30,6 +30,8 @@ TwoWayList::TwoWayList(QWidget *parent)
           &TwoWayList::swapLeftToRight);
   connect(ui->rightListView, &QListView::doubleClicked, this,
           &TwoWayList::swapRightToLeft);
+  connect(ui->syncButton, &QPushButton::clicked, this,
+          &::TwoWayList::syncButtonClicked);
 }
 
 TwoWayList::~TwoWayList() {
@@ -64,21 +66,12 @@ void TwoWayList::swapRightToLeft(const QModelIndex &index) {
   m_modelLeft->appendRow(item);
 }
 
-static QList<QStandardItem *> grabItems(QStandardItemModel *model) {
-  QList<QStandardItem *> result;
-
-  for (int i = 0; i < model->rowCount(); ++i) {
-    result << model->item(i);
-  }
-  return result;
+QStandardItemModel *TwoWayList::leftModel() {
+  return m_modelLeft;
 }
 
-QList<QStandardItem *> TwoWayList::leftList() {
-  return grabItems(m_modelLeft);
-}
-
-QList<QStandardItem *> TwoWayList::rightList() {
-  return grabItems(m_modelRight);
+QStandardItemModel *TwoWayList::rightModel() {
+  return m_modelRight;
 }
 
 bool TwoWayList::hasResults() {

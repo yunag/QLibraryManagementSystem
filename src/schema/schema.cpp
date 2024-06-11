@@ -119,3 +119,5 @@ QHttpMultiPart *Author::createHttpMultiPart() const {
 
   return multiPart;
 }
+
+QVariant Schema::createResource() const {}

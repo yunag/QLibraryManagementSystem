@@ -1,6 +1,9 @@
 #include <QFontMetrics>
 #include <QStandardItemModel>
 
+#include "libraryapplication.h"
+#include "librarymainwindow.h"
+
 #include "controllers/bookcontroller.h"
 #include "model/loadingmodel.h"
 
@@ -31,8 +34,9 @@ BookDetailsDialog::BookDetailsDialog(QWidget *parent)
           [this](const QModelIndex &index) {
     auto *model = qobject_cast<QStandardItemModel *>(ui->authorsList->model());
     QStandardItem *item = model->item(index.row());
+    quint32 id = item->data().toUInt();
 
-    emit authorDetailsRequested(item->data().toUInt());
+    App->mainWindow()->requestAuthorDetails(id);
   });
 }
 
@@ -42,6 +46,8 @@ BookDetailsDialog::~BookDetailsDialog() {
 
 void BookDetailsDialog::showDetails(quint32 bookId) {
   BookController controller;
+
+  ui->scrollArea->verticalScrollBar()->setValue(0);
 
   controller.get(bookId)
     .then(this, [this](const BookDetails &bookDetails) {
@@ -109,9 +115,9 @@ void BookDetailsDialog::updateUi(const BookDetails &book) {
   }
 }
 
-void BookDetailsDialog::closeEvent(QCloseEvent *) {
+void BookDetailsDialog::closeEvent(QCloseEvent *event) {
   m_authorsModel->clear();
   m_categoriesModel->clear();
 
-  QDialog::close();
+  QDialog::closeEvent(event);
 }

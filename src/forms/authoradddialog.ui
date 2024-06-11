@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Author Add/Update</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../resources/resource.qrc">
+    <normaloff>:/images/LibraryLogo.png</normaloff>:/images/LibraryLogo.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -82,7 +86,7 @@
         <widget class="QLabel" name="label_3">
          <property name="font">
           <font>
-           <pointsize>12</pointsize>
+           <pointsize>10</pointsize>
           </font>
          </property>
          <property name="text">
@@ -134,39 +138,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <header>imagepickerlabel.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>AuthorAddDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>AuthorAddDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <resources>
+  <include location="../../resources/resource.qrc"/>
+ </resources>
 </ui>

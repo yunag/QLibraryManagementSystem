@@ -24,10 +24,27 @@
         <file>icons/lastpage.svg</file>
         <file>icons/nextpage.svg</file>
         <file>icons/prevpage.svg</file>
-        <file>images/starRating.svg</file>
         <file>images/LoadingSpinner.gif</file>
         <file>icons/link-horizontal.svg</file>
         <file>icons/grid.svg</file>
         <file>icons/table.svg</file>
+        <file>icons/fluent-dark/index.theme</file>
+        <file>icons/fluent-light/index.theme</file>
+        <file>icons/fluent-light/24/view-grid.svg</file>
+        <file>icons/fluent-dark/24/view-grid.svg</file>
+        <file>icons/fluent-light/24/table.svg</file>
+        <file>icons/fluent-dark/24/table.svg</file>
+        <file>icons/fluent-light/24/searching.svg</file>
+        <file>icons/fluent-dark/24/searching.svg</file>
+        <file>icons/fluent-light/24/link.svg</file>
+        <file>icons/fluent-dark/24/link.svg</file>
+        <file>icons/fluent-light/24/state-sync.svg</file>
+        <file>icons/fluent-dark/24/state-sync.svg</file>
+        <file>icons/fluent-light/application/rating.svg</file>
+        <file>icons/fluent-dark/application/rating.svg</file>
+        <file>icons/fluent-light/24/eye-show.svg</file>
+        <file>icons/fluent-dark/24/eye-show.svg</file>
+        <file>icons/fluent-light/24/eye-hide.svg</file>
+        <file>icons/fluent-dark/24/eye-hide.svg</file>
     </qresource>
 </RCC>

@@ -11,6 +11,8 @@ namespace Ui {
 class BookAddDialog;
 }
 
+class ErrorMessagePopup;
+
 class BookDialogStrategy {
 public:
   virtual ~BookDialogStrategy() = default;
@@ -72,10 +74,12 @@ signals:
 
 private slots:
   void authorsPickerFinished(const QList<Author> &authors);
+  void authorsSelectButtonClicked();
 
 private:
   BookDialogStrategy *m_strategy;
 
+  ErrorMessagePopup *m_errorMessagePopup;
   BookUpdateStrategy *m_updateStrategy;
   BookCreateStrategy *m_createStrategy;
 

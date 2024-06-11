@@ -17,6 +17,8 @@ public:
                                     QWidget *parent = nullptr);
   ~AuthorSearchFilterDialog() override;
 
+  void setSearchText(const QString &text);
+
 public:
   void accept() override;
 

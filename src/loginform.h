@@ -13,6 +13,8 @@ class LoginForm;
 
 QT_END_NAMESPACE
 
+class ErrorMessagePopup;
+
 class LoginForm : public QWidget {
   Q_OBJECT
 
@@ -30,5 +32,7 @@ private:
   Ui::LoginForm *ui;
 
   UserAuthentication m_authentication;
+  ErrorMessagePopup *m_usernameErrorPopup;
+  ErrorMessagePopup *m_passwordErrorPopup;
 };
 #endif  // LOGINFORM_H

@@ -6,12 +6,16 @@
 #include "loginform.h"
 #include "ui_loginform.h"
 
+#include "errormessagepopup.h"
+
 #include "network/networkerror.h"
 #include "resourcemanager.h"
 
 LoginForm::LoginForm(QWidget *parent)
     : QWidget(parent), ui(new Ui::LoginForm),
-      m_authentication(ResourceManager::networkManager()) {
+      m_authentication(ResourceManager::networkManager()),
+      m_usernameErrorPopup(new ErrorMessagePopup(this)),
+      m_passwordErrorPopup(new ErrorMessagePopup(this)) {
   ui->setupUi(this);
 
   ui->port->setValidator(new QIntValidator(0, 65535, this));
@@ -40,6 +44,16 @@ void LoginForm::loginButtonClicked() {
 
   QString username = ui->username->text();
   QString password = ui->password->text();
+
+  if (username.isEmpty() || password.isEmpty()) {
+    if (username.isEmpty()) {
+      m_usernameErrorPopup->showMessage(ui->username, "This field is required");
+    }
+    if (password.isEmpty()) {
+      m_passwordErrorPopup->showMessage(ui->password, "This field is required");
+    }
+    return;
+  }
 
   int port = portString.toInt();
 

@@ -57,7 +57,7 @@
 // Technically it might be OK to call removeRows with count == 0, so you might
 // consider taking that out and making it a check in your code instead.
 #define CHECK_REMOVEROWS(row, count, parent)                                   \
-  if (!checkIndex(parent) || row < 0 || (row + count) >= rowCount(parent) ||   \
+  if (!checkIndex(parent) || row < 0 || (row + count) > rowCount(parent) ||    \
       !count)                                                                  \
   return false
 

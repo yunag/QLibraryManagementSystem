@@ -27,7 +27,6 @@ public:
   void toggleAuthorPickerMode();
 
 signals:
-  void authorDetailsRequested(quint32 authorId);
   void authorsPickingFinished(const QList<Author> &authors);
 
 private slots:
@@ -45,6 +44,9 @@ private slots:
 private:
   void updateLastSync();
   void setAuthorsCount(int count);
+
+  void authorPickerListModifed(const QModelIndex &parent, int first, int last);
+  void authorListRowsInserted(const QModelIndex &parent, int first, int last);
 
 private:
   Ui::AuthorSection *ui;

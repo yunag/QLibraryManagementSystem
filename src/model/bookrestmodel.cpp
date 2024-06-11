@@ -10,7 +10,7 @@
 #include "resourcemanager.h"
 
 BookRestModel::BookRestModel(QObject *parent)
-    : AbstractRestModel(parent), m_shouldFetchImages(false), m_booksCount(0) {
+    : AbstractRestModel(parent), m_booksCount(0) {
   setRoute("/api/books");
   setRestManager(ResourceManager::networkManager());
 }
@@ -45,12 +45,6 @@ void BookRestModel::fetchMore(const QModelIndex &parent) {
 
   m_booksCount += numItemsFetch;
 
-  endInsertRows();
-
-  if (!m_shouldFetchImages) {
-    return;
-  }
-
   for (int row = m_booksCount - numItemsFetch; row < m_booksCount; ++row) {
     BookCard &bookCard = m_bookCards[row];
 
@@ -58,6 +52,8 @@ void BookRestModel::fetchMore(const QModelIndex &parent) {
     processImageUrl(row, bookCard.coverUrl(), busyIndicator, CoverRole);
     bookCard.setBusyIndicator(busyIndicator);
   }
+
+  endInsertRows();
 }
 
 bool BookRestModel::setData(const QModelIndex &index, const QVariant &value,
@@ -194,25 +190,6 @@ const BookCard &BookRestModel::get(int row) const {
   return m_bookCards.at(row);
 }
 
-void BookRestModel::shouldFetchImages(bool shouldFetchImages) {
-  m_shouldFetchImages = shouldFetchImages;
-
-  if (!m_shouldFetchImages) {
-    return;
-  }
-
-  for (int row = 0; row < rowCount(); ++row) {
-    BookCard &card = m_bookCards[row];
-
-    if (card.cover().isNull()) {
-      auto busyIndicator = ResourceManager::busyIndicator();
-
-      processImageUrl(row, card.coverUrl(), busyIndicator, CoverRole);
-      card.setBusyIndicator(ResourceManager::busyIndicator());
-    }
-  }
-}
-
 QVariant BookRestModel::dataForColumn(const QModelIndex &index) {
   switch (index.column()) {
     case IdHeader:
@@ -256,7 +233,7 @@ QVariant BookRestModel::headerData(int section, Qt::Orientation orientation,
 
 void BookRestModel::reset() {
   beginResetModel();
-  abortReplies();
+  clearReplies();
 
   m_bookCards.clear();
   m_booksCount = 0;

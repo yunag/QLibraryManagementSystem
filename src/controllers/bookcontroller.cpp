@@ -2,11 +2,10 @@
 
 #include <QJsonObject>
 
-#include "network/network.h"
+#include "bookcontroller.h"
 
 #include "common/json.h"
-
-#include "bookcontroller.h"
+#include "network/network.h"
 
 QFuture<quint32> BookController::create(const Book &book) {
   QHttpMultiPart *multiPart = book.createHttpMultiPart();

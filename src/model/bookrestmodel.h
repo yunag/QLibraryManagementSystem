@@ -3,7 +3,6 @@
 
 #include <QAbstractListModel>
 
-#include "network/network.h"
 #include "schema/schema.h"
 
 #include "abstractrestmodel.h"
@@ -56,8 +55,6 @@ public:
   bool canFetchMore(const QModelIndex &parent) const override;
   void fetchMore(const QModelIndex &parent) override;
 
-  void shouldFetchImages(bool shouldFetchImages);
-
   const BookCard &get(int row) const;
 
   QVariant data(const QModelIndex &index, int role) const override;
@@ -70,7 +67,6 @@ private slots:
 private:
   QList<BookCard> m_bookCards;
 
-  bool m_shouldFetchImages;
   int m_booksCount;
 
   struct {

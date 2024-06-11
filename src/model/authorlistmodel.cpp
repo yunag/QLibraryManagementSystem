@@ -10,22 +10,19 @@ bool AuthorListModel::hasAuthorId(quint32 id) {
       return true;
     }
   }
+
   return false;
 }
 
 bool AuthorListModel::canDropMimeData(const QMimeData *data,
-                                      Qt::DropAction action, int /*row*/,
+                                      Qt::DropAction action, int row,
                                       int column,
                                       const QModelIndex &parent) const {
   if (data->hasFormat(AuthorRestModel::MimeType)) {
     return action == Qt::CopyAction;
   }
 
-  if (parent.isValid()) {
-    return false;
-  }
-
-  return true;
+  return QStandardItemModel::canDropMimeData(data, action, row, column, parent);
 }
 
 bool AuthorListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,

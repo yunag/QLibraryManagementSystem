@@ -9,7 +9,6 @@
 #include "bookcard.h"
 
 BookCard::BookCard() : m_ratingPainter(new KRatingPainter) {
-  m_ratingPainter->setIcon(QIcon(":/images/starRating.svg"));
   m_ratingPainter->setAlignment(Qt::AlignLeft);
   m_buttonState = QStyle::State_Enabled;
 }
@@ -102,15 +101,15 @@ void BookCard::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->save();
 
     int borderWidth = 2;
-    QPen borderPen(Qt::black, borderWidth);
+    QPen borderPen(palette.windowText(), borderWidth);
 
     painter->setPen(borderPen);
-    painter->setBrush(palette.light());
+    painter->setBrush(palette.window().color().darker(98));
     painter->drawRect(rect.adjusted(borderWidth / 2, borderWidth / 2,
                                     -borderWidth / 2, -borderWidth / 2));
     painter->restore();
   } else {
-    painter->fillRect(rect, palette.light());
+    painter->fillRect(rect, palette.window().color().darker(98));
   }
 
   CardLayout l = cardLayout(rect);
@@ -183,8 +182,8 @@ void BookCard::paint(QPainter *painter, const QStyleOptionViewItem &option,
   QStyleOptionButton buttonOpt;
   buttonOpt.rect = l.button.marginsRemoved(QMargins(1, 1, 1, 1));
   buttonOpt.state = m_buttonState;
-  buttonOpt.iconSize = buttonOpt.rect.size();
-  buttonOpt.icon = QIcon(":/icons/link-horizontal.svg");
+  buttonOpt.icon = QIcon::fromTheme("link");
+  buttonOpt.iconSize = QSize(24, 24);
 
   QStyle *style =
     option.widget ? option.widget->style() : QApplication::style();
@@ -197,7 +196,7 @@ void BookCard::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
 QSize BookCard::sizeHint() {
   /* NOTE: hardcoded value */
-  return {420, 250};
+  return {450, 255};
 }
 
 int BookCard::ratingFromPosition(const QRect &rect, const QPoint &pos) const {

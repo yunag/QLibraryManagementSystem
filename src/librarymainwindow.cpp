@@ -1,6 +1,7 @@
 #include <QScreen>
 #include <QSettings>
 #include <QStateMachine>
+#include <QStyleHints>
 
 #include "librarymainwindow.h"
 #include "loginform.h"
@@ -10,11 +11,31 @@
 #include "authorsection.h"
 #include "bookdetailsdialog.h"
 #include "booksection.h"
+#include "categorysection.h"
 #include "resourcemanager.h"
 
 LibraryMainWindow::LibraryMainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::LibraryMainWindow), m_loginForm(nullptr) {
   ui->setupUi(this);
+
+  connect(ui->display, &QStackedWidget::currentChanged, this,
+          &LibraryMainWindow::currentWidgetChanged);
+
+  connect(ui->logOutButton, &QPushButton::clicked, this, [this]() {
+    hide();
+
+    QSettings settings;
+    settings.remove("credentials");
+
+    showLoginForm();
+  });
+
+  connect(ui->booksButton, &QPushButton::toggled, this,
+          [this]() { ui->display->setCurrentWidget(m_bookSection); });
+  connect(ui->authorsButton, &QPushButton::toggled, this,
+          [this]() { ui->display->setCurrentWidget(m_authorSection); });
+  connect(ui->categoriesButton, &QPushButton::toggled, this,
+          [this]() { ui->display->setCurrentWidget(m_categorySection); });
 }
 
 LibraryMainWindow::~LibraryMainWindow() {
@@ -55,8 +76,15 @@ void LibraryMainWindow::logged() {
   resize(screenRect.width() * 3 / 4, screenRect.height() * 3 / 4);
   show();
 
+  if (m_initialized) {
+    return;
+  }
+
+  m_initialized = true;
+
   m_bookSection = new BookSection(this);
   m_authorSection = new AuthorSection(this);
+  m_categorySection = new CategorySection(this);
   m_bookDetails = new BookDetailsDialog;
   m_authorDetails = new AuthorDetailsDialog;
 
@@ -79,37 +107,9 @@ void LibraryMainWindow::logged() {
     emit authorsPickerFinished(authors);
   });
 
-  auto showBookDetails = [this](quint32 bookId) {
-    m_bookDetails->showDetails(bookId);
-    m_bookDetails->activateWindow();
-    m_bookDetails->raise();
-  };
-  auto showAuthorDetails = [this](quint32 authorId) {
-    m_authorDetails->showDetails(authorId);
-    m_authorDetails->activateWindow();
-    m_authorDetails->raise();
-  };
-
-  connect(m_bookSection, &BookSection::bookDetailsRequested, this,
-          showBookDetails);
-  connect(m_authorSection, &AuthorSection::authorDetailsRequested, this,
-          showAuthorDetails);
-
-  connect(m_authorDetails, &AuthorDetailsDialog::bookDetailsRequested, this,
-          showBookDetails);
-  connect(m_bookDetails, &BookDetailsDialog::authorDetailsRequested, this,
-          showAuthorDetails);
-
-  connect(ui->display, &QStackedWidget::currentChanged, this,
-          &LibraryMainWindow::currentWidgetChanged);
-
-  connect(ui->booksButton, &QPushButton::toggled, this,
-          [this]() { ui->display->setCurrentWidget(m_bookSection); });
-  connect(ui->authorsButton, &QPushButton::toggled, this,
-          [this]() { ui->display->setCurrentWidget(m_authorSection); });
-
   ui->display->addWidget(m_bookSection);
   ui->display->addWidget(m_authorSection);
+  ui->display->addWidget(m_categorySection);
 }
 
 void LibraryMainWindow::closeEvent(QCloseEvent *event) {
@@ -133,5 +133,35 @@ void LibraryMainWindow::currentWidgetChanged(int index) {
     m_bookSection->loadBooks();
   } else if (currentWidget == m_authorSection) {
     m_authorSection->loadAuthors();
+  } else if (currentWidget == m_categorySection) {
+    m_categorySection->loadCategories();
+  }
+}
+
+void LibraryMainWindow::requestBookDetails(quint32 id) {
+  m_bookDetails->showDetails(id);
+  m_bookDetails->activateWindow();
+  m_bookDetails->raise();
+}
+
+void LibraryMainWindow::requestAuthorDetails(quint32 id) {
+  m_authorDetails->showDetails(id);
+  m_authorDetails->activateWindow();
+  m_authorDetails->raise();
+}
+
+void LibraryMainWindow::changeEvent(QEvent *event) {
+  QStyleHints *styleHints = QGuiApplication::styleHints();
+
+  switch (event->type()) {
+    case QEvent::ThemeChange: {
+      if (styleHints->colorScheme() == Qt::ColorScheme::Light) {
+        QIcon::setFallbackThemeName("fluent-light");
+      } else {
+        QIcon::setFallbackThemeName("fluent-dark");
+      }
+    }
+    default:
+      break;
   }
 }

@@ -21,15 +21,16 @@ public:
 
   void addItems(const QList<QStandardItem *> &items);
 
-  QList<QStandardItem *> rightList();
-  QList<QStandardItem *> leftList();
+  QStandardItemModel *leftModel();
+  QStandardItemModel *rightModel();
   bool hasResults();
+
+signals:
+  void syncButtonClicked();
 
 public slots:
   void swapLeftToRight(const QModelIndex &index);
   void swapRightToLeft(const QModelIndex &index);
-
-private slots:
   void returnPressed();
 
 private:

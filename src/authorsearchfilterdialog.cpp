@@ -27,3 +27,14 @@ void AuthorSearchFilterDialog::accept() {
   m_model->setOrderBy(orderBy);
   QDialog::accept();
 }
+
+void AuthorSearchFilterDialog::setSearchText(const QString &text) {
+  QVariantMap filters = m_model->filters();
+  if (!text.isEmpty()) {
+    filters["name"] = text;
+  } else {
+    filters.remove("name");
+  }
+
+  m_model->setFilters(filters);
+}

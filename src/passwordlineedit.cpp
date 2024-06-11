@@ -2,7 +2,8 @@
 
 PasswordLineEdit::PasswordLineEdit(QWidget *parent)
     : QLineEdit(parent), m_eyeAction(new QAction),
-      m_eyeClose(":/icons/eyeClose"), m_eyeOpen(":/icons/eyeOpen") {
+      m_eyeClose(QIcon::fromTheme("eye-hide")),
+      m_eyeOpen(QIcon::fromTheme("eye-show")) {
 
   addAction(m_eyeAction, TrailingPosition);
 
