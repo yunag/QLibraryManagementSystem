@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "schema/author.h"
+
 class BookSection;
 class AuthorSection;
 class LoginForm;
@@ -21,15 +23,15 @@ public:
   ~LibraryMainWindow() override;
 
   void showLoginForm();
+  void requestAuthorsPicker();
 
 signals:
   void closed();
+  void authorsPickerFinished(const QList<Author> &author);
 
 private slots:
-  void authorsPickerRequested();
   void logged();
-  void booksButtonClicked();
-  void authorsButtonClicked();
+  void currentWidgetChanged(int index);
 
 protected:
   void closeEvent(QCloseEvent *event) override;
@@ -39,6 +41,8 @@ private:
 
   BookDetailsDialog *m_bookDetails;
   AuthorDetailsDialog *m_authorDetails;
+
+  QWidget *m_centralWidget;
 
   LoginForm *m_loginForm;
   BookSection *m_bookSection;

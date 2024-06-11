@@ -1,6 +1,8 @@
 #include <QIcon>
 #include <QJsonArray>
 
+#include <QMimeData>
+
 #include "common/algorithm.h"
 #include "common/json.h"
 
@@ -113,6 +115,8 @@ QVariant AuthorRestModel::data(const QModelIndex &index, int role) const {
   switch (role) {
     case Qt::DisplayRole:
       return dataForColumn(index);
+    case ObjectRole:
+      return QVariant::fromValue(author);
     case ImageRole:
       return author.image;
     case FlagsRole:
@@ -193,4 +197,30 @@ QVariant AuthorRestModel::headerData(int section, Qt::Orientation orientation,
 Qt::ItemFlags AuthorRestModel::flags(const QModelIndex &index) const {
   CHECK_FLAGS(index);
   return index.data(FlagsRole).value<Qt::ItemFlags>();
+}
+
+QStringList AuthorRestModel::mimeTypes() const {
+  QStringList types;
+  types << AuthorRestModel::MimeType;
+  return types;
+}
+
+QMimeData *AuthorRestModel::mimeData(const QModelIndexList &indexes) const {
+  auto *mimeData = new QMimeData();
+  QByteArray encodedData;
+
+  QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+  for (const QModelIndex &index : indexes) {
+    if (index.isValid()) {
+      stream << index.data(ObjectRole).value<AuthorItem>();
+    }
+  }
+
+  mimeData->setData(AuthorRestModel::MimeType, encodedData);
+  return mimeData;
+}
+
+Qt::DropActions AuthorRestModel::supportedDropActions() const {
+  return Qt::LinkAction | Qt::CopyAction;
 }

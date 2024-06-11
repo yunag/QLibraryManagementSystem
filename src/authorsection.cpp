@@ -12,6 +12,8 @@
 #include "authorsearchfilterdialog.h"
 
 #include "delegate/authoricondelegate.h"
+#include "delegate/leftaligndelegate.h"
+#include "model/authorlistmodel.h"
 #include "model/authorrestmodel.h"
 
 AuthorSection::AuthorSection(QWidget *parent)
@@ -19,8 +21,10 @@ AuthorSection::AuthorSection(QWidget *parent)
       m_model(new AuthorRestModel(this)),
       m_authorAddDialog(new AuthorAddDialog(this)),
       m_searchFilterDialog(new AuthorSearchFilterDialog(m_model, this)) {
-
   ui->setupUi(this);
+
+  ui->authorPicker->setMaximumSize(0, 0);
+  ui->horizontalLayout->setSpacing(0);
 
   m_loadPageTimer.setInterval(0);
   m_loadPageTimer.setSingleShot(true);
@@ -77,8 +81,8 @@ AuthorSection::AuthorSection(QWidget *parent)
   ui->authorListView->verticalScrollBar()->setSingleStep(8);
   ui->authorListView->horizontalScrollBar()->setDisabled(true);
 
-  ui->authorListView->setAcceptDrops(false);
   ui->authorListView->setDragDropMode(QAbstractItemView::NoDragDrop);
+  ui->authorTableView->setDragDropMode(QAbstractItemView::NoDragDrop);
 
   ui->splitter->restoreState(
     settings.value("authorsection/splitter").toByteArray());
@@ -142,7 +146,9 @@ void AuthorSection::updateLastSync() {
 void AuthorSection::loadAuthors() {
   updateLastSync();
 
-  reloadPage();
+  if (!m_model->rowCount()) {
+    reloadPage();
+  }
 }
 
 void AuthorSection::synchronizeNowButtonClicked() {
@@ -160,7 +166,7 @@ void AuthorSection::searchTextChanged() {
   if (!text.isEmpty()) {
     filters["name"] = text;
   } else {
-    filters.remove("title");
+    filters.remove("name");
   }
 
   m_model->setFilters(filters);
@@ -250,4 +256,76 @@ void AuthorSection::viewChangeButtonToggled(QAbstractButton *button,
     ui->authorTableView->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     ui->stackedWidget->setCurrentWidget(ui->tableViewPage);
   }
+}
+
+#include <QFinalState>
+#include <QState>
+#include <QStateMachine>
+
+#include <QPainter>
+#include <QPropertyAnimation>
+#include <QStandardItemModel>
+
+#include <QMimeData>
+
+void AuthorSection::toggleAuthorPickerMode() {
+  auto *machine = new QStateMachine(this);
+  machine->setGlobalRestorePolicy(QState::RestoreProperties);
+
+  auto *animation = new QPropertyAnimation(ui->authorPicker, "maximumSize");
+  animation->setDuration(200);
+  animation->setEasingCurve(QEasingCurve::InOutQuad);
+
+  machine->addDefaultAnimation(animation);
+
+  ui->authorPickerList->setModel(new AuthorListModel(this));
+  ui->authorPickerList->setItemDelegate(new LeftAlignDelegate);
+  //ui->authorPickerList->setUniformItemSizes(true);
+
+  auto *s1 = new QState();
+  auto *s2 = new QState();
+  auto *s3 = new QFinalState();
+
+  s1->assignProperty(ui->updateButton, "visible", false);
+  s1->assignProperty(ui->deleteButton, "visible", false);
+  s1->assignProperty(ui->addButton, "visible", false);
+  s1->assignProperty(ui->horizontalLayout, "spacing", 6);
+
+  s1->assignProperty(ui->authorListView, "dragDropMode",
+                     QAbstractItemView::DragOnly);
+  s1->assignProperty(ui->authorTableView, "dragDropMode",
+                     QAbstractItemView::DragOnly);
+  s1->assignProperty(ui->authorPickerList, "dragDropMode",
+                     QAbstractItemView::DropOnly);
+
+  s1->assignProperty(ui->authorPickerList, "defaultDropAction", Qt::CopyAction);
+  s1->assignProperty(ui->authorPickerList, "showDropIndicator", true);
+  s1->assignProperty(ui->authorPicker, "maximumSize",
+                     QSize(200, QWIDGETSIZE_MAX));
+
+  s1->addTransition(ui->confirmButton, &QPushButton::clicked, s2);
+  s2->addTransition(s2, &QState::propertiesAssigned, s3);
+
+  connect(machine, &QStateMachine::finished, this, [this, machine]() {
+    machine->deleteLater();
+    auto *model =
+      qobject_cast<AuthorListModel *>(ui->authorPickerList->model());
+    QList<Author> authors;
+
+    for (int row = 0; row < model->rowCount(); ++row) {
+      QModelIndex index = model->index(row, 0);
+      Author author =
+        model->data(index, AuthorRestModel::ObjectRole).value<AuthorItem>();
+      authors.push_back(std::move(author));
+    }
+
+    emit authorsPickingFinished(authors);
+  }, Qt::QueuedConnection);
+
+  machine->addState(s1);
+  machine->addState(s2);
+  machine->addState(s3);
+
+  machine->setInitialState(s1);
+  machine->start();
 }

@@ -104,9 +104,6 @@ BookSection::BookSection(QWidget *parent)
   connect(action, &QAction::triggered, m_searchFilterDialog,
           &BookSearchFilterDialog::open);
 
-  connect(m_bookAddDialog, &BookAddDialog::authorsPickerRequested, this,
-          &BookSection::authorsPickerRequested);
-
   auto handleSortFilterChange = [this]() {
     m_model->pagination()->setCurrentPage(0);
     reloadPage();
@@ -162,7 +159,9 @@ void BookSection::updateLastSync() {
 void BookSection::loadBooks() {
   updateLastSync();
 
-  reloadPage();
+  if (!m_model->rowCount()) {
+    reloadPage();
+  }
 }
 
 void BookSection::synchronizeNowButtonClicked() {

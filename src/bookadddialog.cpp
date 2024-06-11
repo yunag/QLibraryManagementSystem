@@ -1,7 +1,4 @@
-#include <QFuture>
-#include <QFutureSynchronizer>
-#include <QMessageBox>
-#include <QStandardItem>
+#include <QStandardItemModel>
 #include <QtConcurrent>
 
 #include <QJsonArray>
@@ -15,11 +12,16 @@
 #include "controllers/bookcontroller.h"
 #include "controllers/categorycontroller.h"
 
+#include "model/authorrestmodel.h"
+
 #include "common/algorithm.h"
 #include "common/error.h"
 #include "common/future.h"
 #include "common/json.h"
 #include "common/widgetutils.h"
+
+#include "libraryapplication.h"
+#include "librarymainwindow.h"
 
 #include "ui_bookadddialog.h"
 
@@ -31,9 +33,15 @@ BookAddDialog::BookAddDialog(QWidget *parent)
 
   ui->coverLabel->setAspectRatio(Qt::KeepAspectRatio);
 
-  connect(ui->hideButton, &QPushButton::clicked, this, [this](auto) {
+  LibraryMainWindow *mainWindow = App->mainWindow();
+
+  connect(mainWindow, &LibraryMainWindow::authorsPickerFinished, this,
+          &BookAddDialog::authorsPickerFinished);
+
+  connect(ui->authorsSelectButton, &QPushButton::clicked, this,
+          [this, mainWindow]() {
     hide();
-    emit authorsPickerRequested();
+    mainWindow->requestAuthorsPicker();
   });
 
   connect(ui->buttonBox, &QDialogButtonBox::accepted, this,
@@ -77,10 +85,6 @@ void BookAddDialog::accept() {
 }
 
 void BookAddDialog::init() {
-  for (auto *const item : ui->authors->rightList()) {
-    ui->authors->swapRightToLeft(item->index());
-  }
-
   for (auto *const item : ui->categories->rightList()) {
     ui->categories->swapRightToLeft(item->index());
   }
@@ -99,9 +103,6 @@ void BookAddDialog::open() {
   if (ui->categories->leftList().isEmpty()) {
     syncronizer->addFuture(fetchCategories());
   }
-  if (ui->authors->leftList().isEmpty()) {
-    syncronizer->addFuture(fetchAuthors());
-  }
 
   QtConcurrent::run([syncronizer] {})
     .then(QtFuture::Launch::Async,
@@ -115,21 +116,6 @@ void BookAddDialog::open() {
 
   QDialog::open();
 };
-
-QFuture<void> BookAddDialog::fetchAuthors() {
-  AuthorController controller;
-  return controller.getAuthors().then(this,
-                                      [this](const QList<Author> &authors) {
-    auto items = algorithm::transform<QList<QStandardItem *>>(
-      authors, [](const Author &author) {
-      auto *item = new QStandardItem(author.firstName + " " + author.lastName);
-      item->setData(author.id);
-      return item;
-    });
-
-    ui->authors->addItems(items);
-  });
-}
 
 QFuture<void> BookAddDialog::fetchCategories() {
   return CategoryController::getCategories().then(
@@ -147,16 +133,6 @@ QFuture<void> BookAddDialog::fetchCategories() {
 
 void BookUpdateStrategy::onOpen() {
   Ui::BookAddDialog *ui = m_dialog->ui;
-
-  auto authorsId = grabIds(m_bookDetails.authors);
-
-  for (auto *const item : ui->authors->leftList()) {
-    quint32 authorId = item->data().toUInt();
-
-    if (authorsId.contains(authorId)) {
-      ui->authors->swapLeftToRight(item->index());
-    }
-  }
 
   auto categoriesId = grabIds(m_bookDetails.categories);
   for (auto *const item : ui->categories->leftList()) {
@@ -184,9 +160,6 @@ void BookUpdateStrategy::onAccept(const Book &book) {
   controller.update(m_bookDetails.id, book)
     .then(m_dialog,
           [syncronizer, this, ui]() {
-    syncronizer->addFuture(AuthorBookController::updateRelations(
-      m_bookDetails.id, grabIds(ui->authors->rightList())));
-
     syncronizer->addFuture(BookCategoryController::updateRelations(
       m_bookDetails.id, grabIds(ui->categories->rightList())));
   })
@@ -207,8 +180,9 @@ void BookCreateStrategy::onAccept(const Book &book) {
   controller.create(book)
     .then(m_dialog,
           [syncronizer, ui](quint32 bookId) {
-    syncronizer->addFuture(AuthorBookController::updateRelations(
-      bookId, grabIds(ui->authors->rightList())));
+    /* TODO: implement */
+    //syncronizer->addFuture(AuthorBookController::updateRelations(
+    //  bookId, grabIds(ui->authors->rightList())));
 
     syncronizer->addFuture(BookCategoryController::updateRelations(
       bookId, grabIds(ui->categories->rightList())));
@@ -237,4 +211,17 @@ void BookAddDialog::createBook() {
   m_strategy = m_createStrategy;
 
   open();
+}
+
+void BookAddDialog::authorsPickerFinished(const QList<Author> &authors) {
+  show();
+
+  for (const auto &author : authors) {
+    auto *item = new QListWidgetItem(author.firstName + " " + author.lastName);
+
+    item->setData(AuthorRestModel::IdRole, author.id);
+
+    ui->authors->addItem(item);
+  }
+  //;
 }

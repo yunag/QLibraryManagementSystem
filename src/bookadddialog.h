@@ -65,12 +65,13 @@ public:
 
   void open() override;
   void accept() override;
-  QFuture<void> fetchAuthors();
   QFuture<void> fetchCategories();
 
 signals:
   void edited(quint32 bookId);
-  void authorsPickerRequested();
+
+private slots:
+  void authorsPickerFinished(const QList<Author> &authors);
 
 private:
   BookDialogStrategy *m_strategy;

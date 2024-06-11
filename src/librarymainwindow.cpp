@@ -1,5 +1,6 @@
 #include <QScreen>
 #include <QSettings>
+#include <QStateMachine>
 
 #include "librarymainwindow.h"
 #include "loginform.h"
@@ -14,11 +15,6 @@
 LibraryMainWindow::LibraryMainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::LibraryMainWindow), m_loginForm(nullptr) {
   ui->setupUi(this);
-
-  connect(ui->booksButton, &QPushButton::clicked, this,
-          &LibraryMainWindow::booksButtonClicked);
-  connect(ui->authorsButton, &QPushButton::clicked, this,
-          &LibraryMainWindow::authorsButtonClicked);
 }
 
 LibraryMainWindow::~LibraryMainWindow() {
@@ -73,6 +69,16 @@ void LibraryMainWindow::logged() {
     m_authorDetails->close();
   });
 
+  connect(m_authorSection, &AuthorSection::authorsPickingFinished, this,
+          [this](const QList<Author> &authors) {
+    ui->display->setCurrentWidget(m_bookSection);
+    ui->booksButton->toggle();
+
+    ui->booksButton->setEnabled(true);
+    ui->categoriesButton->setEnabled(true);
+    emit authorsPickerFinished(authors);
+  });
+
   auto showBookDetails = [this](quint32 bookId) {
     m_bookDetails->showDetails(bookId);
     m_bookDetails->activateWindow();
@@ -84,8 +90,6 @@ void LibraryMainWindow::logged() {
     m_authorDetails->raise();
   };
 
-  connect(m_bookSection, &BookSection::authorsPickerRequested, this,
-          &LibraryMainWindow::authorsPickerRequested);
   connect(m_bookSection, &BookSection::bookDetailsRequested, this,
           showBookDetails);
   connect(m_authorSection, &AuthorSection::authorDetailsRequested, this,
@@ -96,26 +100,16 @@ void LibraryMainWindow::logged() {
   connect(m_bookDetails, &BookDetailsDialog::authorDetailsRequested, this,
           showAuthorDetails);
 
+  connect(ui->display, &QStackedWidget::currentChanged, this,
+          &LibraryMainWindow::currentWidgetChanged);
+
+  connect(ui->booksButton, &QPushButton::toggled, this,
+          [this]() { ui->display->setCurrentWidget(m_bookSection); });
+  connect(ui->authorsButton, &QPushButton::toggled, this,
+          [this]() { ui->display->setCurrentWidget(m_authorSection); });
+
   ui->display->addWidget(m_bookSection);
   ui->display->addWidget(m_authorSection);
-}
-
-void LibraryMainWindow::booksButtonClicked() {
-  if (ui->display->currentWidget() == m_bookSection) {
-    return;
-  }
-
-  ui->display->setCurrentWidget(m_bookSection);
-  m_bookSection->loadBooks();
-}
-
-void LibraryMainWindow::authorsButtonClicked() {
-  if (ui->display->currentWidget() == m_authorSection) {
-    return;
-  }
-
-  ui->display->setCurrentWidget(m_authorSection);
-  m_authorSection->loadAuthors();
 }
 
 void LibraryMainWindow::closeEvent(QCloseEvent *event) {
@@ -123,11 +117,21 @@ void LibraryMainWindow::closeEvent(QCloseEvent *event) {
   QMainWindow::closeEvent(event);
 }
 
-void LibraryMainWindow::authorsPickerRequested() {
-  ui->authorsButton->setEnabled(true);
+void LibraryMainWindow::requestAuthorsPicker() {
   ui->booksButton->setEnabled(false);
   ui->categoriesButton->setEnabled(false);
 
-  setCentralWidget(m_authorSection);
-  m_authorSection->show();
+  m_authorSection->toggleAuthorPickerMode();
+
+  ui->authorsButton->toggle();
+}
+
+void LibraryMainWindow::currentWidgetChanged(int index) {
+  QWidget *currentWidget = ui->display->widget(index);
+
+  if (currentWidget == m_bookSection) {
+    m_bookSection->loadBooks();
+  } else if (currentWidget == m_authorSection) {
+    m_authorSection->loadAuthors();
+  }
 }

@@ -4,6 +4,8 @@
 #include <QTimer>
 #include <QWidget>
 
+#include "schema/author.h"
+
 class QAbstractButton;
 
 class AuthorRestModel;
@@ -22,9 +24,11 @@ public:
   ~AuthorSection() override;
 
   void loadAuthors();
+  void toggleAuthorPickerMode();
 
 signals:
   void authorDetailsRequested(quint32 authorId);
+  void authorsPickingFinished(const QList<Author> &authors);
 
 private slots:
   void reloadPage();

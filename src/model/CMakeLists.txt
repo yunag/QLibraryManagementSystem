@@ -6,6 +6,8 @@ target_sources(
           authorrestmodel.cpp
           abstractrestmodel.h
           abstractrestmodel.cpp
+          authorlistmodel.h
+          authorlistmodel.cpp
           modelhelper.h
           loadingmodel.h
           loadingmodel.cpp)

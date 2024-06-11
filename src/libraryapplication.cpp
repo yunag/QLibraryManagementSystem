@@ -50,8 +50,8 @@ void LibraryApplication::setupSettings() {
 }
 
 int LibraryApplication::run() {
-  LibraryMainWindow window;
-  window.showLoginForm();
+  m_mainWindow = new LibraryMainWindow;
+  m_mainWindow->showLoginForm();
 
   return exec();
 }
