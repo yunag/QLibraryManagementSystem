@@ -8,6 +8,34 @@
 
 #include "schema/schema.h"
 
+#define DEBUG_NETWORK_IMAGES
+
+#ifdef DEBUG_NETWORK_IMAGES
+  #include <QRandomGenerator>
+
+const QList<QString> g_authorImages = {
+  "https://upload.wikimedia.org/wikipedia/commons/5/56/Kiprensky_Pushkin.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/2/24/Mikhail_lermontov.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/a/a2/Shakespeare.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/1/1c/"
+  "L._N._Tolstoy%2C_by_Prokudin-Gorsky_%28cropped%29.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/b/b2/"
+  "N.Gogol_by_F.Moller_%281840%2C_Tretyakov_gallery%29.jpg",
+  "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/"
+  "Jack_London_young.jpg/1200px-Jack_London_young.jpg"};
+
+const QList<QString> g_bookCovers = {
+  "https://book-cover.ru/sites/default/files/field/image/"
+  "bulgakov-master-i-margarita.jpg",
+  "https://images-na.ssl-images-amazon.com/images/S/"
+  "compressed.photo.goodreads.com/books/1661678127i/929782.jpg",
+  "https://www.litres.ru/pub/c/cover/67597292.jpg",
+  "https://m.media-amazon.com/images/I/91FXycpulgL.jpg",
+  "https://m.media-amazon.com/images/I/811buayzihL._AC_UF1000,1000_QL80_.jpg",
+  "https://images-na.ssl-images-amazon.com/images/S/"
+  "compressed.photo.goodreads.com/books/1500379840i/35699179.jpg"};
+#endif /* DEBUG_NETWORK_IMAGES */
+
 Book Book::fromJson(const QJsonObject &json) {
   Book book;
 
@@ -25,9 +53,12 @@ Book Book::fromJson(const QJsonObject &json) {
     coverUrl.setPath(path);
     book.coverUrl = coverUrl;
   }
-  /* TODO: Remove after testing */
-  book.coverUrl = "https://static.wikia.nocookie.net/kiminonawa/images/6/62/"
-                  "Kimi-no-Na-wa.-Visual.jpg/revision/latest?cb=20160927170951";
+
+#ifdef DEBUG_NETWORK_IMAGES
+  qint64 index = QRandomGenerator::global()->bounded(g_authorImages.length());
+  book.coverUrl = g_bookCovers[index];
+#endif /* DEBUG_NETWORK_IMAGES */
+
   return book;
 }
 
@@ -53,12 +84,19 @@ Author Author::fromJson(const QJsonObject &json) {
   author.id = json["id"].toVariant().toUInt();
   author.firstName = json["first_name"].toString();
   author.lastName = json["last_name"].toString();
-  author.imageUrl = json["last_name"].toString();
+  author.imageUrl = json["image_url"].toString();
 
-  /* TODO: Remove after testing */
-  author.imageUrl =
-    "https://static.wikia.nocookie.net/kiminonawa/images/6/62/"
-    "Kimi-no-Na-wa.-Visual.jpg/revision/latest?cb=20160927170951";
+  if (!json["image_url"].isNull()) {
+    QString path = "/" + json["image_url"].toString();
+    QUrl imageUrl = ResourceManager::networkManager()->url();
+    imageUrl.setPath(path);
+    author.imageUrl = imageUrl;
+  }
+
+#ifdef DEBUG_NETWORK_IMAGES
+  qint64 index = QRandomGenerator::global()->bounded(g_authorImages.length());
+  author.imageUrl = g_authorImages[index];
+#endif /* DEBUG_NETWORK_IMAGES */
 
   return author;
 }
