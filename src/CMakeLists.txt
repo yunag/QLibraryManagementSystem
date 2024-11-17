@@ -140,4 +140,32 @@ set_target_properties(
 install(
   TARGETS ${PROJECT_NAME}
   BUNDLE DESTINATION .
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  COMPONENT QLibraryManagementSystem
+)
+
+set(CPACK_PACKAGE_NAME "QLibraryManagementSystem")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Cross-platform library management system")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_NAME}")
+set(CPACK_PACKAGE_CONTACT "yunag <babushkin.ruslans@gmail.com>")
+
+set(CPACK_CREATE_DESKTOP_LINKS "${PROJECT_NAME}")
+
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "
+    CreateShortCut \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\" \\\"$INSTDIR\\\\bin\\\\${PROJECT_NAME}.exe\\\"
+")
+
+set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS "
+    Delete \\\"$DESKTOP\\\\${PROJECT_NAME}.lnk\\\"
+")
+
+qt_generate_deploy_app_script(
+    TARGET ${PROJECT_NAME}
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script} COMPONENT QLibraryManagementSystem)
+
+include(CPack)
+cpack_add_component(QLibraryManagementSystem DISPLAY_NAME "QLibraryManagementSystem")
